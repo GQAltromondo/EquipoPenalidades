@@ -1,0 +1,149 @@
+{
+  "_version": "1.12.0",
+  "sap.app": {
+    "id": "Transener.Operaciones.EquiposPenalidades",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "1.0.7"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "sourceTemplate": {
+      "id": "servicecatalog.connectivityComponentForManifest",
+      "version": "0.0.0",
+      "toolsId": "615e55a2-9452-4d9c-b61a-8ab7173746ef"
+    },
+    "dataSources": {
+      "Z_SCP_OPERACIONES_SRV": {
+        "uri": "/sap/opu/odata/sap/Z_SCP_OPERACIONES_SRV/",
+        "type": "OData",
+        "settings": {
+          "localUri": "localService/metadata.xml"
+        }
+      },
+      "Desplegables": {
+        "uri": "model/Desplegables.json",
+        "type": "JSON"
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "EquiposPenalidades-Display": {
+          "semanticObject": "EquiposPenalidades",
+          "action": "Display",
+          "title": "{{flpTitle}}",
+          "icon": "sap-icon://add-equipment",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "fullWidth": true,
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "rootView": {
+      "viewName": "Transener.Operaciones.EquiposPenalidades.view.Equipos",
+      "type": "XML",
+      "async": true,
+      "id": "Equipos"
+    },
+    "dependencies": {
+      "minUI5Version": "1.126.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "Transener.Operaciones.EquiposPenalidades.i18n.i18n"
+        }
+      },
+      "": {
+        "type": "sap.ui.model.odata.v2.ODataModel",
+        "settings": {
+          "defaultOperationMode": "Server",
+          "defaultBindingMode": "OneWay",
+          "defaultCountMode": "Request"
+        },
+        "dataSource": "Z_SCP_OPERACIONES_SRV",
+        "preload": true
+      },
+      "Desplegables": {
+        "type": "sap.ui.model.json.JSONModel",
+        "dataSource": "Desplegables"
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "async": true,
+        "viewPath": "Transener.Operaciones.EquiposPenalidades.view",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "clearControlAggregation": false
+      },
+      "routes": [
+        {
+          "name": "RouteEquipos",
+          "pattern": "RouteEquipos",
+          "target": [
+            "TargetEquipos"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetEquipos": {
+          "viewType": "XML",
+          "transition": "slide",
+          "clearControlAggregation": false,
+          "viewId": "Equipos",
+          "viewName": "Equipos"
+        }
+      }
+    }
+  },
+  "sap.platform.hcp": {
+    "uri": "webapp",
+    "_version": "1.1.0"
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "TransenerOperacionesEquiposPenalidades"
+  }
+}

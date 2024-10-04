@@ -1,0 +1,40 @@
+specVersion: "3.1"
+metadata:
+  name: transener.operaciones.equipospenalidades
+type: application
+framework:
+  name: SAPUI5
+  version: 1.126.0
+  libraries:
+    - name: sap.m
+    - name: sap.ui.core
+    - name: sap.ui.layout
+    - name: sap.f
+    - name: sap.ui.comp
+    - name: sap.ui.generic.app
+    - name: sap.ui.table
+    - name: sap.ushell
+    - name: themelib_sap_bluecrystal
+    - name: themelib_sap_fiori_3
+server:
+  customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: false
+        backend:
+          - path: /sap
+            url: http://sapdes.transx.net:8632
+            client: "200"
+            destination: SAP_Gateway
+    - name: fiori-tools-appreload
+      afterMiddleware: compression
+      configuration:
+        port: 35729
+        path: webapp
+        delay: 300
+    - name: fiori-tools-preview
+      afterMiddleware: fiori-tools-appreload
+      configuration:
+        component: Transener.Operaciones.EquiposPenalidades
+        ui5Theme: sap_fiori_3

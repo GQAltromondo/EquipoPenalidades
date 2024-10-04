@@ -1,0 +1,1 @@
+function initModel(){var a="/sap/opu/odata/sap/Z_SCP_OPERACIONES_SRV/";var e=new sap.ui.model.odata.ODataModel(a,true);sap.ui.getCore().setModel(e)}

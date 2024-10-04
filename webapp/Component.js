@@ -1,0 +1,1 @@
+sap.ui.define(["sap/ui/core/UIComponent","sap/ui/Device","Transener/Operaciones/EquiposPenalidades/model/models"],function(e,i,n){"use strict";return e.extend("Transener.Operaciones.EquiposPenalidades.Component",{metadata:{manifest:"json"},init:function(){e.prototype.init.apply(this,arguments);this.getRouter().initialize();this.setModel(n.createDeviceModel(),"device")}})});

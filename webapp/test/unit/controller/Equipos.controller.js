@@ -1,0 +1,1 @@
+sap.ui.define(["Transener/Operaciones/EquiposPenalidades/controller/Equipos.controller"],function(o){"use strict";QUnit.module("Equipos Controller");QUnit.test("I should test the Equipos controller",function(e){var n=new o;n.onInit();e.ok(n)})});

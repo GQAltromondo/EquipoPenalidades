@@ -1,0 +1,27 @@
+.cardDetalle{
+	border-style: solid;
+	border-radius: 10px;
+	border-color: #7599c1;
+	border-width: 2px;
+}
+
+.customGridTable .sapUiTableColHdrCnt td {
+    background-color: #96c6fb !important;
+}
+
+.customTable .sapMListTbl th {
+    background-color: #96c6fb;
+}
+
+.customTable {
+	overflow-x: auto !important;
+	overflow-y: hidden !important;
+}
+
+.customAvatar {
+	background-color: #286eb4;
+	border-radius: 50%;
+	height: 5rem;
+	width: 5rem;
+	color: #fff;
+}

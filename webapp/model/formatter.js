@@ -1,0 +1,1 @@
+sap.ui.define([],function(){"use strict";return{iconReg:function(e){if(e==="X"){return"sap-icon://accept"}else{return"sap-icon://decline"}},colorReg:function(e){if(e==="X"){return"#3fa45b"}else{return"#dc0d0e"}}}});

@@ -1,0 +1,1 @@
+sap.ui.define(["Transener/Operaciones/EquiposPenalidades/test/unit/controller/Equipos.controller"],function(){"use strict"});

@@ -1,0 +1,17 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:form="sap.ui.layout.form" xmlns:core="sap.ui.core" xmlns:u="sap.uxap">
+	<Dialog title="Selección de Empresa" type="Message">
+		<content>
+			<VBox class="sapUiTinyMargin">
+				<Label text="Debe seleccionar la empresa:"/>
+				<Select forceSelection="false" selectedKey="{viewModel>/sociedad}" width="100%">
+					<core:Item key="" text="Elija Uno" />
+					<core:Item key="100" text="TRANSENER S.A." />
+					<core:Item key="300" text="TRANSBA S.A." />
+				</Select>
+			</VBox>
+		</content>
+		<buttons>
+			<Button icon="sap-icon://accept" type="Emphasized" text="{i18n>ed_guardar}" press="onGuardarEmpresa"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

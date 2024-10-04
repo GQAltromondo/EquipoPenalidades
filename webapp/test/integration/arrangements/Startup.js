@@ -1,0 +1,1 @@
+sap.ui.define(["sap/ui/test/Opa5"],function(e){"use strict";return e.extend("Transener.Operaciones.EquiposPenalidades.test.integration.arrangements.Startup",{iStartMyApp:function(e){var a=e||{};a.delay=a.delay||50;this.iStartMyUIComponent({componentConfig:{name:"Transener.Operaciones.EquiposPenalidades",async:true},hash:a.hash,autoWait:a.autoWait})}})});

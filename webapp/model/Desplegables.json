@@ -1,0 +1,95 @@
+{
+	"ClasePenalizacion": [
+		{
+			"Clave": "A",
+			"Descripcion": "A"
+		},
+		{
+			"Clave": "B",
+			"Descripcion": "B"
+		},
+		{
+			"Clave": "C",
+			"Descripcion": "C"
+		}
+	],
+	"RegionPenalidades": [
+		{
+			"Empresa": "100",
+			"Clave": "M",
+			"Descripcion": "Transener - Reg Metropolitana"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "N",
+			"Descripcion": "Transener - Reg Norte"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "S",
+			"Descripcion": "Transener - Reg Sur"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "N",
+			"Descripcion": "Transba - Reg. NORTE"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "S",
+			"Descripcion": "Transba - Reg. SUR"
+		}
+	],
+	"Tensiones": [
+		{
+			"Empresa": "100",
+			"Clave": "132",
+			"Descripcion": "132"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "220",
+			"Descripcion": "220"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "500",
+			"Descripcion": "500"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "13,2",
+			"Descripcion": "13,2"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "33",
+			"Descripcion": "33"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "66",
+			"Descripcion": "66"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "132",
+			"Descripcion": "132"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "220",
+			"Descripcion": "220"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "500",
+			"Descripcion": "500"
+		},
+		{
+			"Empresa": "300",
+			"Clave": "13,2",
+			"Descripcion": "13,2"
+		}
+	]
+}

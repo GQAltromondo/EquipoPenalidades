@@ -72,6 +72,77 @@ sap.ui.define([
 
 			binding.filters = binding.filters.concat(aFilters);
 		},
+		onBeforeRebindLineas: function (oEvent) {
+			const oBindingParams = oEvent.getParameter("bindingParams");
+		
+			// Clonar y corregir los filtros del SmartFilterBar
+			const aSmartFilters = oBindingParams.filters || [];
+		
+			function fixFilterFecha(oFilter) {
+				try {
+					if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
+						if (oFilter.sOperator === "LE") {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
+						} else {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
+							oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
+						}
+					}
+				} catch (e) {}
+			}
+		
+			function fixLoop(aFilters) {
+				for (const i of aFilters) {
+					if (i.aFilters && i.aFilters.length > 0) {
+						fixLoop(i.aFilters);
+					} else {
+						fixFilterFecha(i);
+					}
+				}
+			}
+		
+			fixLoop(aSmartFilters);
+		
+			// Obtener filtros personalizados (por ejemplo, desde _getFilters)
+			const aCustomFilters = this._getFilters?.() || [];
+		
+			// Buscar si ya hay filtros para Tipoequipo
+			const hasTipoEquipoFilter = aCustomFilters.some(f =>
+				(f.sPath === "Tipoequipo") ||
+				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
+			);
+		
+			// Si no hay filtros para Tipoequipo, aplicar los predeterminados L5 a L1
+			const aFinalFilters = [...aSmartFilters]; // incluir filtros del SmartFilterBar
+		
+			if (!hasTipoEquipoFilter) {
+				const aDefaultTipoEquipo = ["L1", "L2", "L3", "L4", "L5"];
+				const oTipoEquipoFilter = new sap.ui.model.Filter({
+					filters: aDefaultTipoEquipo.map(s =>
+						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
+					),
+					and: false
+				});
+				aFinalFilters.push(oTipoEquipoFilter);
+			} else {
+				// Si hay filtro de Tipoequipo en _getFilters, agregarlos todos
+				aFinalFilters.push(...aCustomFilters);
+			}
+		
+			// Filtro por Empresa desde el viewModel
+			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
+			if (sEmpresa) {
+				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+			}
+		
+			// Asignar todos los filtros al binding
+			oBindingParams.filters = aFinalFilters;
+		
+			console.log("Filtros finales aplicados:", oBindingParams.filters);
+		},
+		
+		
+		
 		
 		onEditarEquipo: function(oEvent){
 			var oData = oEvent.getSource().getBindingContext().getObject(),
@@ -234,7 +305,7 @@ sap.ui.define([
 		},
 		
 		_loadSociety: function () {
-			this.getModel().read("/EmpresaUsuarioSet", {
+			this.getModel("Operaciones").read("/EmpresaUsuarioSet", {
 				success: function (data) {
 					var empresa = data.results[0].Empresa;
 					if (empresa === "999") {

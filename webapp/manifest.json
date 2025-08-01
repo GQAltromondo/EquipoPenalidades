@@ -15,13 +15,15 @@
       "toolsId": "615e55a2-9452-4d9c-b61a-8ab7173746ef"
     },
     "dataSources": {
-      "Z_SCP_OPERACIONES_SRV": {
+      "Z_SCP_PENALIDADES_SRV": {
+        "uri": "/sap/opu/odata/sap/Z_SCP_PENALIDADES_SRV/",
+        "type": "OData"
+      }, 
+       "Z_SCP_OPERACIONES_SRV": {
         "uri": "/sap/opu/odata/sap/Z_SCP_OPERACIONES_SRV/",
-        "type": "OData",
-        "settings": {
-          "localUri": "localService/metadata.xml"
-        }
+        "type": "OData"
       },
+
       "Desplegables": {
         "uri": "model/Desplegables.json",
         "type": "JSON"
@@ -87,6 +89,16 @@
         }
       },
       "": {
+        "type": "sap.ui.model.odata.v2.ODataModel",
+        "settings": {
+          "defaultOperationMode": "Server",
+          "defaultBindingMode": "OneWay",
+          "defaultCountMode": "Request"
+        },
+        "dataSource": "Z_SCP_PENALIDADES_SRV",
+        "preload": true
+      },
+      "Operaciones": {
         "type": "sap.ui.model.odata.v2.ODataModel",
         "settings": {
           "defaultOperationMode": "Server",

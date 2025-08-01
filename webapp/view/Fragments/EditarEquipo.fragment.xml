@@ -1,8 +1,11 @@
-<core:FragmentDefinition xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:form="sap.ui.layout.form" xmlns:core="sap.ui.core" xmlns:u="sap.uxap">
+<core:FragmentDefinition xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:core="sap.ui.core"
+	xmlns:u="sap.uxap">
 	<Dialog contentWidth="90%" title="{i18n>ed_title}" busyIndicatorDelay="0">
 		<content>
-			<u:ObjectPageLayout id="ObjectPageLayout" enableLazyLoading="true" useIconTabBar="true" toggleHeaderOnTitleClick="false"
-				headerContentPinnable="false">
+			<u:ObjectPageLayout id="ObjectPageLayout" enableLazyLoading="true" useIconTabBar="true" toggleHeaderOnTitleClick="false" headerContentPinnable="false">
 				<u:headerTitle>
 					<u:ObjectPageDynamicHeaderTitle>
 						<u:expandedHeading>
@@ -23,18 +26,21 @@
 							<core:Icon src="sap-icon://technical-object" size="2.25rem"/>
 						</VBox>
 						<VBox class="sapUiMediumMarginEnd">
-							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_equipo_cam}"
-								text="{editModel>/Nroequipocammesa} - {editModel>/Descequipocammesa}"/>
-							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_desde}"
-								text="{path:'editModel>/Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
-							<ObjectAttribute title="{i18n>ed_hasta}"
-								text="{path:'editModel>/Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_equipo_cam}" text="{editModel>/Nroequipocammesa} - {editModel>/Descequipocammesa}"/>
+							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_desde}" text="{path:'editModel>/Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+							<ObjectAttribute title="{i18n>ed_hasta}" text="{path:'editModel>/Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 						</VBox>
-						<VBox class="sapUiMediumMarginEnd">
+
+						<HBox width="700px">
+							<VBox class="sapUiMediumMarginEnd" width="80%">
 							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_emp}" text="{editModel>/Empresa}"/>
 							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_tipo_eq}" text="{editModel>/Tipoequipo}"/>
 							<ObjectAttribute title="{i18n>ed_conexion}" text="{editModel>/PtoCon}"/>
 						</VBox>
+							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
+								<Button text="Evolucion del Equipo" type="Emphasized" press="onEvolucionEquipo"/> 
+							</VBox>
+						</HBox>
 					</HBox>
 				</u:headerContent>
 				<u:sections>
@@ -212,19 +218,34 @@
 														<!--	</form:label>-->
 														<!--</form:FormElement>-->
 														<form:FormElement>
-															<form:fields>
-																<Switch state="{editModel>/Remuneracion}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>
-															</form:fields>
-															<form:label>
-																<Label text="{i18n>ed_remuneracion}"/>
-															</form:label>
+											
+    <form:fields>
+        <HBox>
+            <VBox class="sapUiSmallMarginEnd">
+                <Label text="{i18n>ed_remuneracion}" labelFor="remSwitch"/>
+                <Switch id="remSwitch"
+                        state="{editModel>/Remuneracion}"
+                        customTextOn="Si"
+                        customTextOff="No"
+                        type="AcceptReject"/>
+            </VBox>
+            <VBox>
+                <Label text="{i18n>ed_penaliza}" labelFor="penSwitch"/>
+                <Switch id="penSwitch"  
+			
+				state="false"
+                        customTextOn="Si"
+                        customTextOff="No"
+                        type="AcceptReject"/>
+            </VBox>
+        </HBox>
+    </form:fields>
 														</form:FormElement>
 													</form:formElements>
 												</form:FormContainer>
 											</form:formContainers>
 											<form:layout>
-												<form:ResponsiveGridLayout labelSpanXL="12" labelSpanL="12" labelSpanM="12" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0"
-													emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"/>
+												<form:ResponsiveGridLayout labelSpanXL="12" labelSpanL="12" labelSpanM="12" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"/>
 											</form:layout>
 										</form:Form>
 									</VBox>

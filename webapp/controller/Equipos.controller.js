@@ -19,63 +19,37 @@ sap.ui.define([
 				sociedad: ""
 			}), "viewModel");
 			
-			var oFilter = this.getView().byId("idSmartFilterBar"),
-				that = this;
-				
-			// oFilter.addEventDelegate({
-			// 	"onAfterRendering": function(oEvent) {
-			// 		var oResourceBundle = that.getOwnerComponent().getModel("i18n").getResourceBundle();
-			// 		var oButton = oEvent.srcControl._oSearchButton;
-			// 		oButton.setText(oResourceBundle.getText("goButton"));
-			// 		oButton.setIcon("sap-icon://filter");
-			// 		}
-			// });
+			this.getVersion()
+		}, getVersion: function () {
+			const oComponent = this.getOwnerComponent();
+
+
+
+			let jsonModel = sap.ui.getCore().getModel("appCurrentInfo");
+
+			if (!jsonModel) {
+				jsonModel = new sap.ui.model.json.JSONModel();
+				jsonModel.setSizeLimit(9999);
+
+				const sVersion = oComponent.getManifestEntry("/sap.app/applicationVersion/version");
+
+				jsonModel.setData({
+
+					version: sVersion
+				});
+
+				sap.ui.getCore().setModel(jsonModel, "appCurrentInfo");
+				this.getView().setModel(jsonModel, "appCurrentInfo")
+			}
 		},
-		
 		onAfterRendering: function(){
 			this._loadSociety();
 		},
-		
-		//------------------------------ Metodos Públicos ------------------------------------------
-		onBeforeRebindTable: function(oEvent){
-			var binding = oEvent.getParameter("bindingParams");
-			
-			//corregir fecha cuando se elige un valor individual
-            function fixFilterFecha(oFilter) {
-                try {
-                    if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
-                        if (oFilter.sOperator === "LE") {
-                            // Hasta - solo value1 como maximo
-                            oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
-                        } else {
-                            oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
-                            oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
-                        }
-                    }
-                } catch (e) { }
-            }
 
-            function fixLoop(aFilters) {
-                for (var i of aFilters) {
-                    if (i.aFilters && i.aFilters.length > 0) {
-                        fixLoop(i.aFilters);
-                    } else {
-                        fixFilterFecha(i);
-                    }
-                }
-            }
-
-            fixLoop(binding.filters);
-
-			//get custom filters
-			var aFilters = this._getFilters();
-
-			binding.filters = binding.filters.concat(aFilters);
-		},
 		onBeforeRebindLineas: function (oEvent) {
 			const oBindingParams = oEvent.getParameter("bindingParams");
 		
-			// Clonar y corregir los filtros del SmartFilterBar
+			
 			const aSmartFilters = oBindingParams.filters || [];
 		
 			function fixFilterFecha(oFilter) {
@@ -103,20 +77,20 @@ sap.ui.define([
 		
 			fixLoop(aSmartFilters);
 		
-			// Obtener filtros personalizados (por ejemplo, desde _getFilters)
+		
 			const aCustomFilters = this._getFilters?.() || [];
 		
-			// Buscar si ya hay filtros para Tipoequipo
+			
 			const hasTipoEquipoFilter = aCustomFilters.some(f =>
 				(f.sPath === "Tipoequipo") ||
 				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
 			);
 		
-			// Si no hay filtros para Tipoequipo, aplicar los predeterminados L5 a L1
-			const aFinalFilters = [...aSmartFilters]; // incluir filtros del SmartFilterBar
+			
+			const aFinalFilters = [...aSmartFilters]; 
 		
 			if (!hasTipoEquipoFilter) {
-				const aDefaultTipoEquipo = ["L1", "L2", "L3", "L4", "L5"];
+				const aDefaultTipoEquipo = ["L6","L5","L4","L3","L2","L1"];
 				const oTipoEquipoFilter = new sap.ui.model.Filter({
 					filters: aDefaultTipoEquipo.map(s =>
 						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
@@ -125,17 +99,289 @@ sap.ui.define([
 				});
 				aFinalFilters.push(oTipoEquipoFilter);
 			} else {
-				// Si hay filtro de Tipoequipo en _getFilters, agregarlos todos
+				
 				aFinalFilters.push(...aCustomFilters);
 			}
 		
-			// Filtro por Empresa desde el viewModel
+			
 			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
 			if (sEmpresa) {
 				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
 			}
 		
-			// Asignar todos los filtros al binding
+			
+			oBindingParams.filters = aFinalFilters;
+		
+			console.log("Filtros finales aplicados:", oBindingParams.filters);
+		},
+		onBeforeRebindTransformadores: function (oEvent) {
+			const oBindingParams = oEvent.getParameter("bindingParams");
+		
+			
+			const aSmartFilters = oBindingParams.filters || [];
+		
+			function fixFilterFecha(oFilter) {
+				try {
+					if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
+						if (oFilter.sOperator === "LE") {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
+						} else {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
+							oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
+						}
+					}
+				} catch (e) {}
+			}
+		
+			function fixLoop(aFilters) {
+				for (const i of aFilters) {
+					if (i.aFilters && i.aFilters.length > 0) {
+						fixLoop(i.aFilters);
+					} else {
+						fixFilterFecha(i);
+					}
+				}
+			}
+		
+			fixLoop(aSmartFilters);
+		
+		
+			const aCustomFilters = this._getFilters?.() || [];
+		
+			
+			const hasTipoEquipoFilter = aCustomFilters.some(f =>
+				(f.sPath === "Tipoequipo") ||
+				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
+			);
+		
+			
+			const aFinalFilters = [...aSmartFilters]; 
+		
+			if (!hasTipoEquipoFilter) {
+				const aDefaultTipoEquipo = ["TR","AU"];
+				const oTipoEquipoFilter = new sap.ui.model.Filter({
+					filters: aDefaultTipoEquipo.map(s =>
+						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
+					),
+					and: false
+				});
+				aFinalFilters.push(oTipoEquipoFilter);
+			} else {
+				
+				aFinalFilters.push(...aCustomFilters);
+			}
+		
+			
+			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
+			if (sEmpresa) {
+				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+			}
+		
+			
+			oBindingParams.filters = aFinalFilters;
+		
+			console.log("Filtros finales aplicados:", oBindingParams.filters);
+		},
+		onBeforeRebindReactores: function (oEvent) {
+			const oBindingParams = oEvent.getParameter("bindingParams");
+		
+			
+			const aSmartFilters = oBindingParams.filters || [];
+		
+			function fixFilterFecha(oFilter) {
+				try {
+					if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
+						if (oFilter.sOperator === "LE") {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
+						} else {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
+							oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
+						}
+					}
+				} catch (e) {}
+			}
+		
+			function fixLoop(aFilters) {
+				for (const i of aFilters) {
+					if (i.aFilters && i.aFilters.length > 0) {
+						fixLoop(i.aFilters);
+					} else {
+						fixFilterFecha(i);
+					}
+				}
+			}
+		
+			fixLoop(aSmartFilters);
+		
+		
+			const aCustomFilters = this._getFilters?.() || [];
+		
+			
+			const hasTipoEquipoFilter = aCustomFilters.some(f =>
+				(f.sPath === "Tipoequipo") ||
+				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
+			);
+		
+			
+			const aFinalFilters = [...aSmartFilters]; 
+		
+			if (!hasTipoEquipoFilter) {
+				const aDefaultTipoEquipo = ["RT","RL","RB"];
+				const oTipoEquipoFilter = new sap.ui.model.Filter({
+					filters: aDefaultTipoEquipo.map(s =>
+						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
+					),
+					and: false
+				});
+				aFinalFilters.push(oTipoEquipoFilter);
+			} else {
+				
+				aFinalFilters.push(...aCustomFilters);
+			}
+		
+			
+			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
+			if (sEmpresa) {
+				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+			}
+		
+			
+			oBindingParams.filters = aFinalFilters;
+		
+			console.log("Filtros finales aplicados:", oBindingParams.filters);
+		},
+		onBeforeRebindAutomatismos: function (oEvent) {
+			const oBindingParams = oEvent.getParameter("bindingParams");
+		
+			
+			const aSmartFilters = oBindingParams.filters || [];
+		
+			function fixFilterFecha(oFilter) {
+				try {
+					if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
+						if (oFilter.sOperator === "LE") {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
+						} else {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
+							oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
+						}
+					}
+				} catch (e) {}
+			}
+		
+			function fixLoop(aFilters) {
+				for (const i of aFilters) {
+					if (i.aFilters && i.aFilters.length > 0) {
+						fixLoop(i.aFilters);
+					} else {
+						fixFilterFecha(i);
+					}
+				}
+			}
+		
+			fixLoop(aSmartFilters);
+		
+		
+			const aCustomFilters = this._getFilters?.() || [];
+		
+			
+			const hasTipoEquipoFilter = aCustomFilters.some(f =>
+				(f.sPath === "Tipoequipo") ||
+				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
+			);
+		
+			
+			const aFinalFilters = [...aSmartFilters]; 
+		
+			if (!hasTipoEquipoFilter) {
+				const aDefaultTipoEquipo = [];
+				const oTipoEquipoFilter = new sap.ui.model.Filter({
+					filters: aDefaultTipoEquipo.map(s =>
+						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
+					),
+					and: false
+				});
+				aFinalFilters.push(oTipoEquipoFilter);
+			} else {
+				
+				aFinalFilters.push(...aCustomFilters);
+			}
+		
+			
+			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
+			if (sEmpresa) {
+				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+			}
+		
+			
+			oBindingParams.filters = aFinalFilters;
+		
+			console.log("Filtros finales aplicados:", oBindingParams.filters);
+		},
+		onBeforeRebindConexiones: function (oEvent) {
+			const oBindingParams = oEvent.getParameter("bindingParams");
+		
+			
+			const aSmartFilters = oBindingParams.filters || [];
+		
+			function fixFilterFecha(oFilter) {
+				try {
+					if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
+						if (oFilter.sOperator === "LE") {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
+						} else {
+							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
+							oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
+						}
+					}
+				} catch (e) {}
+			}
+		
+			function fixLoop(aFilters) {
+				for (const i of aFilters) {
+					if (i.aFilters && i.aFilters.length > 0) {
+						fixLoop(i.aFilters);
+					} else {
+						fixFilterFecha(i);
+					}
+				}
+			}
+		
+			fixLoop(aSmartFilters);
+		
+		
+			const aCustomFilters = this._getFilters?.() || [];
+		
+			
+			const hasTipoEquipoFilter = aCustomFilters.some(f =>
+				(f.sPath === "Tipoequipo") ||
+				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
+			);
+		
+			
+			const aFinalFilters = [...aSmartFilters]; 
+		
+			if (!hasTipoEquipoFilter) {
+				const aDefaultTipoEquipo = ["P5","P4","P3","P2","P1"];
+				const oTipoEquipoFilter = new sap.ui.model.Filter({
+					filters: aDefaultTipoEquipo.map(s =>
+						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
+					),
+					and: false
+				});
+				aFinalFilters.push(oTipoEquipoFilter);
+			} else {
+				
+				aFinalFilters.push(...aCustomFilters);
+			}
+		
+			
+			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
+			if (sEmpresa) {
+				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+			}
+		
+			
 			oBindingParams.filters = aFinalFilters;
 		
 			console.log("Filtros finales aplicados:", oBindingParams.filters);
@@ -337,13 +583,98 @@ sap.ui.define([
 		},
 		
 		_afterSelectEmpresa: function(){
+
+			const oView =this.getView()
+
 			var sEmpresa = this.getModel("viewModel").getProperty("/sociedad"),
 				oSmartFilterBar = this.getView().byId("idSmartFilterBar");
-			this.getView().byId("idSmartTable").rebindTable();
-			let aFilters = [];
-            aFilters.push(new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
-            oSmartFilterBar.getControlByKey("Regionpenalidades").getBinding("items").filter(aFilters);
-            oSmartFilterBar.getControlByKey("Tipoequipo").getBinding("items").filter(aFilters);
+			
+				oView.byId("LineasTable").rebindTable();
+				oView.byId("TransformadoresTable").rebindTable();
+				oView.byId("ReactoresTable").rebindTable();
+				oView.byId("AutomatismosTable").rebindTable();
+				oView.byId("ConexionesTable").rebindTable();
+			
+				let aFilters = [];
+            
+				aFilters.push(new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+            
+				oSmartFilterBar.getControlByKey("Regionpenalidades").getBinding("items").filter(aFilters);
+            
+				oSmartFilterBar.getControlByKey("Tipoequipo").getBinding("items").filter(aFilters);
+		},
+		onEvolucionEquipo: function () {
+			const oEditModelData = this._oDialogEdit.getModel("editModel").getData();
+			const sCodigoEquipo = oEditModelData.Codigoequipo;
+
+			console.log("Código de equipo:", sCodigoEquipo);
+
+			const oModel = this.getView().getModel();
+			oModel.setUseBatch(false);
+			
+		
+			const oFilter = new sap.ui.model.Filter("CODIGOEQUIPO", sap.ui.model.FilterOperator.EQ, sCodigoEquipo);
+
+			oModel.read("/HistoricoEquipoSet", {
+				filters: [oFilter],
+				success: (oData) => {
+					if (oData.results && oData.results.length > 0) {
+
+						ModelHelper.getModel(this.getView(),"historicoEquipoModel").setData(oData.results)
+						
+						if (!this._oHistoricoDialog) {
+							this._oHistoricoDialog = sap.ui.xmlfragment("Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionEquipo", this);
+							this.getView().addDependent(this._oHistoricoDialog);
+						}
+						this._oHistoricoDialog.open();
+					} 
+					else {
+						sap.m.MessageBox.information("No hay datos de evolución para el equipo seleccionado.");
+					}
+				},
+				error: (oError) => {
+					console.error("Error al leer HistoricoEquipo", oError);
+					sap.m.MessageToast.show("Error al cargar histórico");
+				}
+			});
+		},onVerDetalleHistorico: function (oEvent) {
+			const oItem = oEvent.getSource().getParent(); // ColumnListItem
+			const oContext = oItem.getBindingContext("historicoEquipoModel");
+			const oData = oContext.getObject();
+		
+			
+			const oDetailModel = ModelHelper.getModel(this.getView(),"detalleHistoricoModel").setData(oData)
+		
+		
+			if (!this._oDetalleHistoricoDialog) {
+				sap.ui.core.Fragment.load({
+					name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionDetalle",
+					id: this.getView().getId(),
+					controller: this
+				}).then((oDialog) => {
+					this._oDetalleHistoricoDialog = oDialog;
+					this.getView().addDependent(oDialog);
+		
+					
+					oDialog.setModel(oDetailModel, "detalleHistoricoModel");
+		
+					oDialog.open();
+				});
+			} else {
+			
+				this._oDetalleHistoricoDialog.setModel(oDetailModel, "detalleHistoricoModel");
+				this._oDetalleHistoricoDialog.open();
+			}
+		},
+		
+
+
+		onOcultarDetalle: function () {
+			this.getView().getModel("viewModel").setProperty("/sizeDetail", "0%");
+		},
+		onCloseDetalleHistoricoDialog: function () {
+			this._oDetalleHistoricoDialog.close();
 		}
+		,
 	});
 });

@@ -152,13 +152,6 @@
 		{
 		
 		  "Empresa": "100",
-		  "Tipo": "ET",
-		  "Grupo": "000",
-		  "Descripcion": "ESTACIÓN"
-		},
-		{
-		
-		  "Empresa": "100",
 		  "Tipo": "P5",
 		  "Grupo": "006",
 		  "Descripcion": "CONEXIÓN DE 500 KV"
@@ -199,28 +192,7 @@
 		  "Grupo": "004",
 		  "Descripcion": "CAPACITOR PARALELO"
 		},
-		{
-		  
-		
-		  "Empresa": "100",
-		  "Tipo": "B5",
-		  "Grupo": "000",
-		  "Descripcion": "BARRA DE 500 KV"
-		},
-		{
-		  
-		  "Empresa": "100",
-		  "Tipo": "B2",
-		  "Grupo": "000",
-		  "Descripcion": "BARRA DE 220 KV"
-		},
-		{
-		 
-		  "Empresa": "100",
-		  "Tipo": "B1",
-		  "Grupo": "000",
-		  "Descripcion": "BARRA DE 132 KV"
-		},
+	
 		{
 		 
 		  "Empresa": "100",

@@ -1,0 +1,232 @@
+<Dialog contentWidth="90%" id="detalleHistoricoDialog" title="Detalle evolucion"
+	xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+	xmlns:form="sap.ui.layout.form"
+	xmlns:core="sap.ui.core"
+	xmlns:u="sap.uxap">
+	<u:ObjectPageLayout id="ObjPageDetalleEvolucion" enableLazyLoading="true" useIconTabBar="true" toggleHeaderOnTitleClick="false" headerContentPinnable="false">
+		<u:headerTitle>
+			<u:ObjectPageDynamicHeaderTitle>
+				<u:expandedHeading>
+					<Title text="{detalleHistoricoModel>/CODIGOEQUIPO} - {detalleHistoricoModel>/DESCRIPCION}" wrapping="true"/>
+				</u:expandedHeading>
+				<u:snappedHeading>
+					<FlexBox fitContainer="true" alignItems="Center">
+						<!--<Avatar class="sapUiTinyMarginEnd" src="sap-icon://technical-object" displaySize="XS" showBorder="true"/>-->
+						<Title text="{detalleHistoricoModel>/CODIGOEQUIPO} - {detalleHistoricoModel>/DESCRIPCION}" wrapping="true"/>
+					</FlexBox>
+				</u:snappedHeading>
+			</u:ObjectPageDynamicHeaderTitle>
+		</u:headerTitle>
+		<u:headerContent>
+			<HBox wrap="Wrap" alignItems="Center" class="sapUiTinyMargin">
+				<!--<Avatar class="sapUiSmallMarginEnd" src="sap-icon://technical-object" displaySize="L" showBorder="true"/>-->
+				<VBox class="sapUiSmallMarginEnd customAvatar" justifyContent="Center" alignItems="Center">
+					<core:Icon src="sap-icon://area-chart" size="2.25rem"/>
+				</VBox>
+				<VBox class="sapUiMediumMarginEnd">
+					<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_equipo_cam}" text="{detalleHistoricoModel>/NROEQUIPOCAMMESA} - {detalleHistoricoModel>/DESCEQUIPOCAMMESA}"/>
+					<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_desde}" text="{ path: 'historicoEquipoModel>DESDE', formatter: '.formatter.formatDateFromYYYYMMDD' }"/>
+					<ObjectAttribute title="{i18n>ed_hasta}" text="{ path: 'historicoEquipoModel>HASTA', formatter: '.formatter.formatDateFromYYYYMMDD' }"/>
+				</VBox>
+
+				<HBox width="700px">
+					<VBox class="sapUiMediumMarginEnd" width="80%">
+						<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_emp}" text="{detalleHistoricoModel>/EMPRESA}"/>
+						<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_tipo_eq}" text="{detalleHistoricoModel>/TIPOEQUIPO}"/>
+						<ObjectAttribute title="{i18n>ed_conexion}" text="{detalleHistoricoModel>/PTO_CON}"/>
+					</VBox>
+
+				</HBox>
+			</HBox>
+		</u:headerContent>
+		<u:sections>
+			<u:ObjectPageSection showTitle="false">
+				<u:subSections>
+					<u:ObjectPageSubSection>
+						<HBox width="100%" wrap="Wrap">
+							<VBox width="{= !${device>/system/phone} ? '50%' : 'auto' }">
+								<form:Form editable="false" class="sapUiSmallMargin">
+									<form:formContainers>
+										<form:FormContainer>
+											<form:formElements>
+												<form:FormElement>
+													<form:fields>
+														<Input value="{detalleHistoricoModel>/CODIGOEQUIPO}" enabled="false"/>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_equipo}"/>
+													</form:label>
+												</form:FormElement>
+												<!--<form:FormElement>-->
+												<!--	<form:fields>-->
+												<!--		<Input value="{detalleHistoricoModel>/Nroequipocammesa}" enabled="false"/>-->
+												<!--	</form:fields>-->
+												<!--	<form:label>-->
+												<!--		<Label text="{i18n>ed_equipo_cam}"/>-->
+												<!--	</form:label>-->
+												<!--</form:FormElement>-->
+												<!--<form:FormElement>-->
+												<!--	<form:fields>-->
+												<!--		<DatePicker value="{path: 'detalleHistoricoModel>/Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"-->
+												<!-- enabled="false"/>-->
+												<!--	</form:fields>-->
+												<!--	<form:label>-->
+												<!--		<Label text="{i18n>ed_desde}"/>-->
+												<!--	</form:label>-->
+												<!--</form:FormElement>-->
+												<!--<form:FormElement>-->
+												<!--	<form:fields>-->
+												<!--		<Input value="{detalleHistoricoModel>/Empresa}" enabled="false"/>-->
+												<!--	</form:fields>-->
+												<!--	<form:label>-->
+												<!--		<Label text="{i18n>ed_emp}"/>-->
+												<!--	</form:label>-->
+												<!--</form:FormElement>-->
+												<!--<form:FormElement>-->
+												<!--	<form:fields>-->
+												<!--		<Input value="{detalleHistoricoModel>/Tipoequipo}" enabled="false"/>-->
+												<!--	</form:fields>-->
+												<!--	<form:label>-->
+												<!--		<Label text="{i18n>ed_tipo_eq}"/>-->
+												<!--	</form:label>-->
+												<!--</form:FormElement>-->
+												<form:FormElement>
+													<form:fields>
+														<Input type="Number" value="{detalleHistoricoModel>/POTENCIA_DIR}"/>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_pot}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<!--<Input maxLength="20" value="{detalleHistoricoModel>/Tension}"/>-->
+														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/TENSION_DIR}" items="{Desplegables>/Tensiones}">
+															<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
+														</Select>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_ten}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<!--<Input maxLength="10" value="{detalleHistoricoModel>/Clasepenalizacion}"/>-->
+														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/CLASEPENALIZACION}" items="{Desplegables>/ClasePenalizacion}">
+															<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
+														</Select>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_clase_pen}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<Input type="Number" value="{detalleHistoricoModel>/LONGITUDLINEAS}"/>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_lon}"/>
+													</form:label>
+												</form:FormElement>
+											</form:formElements>
+										</form:FormContainer>
+									</form:formContainers>
+									<form:layout>
+										<form:ResponsiveGridLayout labelSpanXL="12" labelSpanL="12" labelSpanM="12" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"/>
+									</form:layout>
+								</form:Form>
+							</VBox>
+							<VBox width="{= !${device>/system/phone} ? '50%' : 'auto' }">
+								<form:Form editable="false" class="sapUiSmallMargin">
+									<form:formContainers>
+										<form:FormContainer>
+											<form:formElements>
+												<form:FormElement>
+													<form:fields>
+														<Input maxLength="4" value="{detalleHistoricoModel>/EMPRESA_INT}"/>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_reporte}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<Input maxLength="40" value="{detalleHistoricoModel>/NEMO}"/>
+
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_nemo}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<!--<Input maxLength="40" value="{detalleHistoricoModel>/Regionpenalidades}"/>-->
+														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/REGIONPENALIDADES}" items="{Desplegables>/RegionPenalidades}">
+															<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
+														</Select>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_region}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<Input maxLength="40" value="{detalleHistoricoModel>/KMLINEASNORTE}"/>
+
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_KmNorte}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<Input maxLength="40" value="{detalleHistoricoModel>/KMLINEASNORTE}"/>
+
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_KmCe}"/>
+													</form:label>
+												</form:FormElement>
+												<form:FormElement>
+													<form:fields>
+														<Input maxLength="40" value="{detalleHistoricoModel>/KMLINEASSUR}"/>
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_KmSur}"/>
+													</form:label>
+												</form:FormElement>
+												<!--<form:FormElement>-->
+												<!--	<form:fields>-->
+												<!--		<Switch state="{detalleHistoricoModel>/Regulado}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>-->
+												<!--	</form:fields>-->
+												<!--	<form:label>-->
+												<!--		<Label text="{i18n>ed_regulado}"/>-->
+												<!--	</form:label>-->
+												<!--</form:FormElement>-->
+												<form:FormElement>
+													<form:label>
+														<!-- Etiqueta vacía o común si se desea -->
+													</form:label>
+
+												</form:FormElement>
+
+											</form:formElements>
+										</form:FormContainer>
+									</form:formContainers>
+									<form:layout>
+										<form:ResponsiveGridLayout labelSpanXL="12" labelSpanL="12" labelSpanM="12" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"/>
+									</form:layout>
+								</form:Form>
+							</VBox>
+						</HBox>
+					</u:ObjectPageSubSection>
+				</u:subSections>
+			</u:ObjectPageSection>
+		</u:sections>
+	</u:ObjectPageLayout>
+	<buttons>
+		<Button text="Cerrar" press=".onCloseDetalleHistoricoDialog"/>
+	</buttons>
+
+</Dialog>

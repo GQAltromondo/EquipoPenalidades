@@ -1,0 +1,52 @@
+<Dialog
+    id="historicoDialog"
+    title="Histórico del Equipo"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <VBox>
+        <Table
+            items="{historicoEquipoModel>/}">
+            <!-- columnas -->
+            <columns>
+                <Column>
+                    <Text text="Codigo" />
+                </Column>
+                <Column>
+                    <Text text="Descripción" />
+                </Column>
+                 <Column>
+                    <Text text="Fecha de E/S Comercial" />
+                </Column>
+                <Column>
+                    <Text text="Fecha desde" />
+                </Column>
+                  <Column>
+                    <Text text="Fecha hasta" />
+                </Column>
+               <Column>
+    <Text text="" />
+</Column>
+            </columns>
+            <items>
+                <ColumnListItem>
+                    <cells>
+                        <Text text="{historicoEquipoModel>CODIGOEQUIPO}" />
+                        <Text text="{historicoEquipoModel>DESCRIPCION}" />
+                        
+                       <Text text="{ path: 'historicoEquipoModel>FECHAINICIOACTIVIDAD', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
+                           <Text text="{ path: 'historicoEquipoModel>DESDE', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
+                              <Text text="{ path: 'historicoEquipoModel>HASTA', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
+                        <!-- más celdas -->
+         <Button icon="sap-icon://search"
+                    tooltip="Ver detalles"
+                    press=".onVerDetalleHistorico"
+                    type="Emphasized"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </VBox>
+    <beginButton>
+        <Button text="Cerrar" press="onCloseHistoricoDialog"/>
+    </beginButton>
+</Dialog>

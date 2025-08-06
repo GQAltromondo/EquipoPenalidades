@@ -38,7 +38,7 @@
 													<!-- <MultiComboBox items="{/TipoEquipoSet}">
 														<core:Item key="{Tipo}" text="{Tipo} - {Descripcion}"/>
 													</MultiComboBox> -->
-															<MultiComboBox items="{Desplegables>/TipoEquipoModel}">
+															<MultiComboBox items="{Desplegables>/TipoEquiposModel}">
 														<core:Item key="{Desplegables>Tipo}" text="{Desplegables>Tipo} - {Desplegables>Descripcion}"/>
 													</MultiComboBox>
 												

@@ -49,77 +49,6 @@ sap.ui.define([
 		},
 
 		onBeforeRebindLineas: function (oEvent) {
-			const oBindingParams = oEvent.getParameter("bindingParams");
-		
-			const aSmartFilters = oBindingParams.filters || [];
-		
-			function fixFilterFecha(oFilter) {
-				try {
-					if (oFilter.sPath.indexOf("Desde") >= 0 || oFilter.sPath.indexOf("Hasta") >= 0) {
-						if (oFilter.sOperator === "LE") {
-							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
-						} else {
-							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
-							oFilter.oValue2.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
-						}
-					}
-				} catch (e) {}
-			}
-		
-			function fixLoop(aFilters) {
-				for (const i of aFilters) {
-					if (i.aFilters && i.aFilters.length > 0) {
-						fixLoop(i.aFilters);
-					} else {
-						fixFilterFecha(i);
-					}
-				}
-			}
-		
-			fixLoop(aSmartFilters);
-		
-			const aCustomFilters = this._getFilters?.() || [];
-		
-			// Clonar filtros sin duplicar "Tipoequipo"
-			const aFinalFilters = [...aSmartFilters];
-		
-			const hasTipoEquipoFilter = [...aSmartFilters, ...aCustomFilters].some(f =>
-				(f.sPath === "Tipoequipo") ||
-				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
-			);
-		
-			if (!hasTipoEquipoFilter) {
-				const aDefaultTipoEquipo = ["L6", "L5", "L4", "L3", "L2", "L1"];
-				const oTipoEquipoFilter = new sap.ui.model.Filter({
-					filters: aDefaultTipoEquipo.map(s =>
-						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
-					),
-					and: false
-				});
-				aFinalFilters.push(oTipoEquipoFilter);
-			}
-		
-			// Agregar custom filters que no están duplicados
-			for (const oFilter of aCustomFilters) {
-				const isDuplicate = aFinalFilters.some(existing =>
-					(existing.sPath === oFilter.sPath) ||
-					(existing.aFilters && existing.aFilters.some(sub => sub.sPath === oFilter.sPath))
-				);
-				if (!isDuplicate) {
-					aFinalFilters.push(oFilter);
-				}
-			}
-		
-			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
-			if (sEmpresa) {
-				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
-			}
-		
-			oBindingParams.filters = aFinalFilters;
-		
-			console.log("Filtros finales aplicados:", aFinalFilters);
-		},
-		onBeforeRebindLineas: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["L6", "L5", "L4", "L3", "L2", "L1"]);
 		},
 		onBeforeRebindTransformadores: function (oEvent) {
@@ -138,11 +67,11 @@ sap.ui.define([
 			this._applyCustomFilters(oEvent, ["P5", "P4", "P3", "P2", "P1"]);
 		},
 		
-
 		_applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
 			const oBindingParams = oEvent.getParameter("bindingParams");
 			const aSmartFilters = oBindingParams.filters || [];
 		
+			// Corrige las fechas de los filtros
 			function fixFilterFecha(oFilter) {
 				try {
 					if (oFilter.sPath?.includes("Desde") || oFilter.sPath?.includes("Hasta")) {
@@ -159,29 +88,40 @@ sap.ui.define([
 			}
 		
 			function fixLoop(aFilters) {
-				for (const i of aFilters) {
-					if (i.aFilters && i.aFilters.length > 0) {
-						fixLoop(i.aFilters);
+				for (const filter of aFilters) {
+					if (filter.aFilters && filter.aFilters.length > 0) {
+						fixLoop(filter.aFilters);
 					} else {
-						fixFilterFecha(i);
+						fixFilterFecha(filter);
 					}
 				}
+			}
+		
+			function isSameFilterPath(f1, f2) {
+				if (f1.sPath && f2.sPath) {
+					return f1.sPath === f2.sPath;
+				}
+				if (f1.aFilters && f2.aFilters) {
+					const aPaths1 = f1.aFilters.map(f => f.sPath).sort();
+					const aPaths2 = f2.aFilters.map(f => f.sPath).sort();
+					return JSON.stringify(aPaths1) === JSON.stringify(aPaths2);
+				}
+				return false;
 			}
 		
 			fixLoop(aSmartFilters);
 		
 			const aCustomFilters = this._getFilters?.() || [];
-		
-			
 			const aFinalFilters = [...aSmartFilters];
-
+		
+			// Verifica si ya existe el filtro de Tipoequipo
 			const hasTipoEquipoFilter = [...aSmartFilters, ...aCustomFilters].some(f =>
 				f?.sPath === "Tipoequipo" ||
 				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
 			);
 		
-		
-			if (!hasTipoEquipoFilter && aDefaultTipoEquipo.length > 0) {
+			// Si no existe, usar los valores por defecto
+			if (!hasTipoEquipoFilter && Array.isArray(aDefaultTipoEquipo) && aDefaultTipoEquipo.length > 0) {
 				const oTipoEquipoFilter = new sap.ui.model.Filter({
 					filters: aDefaultTipoEquipo.map(s =>
 						new sap.ui.model.Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, s)
@@ -189,21 +129,20 @@ sap.ui.define([
 					and: false
 				});
 				aFinalFilters.push(oTipoEquipoFilter);
-			} 
-
-				for (const oFilter of aCustomFilters) {
-					const isDuplicate = aFinalFilters.some(existing =>
-						existing.sPath === oFilter.sPath ||
-						(existing.aFilters && existing.aFilters.some(sub => sub.sPath === oFilter.sPath))
-					);
-					if (!isDuplicate) {
-						aFinalFilters.push(oFilter);
-					}
-				}
-			
+			}
 		
-			const sEmpresa = this.getView().getModel("viewModel").getProperty("/sociedad");
-			if (sEmpresa) {
+			// Agregar filtros personalizados si no son duplicados
+			for (const oFilter of aCustomFilters) {
+				const isDuplicate = aFinalFilters.some(existing => isSameFilterPath(existing, oFilter));
+				if (!isDuplicate) {
+					aFinalFilters.push(oFilter);
+				}
+			}
+		
+			// Filtro empresa si no está ya
+			const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
+			const alreadyHasEmpresa = aFinalFilters.some(f => f?.sPath === "Empresa");
+			if (sEmpresa && !alreadyHasEmpresa) {
 				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
 			}
 		
@@ -328,62 +267,45 @@ sap.ui.define([
 
 		//------------------------------ Metodos Internos ------------------------------------------
 		_getFilters: function () {
-			//get custom filters
-			var aFilters = [];
-
-			var oSmartFilterBar = this.getView().byId("idSmartFilterBar");
-
-			var aTipoequipo = oSmartFilterBar.getControlByKey("Tipoequipo").getSelectedKeys(),
-				aRegionpenalidades = oSmartFilterBar.getControlByKey("Regionpenalidades").getSelectedKeys(),
-				bRemuneracion = oSmartFilterBar.getControlByKey("Remuneracion").getSelected(),
-				dFecha = oSmartFilterBar.getControlByKey("FechaCustom").getDateValue();
-
-			//Tipo equipo
-			var aTipoequipoFilter = [];
-			for (var key of aTipoequipo) {
-				aTipoequipoFilter.push(new Filter("Tipoequipo", sap.ui.model.FilterOperator.EQ, key))
-			}
-			if (aTipoequipoFilter.length > 0) {
-				aFilters.push(new Filter({
-					filters: aTipoequipoFilter,
-					and: false,
-				}));
-			}
-
-			if (aRegionpenalidades.length === 1) {
-				// Solo un filtro, no necesita ser un MultiFilter
-				aFilters.push(
-					new Filter("Regionpenalidades", FilterOperator.EQ, aRegionpenalidades[0])
-				);
-			} else if (aRegionpenalidades.length > 1) {
-				// Varios filtros, agrupamos con OR
-				const aRegionFilters = aRegionpenalidades.map(key =>
-					new Filter("Regionpenalidades", FilterOperator.EQ, key)
-				);
-			
-				const oRegionOrFilter = new Filter({
-					filters: aRegionFilters,
-					and: false
-				});
-			
-				aFilters.push(oRegionOrFilter);
-			}
-			
+			const oSmartFilterBar = this.getView().byId("idSmartFilterBar");
+			const aFilters = [];
 		
-
-			//Empresa
-			var sEmpresa = this.getModel("viewModel").getProperty("/sociedad");
-			if (sEmpresa) aFilters.push(new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
-
-			if (dFecha) {
-				aFilters.push(new Filter("Desde", sap.ui.model.FilterOperator.LE, dFecha))
-				aFilters.push(new Filter("Hasta", sap.ui.model.FilterOperator.GE, dFecha))
+			// Utilidad para múltiples claves
+			function buildMultiFilter(sPath, aKeys) {
+				if (!aKeys || aKeys.length === 0) return null;
+				const aSubFilters = aKeys.map(key => new sap.ui.model.Filter(sPath, sap.ui.model.FilterOperator.EQ, key));
+				return new sap.ui.model.Filter({ filters: aSubFilters, and: false });
 			}
-
-			if (bRemuneracion) aFilters.push(new Filter("Remuneracion", sap.ui.model.FilterOperator.EQ, "X"));
-
+		
+			// Filtros múltiples
+			const aTipoequipo = oSmartFilterBar.getControlByKey("Tipoequipo")?.getSelectedKeys() || [];
+			const oTipoequipoFilter = buildMultiFilter("Tipoequipo", aTipoequipo);
+			if (oTipoequipoFilter) aFilters.push(oTipoequipoFilter);
+		
+			const aRegionpenalidades = oSmartFilterBar.getControlByKey("Regionpenalidades")?.getSelectedKeys() || [];
+			const oRegionFilter = buildMultiFilter("Regionpenalidades", aRegionpenalidades);
+			if (oRegionFilter) aFilters.push(oRegionFilter);
+		
+			// Filtro Empresa
+			const sEmpresa = this.getModel("viewModel")?.getProperty("/sociedad");
+			if (sEmpresa) aFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+		
+			// Filtro Fecha
+			const dFecha = oSmartFilterBar.getControlByKey("FechaCustom")?.getDateValue();
+			if (dFecha) {
+				aFilters.push(new sap.ui.model.Filter("Desde", sap.ui.model.FilterOperator.LE, dFecha));
+				aFilters.push(new sap.ui.model.Filter("Hasta", sap.ui.model.FilterOperator.GE, dFecha));
+			}
+		
+			// Filtro Remuneración
+			const bRemuneracion = oSmartFilterBar.getControlByKey("Remuneracion")?.getSelected();
+			if (bRemuneracion) {
+				aFilters.push(new sap.ui.model.Filter("Remuneracion", sap.ui.model.FilterOperator.EQ, "X"));
+			}
+		
 			return aFilters;
 		},
+		
 
 		_loadSociety: function () {
 			this.getModel("Operaciones").read("/EmpresaUsuarioSet", {

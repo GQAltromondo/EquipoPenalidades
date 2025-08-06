@@ -38,7 +38,13 @@
 							<ObjectAttribute title="{i18n>ed_conexion}" text="{editModel>/PtoCon}"/>
 						</VBox>
 							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
-								<Button enabled="{evoModel>/enabled}" text="Evolucion del Equipo" type="Emphasized"  press="onEvolucionEquipo"/> 
+							<Button
+    enabled="{evoModel>/enabled}"
+    text="{= ${evoModel>/enabled} ? 'Evolución del Equipo' : 'No posee historial' }"
+    type="Emphasized"
+    press="onEvolucionEquipo"
+/>
+
 							</VBox>
 						</HBox>
 					</HBox>
@@ -287,9 +293,8 @@
             </VBox>
             <VBox>
                 <Label text="{i18n>ed_penaliza}" labelFor="penSwitch"/>
-                <Switch id="penSwitch"  
-			
-				state="false"
+                <Switch id="penSwitch"
+                        state="{editModel>/Penaliza}"
                         customTextOn="Si"
                         customTextOff="No"
                         type="AcceptReject"/>

@@ -60,7 +60,7 @@ sap.ui.define([
 		},
 
 		onBeforeRebindAutomatismos: function (oEvent) {
-			this._applyCustomFilters(oEvent, []); // Sin filtros por defecto
+			//this._applyCustomFilters(oEvent, []); // Sin filtros por defecto
 		},
 
 		onBeforeRebindConexiones: function (oEvent) {
@@ -148,33 +148,29 @@ sap.ui.define([
 
 			oBindingParams.filters = aFinalFilters;
 
-			console.log("Filtros aplicados:", aFinalFilters);
 		},
-
-
-
-
 
 		onEditarEquipo: async function (oEvent) {
 			var oData = oEvent.getSource().getBindingContext().getObject(),
 				oView = this.getView();
-
-
-			const Historico = await this.onEvolucionEquipo(oData.Codigoequipo)
-
-			if (Historico === undefined) {
-				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false)
-			} else {
-
-				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", true)
+		
+			try {
+				const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
+		
+				if (!Historico || Historico.length === 0) {
+					ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
+				} else {
+					ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", true);
+				}
+			} catch (error) {
+				console.error("Error al obtener el histórico:", error);
+				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
 			}
-
-			// //formatear campo regulado
-			// oData.Regulado === 'R' ? oData.Regulado = true : oData.Regulado = false;
-
-			//formatear campo remuneracion
-			oData.Remuneracion === 'X' ? oData.Remuneracion = true : oData.Remuneracion = false;
-
+		
+			// Formatear campo remuneracion
+			oData.Remuneracion = oData.Remuneracion === 'X';
+			oData.Penaliza = oData.Penaliza === 'X';
+		
 			Fragment.load({
 				name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.EditarEquipo",
 				id: oView.getId(),
@@ -182,24 +178,28 @@ sap.ui.define([
 			}).then(function (oPopup) {
 				this._oDialogEdit = oPopup;
 				this.getView().addDependent(oPopup);
+		
 				this._oDialogEdit.attachAfterClose(function (oEvent) {
 					oEvent.getSource().destroy();
 				});
-
+		
 				this._oDialogEdit.attachAfterOpen(function () {
 					this._oDialogEdit.setModel(new JSONModel(oData), "editModel");
-					//filtro region penalidades por empresa seleccionada
+		
+					// Filtro de region penalidades por empresa seleccionada
 					var sEmpresa = this.getModel("viewModel").getProperty("/sociedad");
-					let aFilters = [];
-					aFilters.push(new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+					let aFilters = [
+						new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa)
+					];
 					this.getView().byId("selectPenalidades").getBinding("items").filter(aFilters);
 					this.getView().byId("selectTension").getBinding("items").filter(aFilters);
 					this.getView().byId("selectNemo").getBinding("items").filter(aFilters);
 				}.bind(this));
-
+		
 				this._oDialogEdit.open();
 			}.bind(this));
-		},
+		}
+		,
 
 		onCancelarEditar: function () {
 			this._oDialogEdit.close();
@@ -218,6 +218,7 @@ sap.ui.define([
 
 			//formateo campo remuneracion	
 			oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
+			oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
 
 			this._oDialogEdit.setBusy(true);
 			this.getModel().update(sPath, oData, {
@@ -390,7 +391,8 @@ sap.ui.define([
 		onEvolucionEquipo: async function (Codigoequipo) {
 			let sCodigoEquipo = "";
 
-			const bFromParam = !!Codigoequipo;
+			const bFromParam = typeof Codigoequipo === "string" && Codigoequipo.trim() !== "";
+
 			if (bFromParam) {
 				sCodigoEquipo = Codigoequipo;
 			} else {
@@ -398,8 +400,7 @@ sap.ui.define([
 				sCodigoEquipo = oEditModelData.Codigoequipo;
 			}
 
-			console.log("Código de equipo:", sCodigoEquipo);
-
+		
 			const oModel = this.getView().getModel();
 			oModel.setUseBatch(false);
 
@@ -479,7 +480,7 @@ sap.ui.define([
 			this._oDetalleHistoricoDialog.close();
 		},
 		onCloseHistoricoDialog: function () {
-			this._oDetalleHistoricoDialog.close();
+			this._oHistoricoDialog.close();
 
 		}
 		,

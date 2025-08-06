@@ -54,23 +54,23 @@ sap.ui.define([
 		onBeforeRebindTransformadores: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["TR", "AU"]);
 		},
-		
+
 		onBeforeRebindReactores: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["RT", "RL", "RB"]);
 		},
-		
+
 		onBeforeRebindAutomatismos: function (oEvent) {
 			this._applyCustomFilters(oEvent, []); // Sin filtros por defecto
 		},
-		
+
 		onBeforeRebindConexiones: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["P5", "P4", "P3", "P2", "P1"]);
 		},
-		
+
 		_applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
 			const oBindingParams = oEvent.getParameter("bindingParams");
 			const aSmartFilters = oBindingParams.filters || [];
-		
+
 			// Corrige las fechas de los filtros
 			function fixFilterFecha(oFilter) {
 				try {
@@ -86,7 +86,7 @@ sap.ui.define([
 					console.error("Error ajustando fechas:", e);
 				}
 			}
-		
+
 			function fixLoop(aFilters) {
 				for (const filter of aFilters) {
 					if (filter.aFilters && filter.aFilters.length > 0) {
@@ -96,7 +96,7 @@ sap.ui.define([
 					}
 				}
 			}
-		
+
 			function isSameFilterPath(f1, f2) {
 				if (f1.sPath && f2.sPath) {
 					return f1.sPath === f2.sPath;
@@ -108,18 +108,18 @@ sap.ui.define([
 				}
 				return false;
 			}
-		
+
 			fixLoop(aSmartFilters);
-		
+
 			const aCustomFilters = this._getFilters?.() || [];
 			const aFinalFilters = [...aSmartFilters];
-		
+
 			// Verifica si ya existe el filtro de Tipoequipo
 			const hasTipoEquipoFilter = [...aSmartFilters, ...aCustomFilters].some(f =>
 				f?.sPath === "Tipoequipo" ||
 				(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo"))
 			);
-		
+
 			// Si no existe, usar los valores por defecto
 			if (!hasTipoEquipoFilter && Array.isArray(aDefaultTipoEquipo) && aDefaultTipoEquipo.length > 0) {
 				const oTipoEquipoFilter = new sap.ui.model.Filter({
@@ -130,7 +130,7 @@ sap.ui.define([
 				});
 				aFinalFilters.push(oTipoEquipoFilter);
 			}
-		
+
 			// Agregar filtros personalizados si no son duplicados
 			for (const oFilter of aCustomFilters) {
 				const isDuplicate = aFinalFilters.some(existing => isSameFilterPath(existing, oFilter));
@@ -138,26 +138,36 @@ sap.ui.define([
 					aFinalFilters.push(oFilter);
 				}
 			}
-		
+
 			// Filtro empresa si no está ya
 			const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
 			const alreadyHasEmpresa = aFinalFilters.some(f => f?.sPath === "Empresa");
 			if (sEmpresa && !alreadyHasEmpresa) {
 				aFinalFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
 			}
-		
+
 			oBindingParams.filters = aFinalFilters;
-		
+
 			console.log("Filtros aplicados:", aFinalFilters);
 		},
-		
 
 
 
 
-		onEditarEquipo: function (oEvent) {
+
+		onEditarEquipo: async function (oEvent) {
 			var oData = oEvent.getSource().getBindingContext().getObject(),
 				oView = this.getView();
+
+
+			const Historico = await this.onEvolucionEquipo(oData.Codigoequipo)
+
+			if (Historico === undefined) {
+				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false)
+			} else {
+
+				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", true)
+			}
 
 			// //formatear campo regulado
 			// oData.Regulado === 'R' ? oData.Regulado = true : oData.Regulado = false;
@@ -269,43 +279,43 @@ sap.ui.define([
 		_getFilters: function () {
 			const oSmartFilterBar = this.getView().byId("idSmartFilterBar");
 			const aFilters = [];
-		
+
 			// Utilidad para múltiples claves
 			function buildMultiFilter(sPath, aKeys) {
 				if (!aKeys || aKeys.length === 0) return null;
 				const aSubFilters = aKeys.map(key => new sap.ui.model.Filter(sPath, sap.ui.model.FilterOperator.EQ, key));
 				return new sap.ui.model.Filter({ filters: aSubFilters, and: false });
 			}
-		
+
 			// Filtros múltiples
 			const aTipoequipo = oSmartFilterBar.getControlByKey("Tipoequipo")?.getSelectedKeys() || [];
 			const oTipoequipoFilter = buildMultiFilter("Tipoequipo", aTipoequipo);
 			if (oTipoequipoFilter) aFilters.push(oTipoequipoFilter);
-		
+
 			const aRegionpenalidades = oSmartFilterBar.getControlByKey("Regionpenalidades")?.getSelectedKeys() || [];
 			const oRegionFilter = buildMultiFilter("Regionpenalidades", aRegionpenalidades);
 			if (oRegionFilter) aFilters.push(oRegionFilter);
-		
+
 			// Filtro Empresa
 			const sEmpresa = this.getModel("viewModel")?.getProperty("/sociedad");
 			if (sEmpresa) aFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
-		
+
 			// Filtro Fecha
 			const dFecha = oSmartFilterBar.getControlByKey("FechaCustom")?.getDateValue();
 			if (dFecha) {
 				aFilters.push(new sap.ui.model.Filter("Desde", sap.ui.model.FilterOperator.LE, dFecha));
 				aFilters.push(new sap.ui.model.Filter("Hasta", sap.ui.model.FilterOperator.GE, dFecha));
 			}
-		
+
 			// Filtro Remuneración
 			const bRemuneracion = oSmartFilterBar.getControlByKey("Remuneracion")?.getSelected();
 			if (bRemuneracion) {
 				aFilters.push(new sap.ui.model.Filter("Remuneracion", sap.ui.model.FilterOperator.EQ, "X"));
 			}
-		
+
 			return aFilters;
 		},
-		
+
 
 		_loadSociety: function () {
 			this.getModel("Operaciones").read("/EmpresaUsuarioSet", {
@@ -377,42 +387,61 @@ sap.ui.define([
 			oSmartFilterBar.getControlByKey("Tipoequipo").getBinding("items").filter(aFilters);
 			this._loadNemos()
 		},
-		onEvolucionEquipo: function () {
-			const oEditModelData = this._oDialogEdit.getModel("editModel").getData();
-			const sCodigoEquipo = oEditModelData.Codigoequipo;
+		onEvolucionEquipo: async function (Codigoequipo) {
+			let sCodigoEquipo = "";
+
+			const bFromParam = !!Codigoequipo;
+			if (bFromParam) {
+				sCodigoEquipo = Codigoequipo;
+			} else {
+				const oEditModelData = this._oDialogEdit.getModel("editModel").getData();
+				sCodigoEquipo = oEditModelData.Codigoequipo;
+			}
 
 			console.log("Código de equipo:", sCodigoEquipo);
 
 			const oModel = this.getView().getModel();
 			oModel.setUseBatch(false);
 
-
 			const oFilter = new sap.ui.model.Filter("CODIGOEQUIPO", sap.ui.model.FilterOperator.EQ, sCodigoEquipo);
 
-			oModel.read("/HistoricoEquipoSet", {
-				filters: [oFilter],
-				success: (oData) => {
-					if (oData.results && oData.results.length > 0) {
+			return new Promise((resolve, reject) => {
+				oModel.read("/HistoricoEquipoSet", {
+					filters: [oFilter],
+					success: (oData) => {
+						if (oData.results && oData.results.length > 0) {
+							ModelHelper.getModel(this.getView(), "historicoEquipoModel").setData(oData.results);
 
-						ModelHelper.getModel(this.getView(), "historicoEquipoModel").setData(oData.results)
-
-						if (!this._oHistoricoDialog) {
-							this._oHistoricoDialog = sap.ui.xmlfragment("Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionEquipo", this);
-							this.getView().addDependent(this._oHistoricoDialog);
+							if (bFromParam) {
+								resolve(oData.results);
+							} else {
+								if (!this._oHistoricoDialog) {
+									this._oHistoricoDialog = sap.ui.xmlfragment("Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionEquipo", this);
+									this.getView().addDependent(this._oHistoricoDialog);
+								}
+								this._oHistoricoDialog.open();
+								resolve();
+							}
+						} else {
+							if (bFromParam) {
+								resolve([]);
+							} else {
+								sap.m.MessageToast.show("No se encontraron datos históricos.");
+								resolve();
+							}
 						}
-						this._oHistoricoDialog.open();
+					},
+					error: (oError) => {
+						console.error("Error al leer HistoricoEquipo", oError);
+						sap.m.MessageToast.show("Error al cargar histórico");
+						reject(oError);
 					}
-					else {
-						sap.m.MessageBox.information("No hay datos de evolución para el equipo seleccionado.");
-					}
-				},
-				error: (oError) => {
-					console.error("Error al leer HistoricoEquipo", oError);
-					sap.m.MessageToast.show("Error al cargar histórico");
-				}
+				});
 			});
-		}, onVerDetalleHistorico: function (oEvent) {
-			const oItem = oEvent.getSource().getParent(); // ColumnListItem
+		}
+		,
+		onVerDetalleHistorico: function (oEvent) {
+			const oItem = oEvent.getSource().getParent();
 			const oContext = oItem.getBindingContext("historicoEquipoModel");
 			const oData = oContext.getObject();
 
@@ -448,6 +477,10 @@ sap.ui.define([
 		},
 		onCloseDetalleHistoricoDialog: function () {
 			this._oDetalleHistoricoDialog.close();
+		},
+		onCloseHistoricoDialog: function () {
+			this._oDetalleHistoricoDialog.close();
+
 		}
 		,
 	});

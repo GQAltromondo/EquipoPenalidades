@@ -38,7 +38,7 @@
 							<ObjectAttribute title="{i18n>ed_conexion}" text="{editModel>/PtoCon}"/>
 						</VBox>
 							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
-								<Button text="Evolucion del Equipo" type="Emphasized" press="onEvolucionEquipo"/> 
+								<Button enabled="{evoModel>/enabled}" text="Evolucion del Equipo" type="Emphasized"  press="onEvolucionEquipo"/> 
 							</VBox>
 						</HBox>
 					</HBox>

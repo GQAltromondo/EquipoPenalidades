@@ -58,39 +58,7 @@
 														<Label text="{i18n>ed_equipo}"/>
 													</form:label>
 												</form:FormElement>
-												<!--<form:FormElement>-->
-												<!--	<form:fields>-->
-												<!--		<Input value="{detalleHistoricoModel>/Nroequipocammesa}" enabled="false"/>-->
-												<!--	</form:fields>-->
-												<!--	<form:label>-->
-												<!--		<Label text="{i18n>ed_equipo_cam}"/>-->
-												<!--	</form:label>-->
-												<!--</form:FormElement>-->
-												<!--<form:FormElement>-->
-												<!--	<form:fields>-->
-												<!--		<DatePicker value="{path: 'detalleHistoricoModel>/Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"-->
-												<!-- enabled="false"/>-->
-												<!--	</form:fields>-->
-												<!--	<form:label>-->
-												<!--		<Label text="{i18n>ed_desde}"/>-->
-												<!--	</form:label>-->
-												<!--</form:FormElement>-->
-												<!--<form:FormElement>-->
-												<!--	<form:fields>-->
-												<!--		<Input value="{detalleHistoricoModel>/Empresa}" enabled="false"/>-->
-												<!--	</form:fields>-->
-												<!--	<form:label>-->
-												<!--		<Label text="{i18n>ed_emp}"/>-->
-												<!--	</form:label>-->
-												<!--</form:FormElement>-->
-												<!--<form:FormElement>-->
-												<!--	<form:fields>-->
-												<!--		<Input value="{detalleHistoricoModel>/Tipoequipo}" enabled="false"/>-->
-												<!--	</form:fields>-->
-												<!--	<form:label>-->
-												<!--		<Label text="{i18n>ed_tipo_eq}"/>-->
-												<!--	</form:label>-->
-												<!--</form:FormElement>-->
+
 												<form:FormElement>
 													<form:fields>
 														<Input type="Number" value="{detalleHistoricoModel>/POTENCIA_DIR}"/>
@@ -129,6 +97,29 @@
 														<Label text="{i18n>ed_lon}"/>
 													</form:label>
 												</form:FormElement>
+													<form:FormElement>
+															<form:fields>
+																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_KmN}"/>
+															</form:label>
+														</form:FormElement>
+															<form:FormElement>
+															<form:fields>
+																<Input type="Number" value="{editModel>/KMLineasCentroEste}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_KmCE}"/>
+															</form:label>
+														</form:FormElement>		<form:FormElement>
+															<form:fields>
+																<Input type="Number" value="{editModel>/KMLineasSur}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_KmS}"/>
+															</form:label>
+														</form:FormElement>
 											</form:formElements>
 										</form:FormContainer>
 									</form:formContainers>
@@ -159,6 +150,38 @@
 														<Label text="{i18n>ed_nemo}"/>
 													</form:label>
 												</form:FormElement>
+												<form:FormElement>
+															<form:fields>
+																<Input maxLength="4" value="{editModel>/Elemento}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_elemento}"/>
+															</form:label>
+														</form:FormElement>
+															<form:FormElement>
+															<form:fields>
+																<Input maxLength="250" value="{editModel>/Observaciones}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_observacion}"/>
+															</form:label>
+														</form:FormElement>
+																<form:FormElement>
+															<form:fields>
+																<Input  value="{editModel>/Cebe}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_cebe}"/>
+															</form:label>
+														</form:FormElement>
+																<form:FormElement>
+															<form:fields>
+																<Input  value="{editModel>/Kostl}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_ceco}"/>
+															</form:label>
+														</form:FormElement>
 												<form:FormElement>
 													<form:fields>
 														<!--<Input maxLength="40" value="{detalleHistoricoModel>/Regionpenalidades}"/>-->

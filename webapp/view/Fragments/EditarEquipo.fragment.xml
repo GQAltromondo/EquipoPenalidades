@@ -53,6 +53,7 @@
 											<form:formContainers>
 												<form:FormContainer>
 													<form:formElements>
+													
 														<!--<form:FormElement>-->
 														<!--	<form:fields>-->
 														<!--		<Input value="{editModel>/Codigoequipo}" enabled="false"/>-->
@@ -132,6 +133,29 @@
 																<Label text="{i18n>ed_lon}"/>
 															</form:label>
 														</form:FormElement>
+															<form:FormElement>
+															<form:fields>
+																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_KmN}"/>
+															</form:label>
+														</form:FormElement>
+															<form:FormElement>
+															<form:fields>
+																<Input type="Number" value="{editModel>/KMLineasCentroEste}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_KmCE}"/>
+															</form:label>
+														</form:FormElement>		<form:FormElement>
+															<form:fields>
+																<Input type="Number" value="{editModel>/KMLineasSur}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_KmS}"/>
+															</form:label>
+														</form:FormElement>
 													</form:formElements>
 												</form:FormContainer>
 											</form:formContainers>
@@ -190,12 +214,44 @@
 														<form:FormElement>
 															<form:fields>
 																<!--<Input maxLength="40" value="{editModel>/Nemo}"/>-->
-																<Select id="selectNemo" forceSelection="false" selectedKey="{editModel>/Nemo}" items="{/NemoSet}">
-																	<core:Item key="{NemoId}" text="{Descripcion}"/>
+																<Select id="selectNemo" forceSelection="false" selectedKey="{editModel>/Nemo}" items="{NemoSet>/}">
+																	<core:Item key="{NemoSet>NemoId}" text="{NemoSet>Descripcion}"/>
 																</Select>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_nemo}"/>
+															</form:label>
+														</form:FormElement>
+														<form:FormElement>
+															<form:fields>
+																<Input maxLength="4" value="{editModel>/Elemento}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_elemento}"/>
+															</form:label>
+														</form:FormElement>
+															<form:FormElement>
+															<form:fields>
+																<Input maxLength="250" value="{editModel>/Observaciones}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_observacion}"/>
+															</form:label>
+														</form:FormElement>
+																<form:FormElement>
+															<form:fields>
+																<Input  value="{editModel>/Cebe}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_cebe}"/>
+															</form:label>
+														</form:FormElement>
+																<form:FormElement>
+															<form:fields>
+																<Input  value="{editModel>/Kostl}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_ceco}"/>
 															</form:label>
 														</form:FormElement>
 														<form:FormElement>

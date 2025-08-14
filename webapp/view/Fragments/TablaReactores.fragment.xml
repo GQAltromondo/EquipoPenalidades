@@ -81,7 +81,7 @@
                         <ObjectAttribute text="{Tension}"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="3rem" filterProperty="Ubicacion" sortProperty="Ubicacion" hAlign="Center">
+                <table:Column width="9rem" filterProperty="Ubicacion" sortProperty="Ubicacion" hAlign="Center">
                     <Label text="{i18n>tb_estacion}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Ubicacion","columnIndex":"8", "isCurrency": false, "leadingProperty": "Ubicacion", "sortProperty": "Ubicacion", "filterProperty": "Ubicacion", "type": "string" }'/>

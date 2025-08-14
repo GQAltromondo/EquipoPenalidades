@@ -44,6 +44,7 @@ sap.ui.define([
 				this.getView().setModel(jsonModel, "appCurrentInfo")
 			}
 		},
+		
 		onAfterRendering: function () {
 			this._loadSociety();
 		},

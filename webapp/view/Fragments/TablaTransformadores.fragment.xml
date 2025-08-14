@@ -44,7 +44,7 @@
                         <ObjectIdentifier title="{IdPagoTran}"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="7rem" filterProperty="Codigoequipo" sortProperty="Codigoequipo">
+                <table:Column width="9rem" filterProperty="Codigoequipo" sortProperty="Codigoequipo">
                     <Label text="{i18n>tb_equipo}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Codigoequipo","columnIndex":"4", "isCurrency": false, "leadingProperty": "Codigoequipo", "sortProperty": "Codigoequipo", "filterProperty": "Codigoequipo", "type": "string" }'/>
@@ -62,7 +62,7 @@
                         <ObjectAttribute text="{Descripcion}"/>
                     </table:template>
                 </table:Column>
-               <table:Column width="6rem" filterProperty="Potencia" sortProperty="Potencia">
+               <table:Column width="8rem" filterProperty="Potencia" sortProperty="Potencia">
                     <Label text="{i18n>tb_potencia}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Potencia","columnIndex":"6", "isCurrency": false, "leadingProperty": "Potencia", "sortProperty": "Potencia", "filterProperty": "Potencia", "type": "string" }'/>
@@ -72,7 +72,7 @@
                     </table:template>
                 </table:Column>
 
-                <table:Column width="6rem" filterProperty="Tension" sortProperty="Tension">
+                <table:Column width="8rem" filterProperty="Tension" sortProperty="Tension">
                     <Label text="{i18n>tb_tension}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Tension","columnIndex":"7", "isCurrency": false, "leadingProperty": "Tension", "sortProperty": "Tension", "filterProperty": "Tension", "type": "string" }'/>
@@ -81,7 +81,7 @@
                         <ObjectAttribute text="{Tension}"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="3rem" filterProperty="Ubicacion" sortProperty="Ubicacion" hAlign="Center">
+                <table:Column width="9rem" filterProperty="Ubicacion" sortProperty="Ubicacion" hAlign="Center">
                     <Label text="{i18n>tb_estacion}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Ubicacion","columnIndex":"8", "isCurrency": false, "leadingProperty": "Ubicacion", "sortProperty": "Ubicacion", "filterProperty": "Ubicacion", "type": "string" }'/>
@@ -91,7 +91,7 @@
                     </table:template>
                 </table:Column>
 
-                <table:Column width="11rem" filterProperty="Regionpenalidades" sortProperty="Regionpenalidades">
+                <table:Column width="7rem" filterProperty="Regionpenalidades" sortProperty="Regionpenalidades">
                     <Label text="{i18n>tb_reg}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Regionpenalidades","columnIndex":"9", "isCurrency": false, "leadingProperty": "Regionpenalidades", "sortProperty": "Regionpenalidades", "filterProperty": "Regionpenalidades", "type": "string" }'/>

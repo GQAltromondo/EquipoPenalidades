@@ -60,48 +60,25 @@
 												<form:FormContainer>
 													<form:formElements>
 													
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/Codigoequipo}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_equipo}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/Nroequipocammesa}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_equipo_cam}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<DatePicker value="{path: 'editModel>/Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"-->
-														<!--			enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_desde}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/Empresa}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_emp}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/Tipoequipo}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_tipo_eq}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<form:FormElement>
+														<form:FormElement >
+															<form:fields>
+																<Input  value="{editModel>/Descripcion}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_desc}"/>
+															</form:label>
+														</form:FormElement>
+													
+														<form:FormElement >
+															<form:fields>
+																<DatePicker  value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_inicioAct}"/>
+															</form:label>
+														</form:FormElement>
+													
+												<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isTransformador'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/Potencia}"/>
 															</form:fields>
@@ -109,7 +86,7 @@
 																<Label text="{i18n>ed_pot}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement>
+														<form:FormElement >
 															<form:fields>
 																<!--<Input maxLength="20" value="{editModel>/Tension}"/>-->
 																<Select id="selectTension" forceSelection="false" selectedKey="{editModel>/Tension}" items="{Desplegables>/Tensiones}">
@@ -120,7 +97,7 @@
 																<Label text="{i18n>ed_ten}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement>
+															<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<!--<Input maxLength="10" value="{editModel>/Clasepenalizacion}"/>-->
 																<Select forceSelection="false" selectedKey="{editModel>/Clasepenalizacion}" items="{Desplegables>/ClasePenalizacion}">
@@ -131,15 +108,14 @@
 																<Label text="{i18n>ed_clase_pen}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement>
-															<form:fields>
+														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">															<form:fields>
 																<Input type="Number" value="{editModel>/Longitudlineas}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_lon}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement>
+														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
 															</form:fields>
@@ -147,14 +123,15 @@
 																<Label text="{i18n>ed_KmN}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement>
+														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasCentroEste}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_KmCE}"/>
 															</form:label>
-														</form:FormElement>		<form:FormElement>
+														</form:FormElement>		
+														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasSur}"/>
 															</form:fields>
@@ -162,6 +139,7 @@
 																<Label text="{i18n>ed_KmS}"/>
 															</form:label>
 														</form:FormElement>
+													
 													</form:formElements>
 												</form:FormContainer>
 											</form:formContainers>
@@ -176,39 +154,7 @@
 											<form:formContainers>
 												<form:FormContainer>
 													<form:formElements>
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/Descripcion}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_desc}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/Descequipocammesa}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_desc_cam}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<DatePicker value="{path: 'editModel>/Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"-->
-														<!--			enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_hasta}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Input value="{editModel>/PtoCon}" enabled="false"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_conexion}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
+											
 														<form:FormElement>
 															<form:fields>
 																<Input maxLength="4" value="{editModel>/EmpresaInt}"/>
@@ -260,6 +206,22 @@
 																<Label text="{i18n>ed_ceco}"/>
 															</form:label>
 														</form:FormElement>
+															<form:FormElement >
+															<form:fields>
+																<Input type="Number" value="{editModel>/Coeficiente}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_CoefSup}"/>
+															</form:label>
+														</form:FormElement>
+														<form:FormElement >
+															<form:fields>
+																<Input type="Number" value="{editModel>/Coeficiente}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_CoefRed}"/>
+															</form:label>
+														</form:FormElement>
 														<form:FormElement>
 															<form:fields>
 																<!--<Input maxLength="40" value="{editModel>/Regionpenalidades}"/>-->
@@ -271,14 +233,7 @@
 																<Label text="{i18n>ed_region}"/>
 															</form:label>
 														</form:FormElement>
-														<!--<form:FormElement>-->
-														<!--	<form:fields>-->
-														<!--		<Switch state="{editModel>/Regulado}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>-->
-														<!--	</form:fields>-->
-														<!--	<form:label>-->
-														<!--		<Label text="{i18n>ed_regulado}"/>-->
-														<!--	</form:label>-->
-														<!--</form:FormElement>-->
+														
 														<form:FormElement>
 											
     <form:fields>

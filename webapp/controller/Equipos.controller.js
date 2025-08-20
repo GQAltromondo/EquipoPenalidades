@@ -22,6 +22,7 @@ sap.ui.define([
 
 			this.getVersion()
 
+
 		}, getVersion: function () {
 			const oComponent = this.getOwnerComponent();
 
@@ -44,7 +45,7 @@ sap.ui.define([
 				this.getView().setModel(jsonModel, "appCurrentInfo")
 			}
 		},
-		
+
 		onAfterRendering: function () {
 			this._loadSociety();
 		},
@@ -61,8 +62,21 @@ sap.ui.define([
 		},
 
 		onBeforeRebindAutomatismos: function (oEvent) {
-			//this._applyCustomFilters(oEvent, []); // Sin filtros por defecto
-		},
+			const m = oEvent.getParameter("bindingParams");
+			m.parameters = m.parameters || {};
+
+			// Quitar cualquier filtro que venga del SmartFilterBar o p13n
+			m.filters = [];
+
+			// Asegurar que no quede nada en la URL
+			delete m.parameters.$filter; // OData V2
+			delete m.parameters.$apply;  // por si hubiera agregaciones
+
+			// (Opcional) forzar sólo ciertos campos o expansiones
+			// m.parameters.$select = "Empresa,Codigoequipo,Descripcion,Desde,Hasta,Nemo,IdBde,IdPagoTran";
+			// m.parameters.$expand = "";
+		}
+		,
 
 		onBeforeRebindConexiones: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["P5", "P4", "P3", "P2", "P1"]);
@@ -154,10 +168,10 @@ sap.ui.define([
 		onEditarEquipo: async function (oEvent) {
 			var oData = oEvent.getSource().getBindingContext().getObject(),
 				oView = this.getView();
-		
+
 			try {
 				const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
-		
+
 				if (!Historico || Historico.length === 0) {
 					ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
 				} else {
@@ -167,11 +181,11 @@ sap.ui.define([
 				console.error("Error al obtener el histórico:", error);
 				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
 			}
-		
+
 			// Formatear campo remuneracion
 			oData.Remuneracion = oData.Remuneracion === 'X';
 			oData.Penaliza = oData.Penaliza === 'X';
-		
+
 			Fragment.load({
 				name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.EditarEquipo",
 				id: oView.getId(),
@@ -179,14 +193,14 @@ sap.ui.define([
 			}).then(function (oPopup) {
 				this._oDialogEdit = oPopup;
 				this.getView().addDependent(oPopup);
-		
+
 				this._oDialogEdit.attachAfterClose(function (oEvent) {
 					oEvent.getSource().destroy();
 				});
-		
+
 				this._oDialogEdit.attachAfterOpen(function () {
 					this._oDialogEdit.setModel(new JSONModel(oData), "editModel");
-		
+
 					// Filtro de region penalidades por empresa seleccionada
 					var sEmpresa = this.getModel("viewModel").getProperty("/sociedad");
 					let aFilters = [
@@ -196,7 +210,7 @@ sap.ui.define([
 					this.getView().byId("selectTension").getBinding("items").filter(aFilters);
 					this.getView().byId("selectNemo").getBinding("items").filter(aFilters);
 				}.bind(this));
-		
+
 				this._oDialogEdit.open();
 			}.bind(this));
 		}
@@ -352,6 +366,7 @@ sap.ui.define([
 			});
 		},
 
+
 		_initSociety: function () {
 			Fragment.load({
 				name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.SeleccionarEmpresa",
@@ -388,6 +403,7 @@ sap.ui.define([
 
 			oSmartFilterBar.getControlByKey("Tipoequipo").getBinding("items").filter(aFilters);
 			this._loadNemos()
+
 		},
 		onEvolucionEquipo: async function (Codigoequipo) {
 			let sCodigoEquipo = "";
@@ -401,7 +417,7 @@ sap.ui.define([
 				sCodigoEquipo = oEditModelData.Codigoequipo;
 			}
 
-		
+
 			const oModel = this.getView().getModel();
 			oModel.setUseBatch(false);
 

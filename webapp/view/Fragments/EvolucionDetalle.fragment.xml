@@ -50,6 +50,23 @@
 									<form:formContainers>
 										<form:FormContainer>
 											<form:formElements>
+											
+														<form:FormElement >
+															<form:fields>
+																<Input  value="{detalleHistoricoModel>/Descripcion}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_desc}"/>
+															</form:label>
+														</form:FormElement>
+															<form:FormElement >
+															<form:fields>
+																<DatePicker  value="{path:'detalleHistoricoModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_inicioAct}"/>
+															</form:label>
+														</form:FormElement>
 												<form:FormElement>
 													<form:fields>
 														<Input value="{detalleHistoricoModel>/CODIGOEQUIPO}" enabled="false"/>
@@ -59,7 +76,7 @@
 													</form:label>
 												</form:FormElement>
 
-												<form:FormElement>
+												<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isTransformador'}">
 													<form:fields>
 														<Input type="Number" value="{detalleHistoricoModel>/POTENCIA_DIR}"/>
 													</form:fields>
@@ -89,7 +106,7 @@
 														<Label text="{i18n>ed_clase_pen}"/>
 													</form:label>
 												</form:FormElement>
-												<form:FormElement>
+											<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 													<form:fields>
 														<Input type="Number" value="{detalleHistoricoModel>/LONGITUDLINEAS}"/>
 													</form:fields>
@@ -97,7 +114,7 @@
 														<Label text="{i18n>ed_lon}"/>
 													</form:label>
 												</form:FormElement>
-													<form:FormElement>
+													<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
 															</form:fields>
@@ -105,14 +122,15 @@
 																<Label text="{i18n>ed_KmN}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement>
+																<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasCentroEste}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_KmCE}"/>
 															</form:label>
-														</form:FormElement>		<form:FormElement>
+														</form:FormElement>		
+															<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasSur}"/>
 															</form:fields>
@@ -180,6 +198,23 @@
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_ceco}"/>
+															</form:label>
+														</form:FormElement>
+														
+															<form:FormElement >
+															<form:fields>
+																<Input type="Number" value="{editModel>/Coeficiente}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_CoefSup}"/>
+															</form:label>
+														</form:FormElement>
+														<form:FormElement >
+															<form:fields>
+																<Input type="Number" value="{editModel>/Coeficiente}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_CoefRed}"/>
 															</form:label>
 														</form:FormElement>
 												<form:FormElement>

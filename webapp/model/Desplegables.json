@@ -92,113 +92,106 @@
 			"Descripcion": "13,2"
 		}
 	],
+	"Elementos": [
+		{ "Clave": "CON", "Descripcion": "Conexiones"
+		},
+		{ "Clave": "LIN", "Descripcion": "Líneas"
+		},
+		{ "Clave": "TRA", "Descripcion": "Transformadores"
+		},
+		{ "Clave": "REAC", "Descripcion": "Reactivos"
+		}
+	],
 	"TipoEquiposModel": [
 		{
-		  
-		  "Empresa": "100",
-		  "Tipo": "TR",
-		  "Grupo": "002",
-		  "Descripcion": "TRANSFORMADOR"
+			"Empresa": "100",
+			"Tipo": "TR",
+			"Grupo": "002",
+			"Descripcion": "TRANSFORMADOR"
 		},
 		{
-		 
-		  "Empresa": "100",
-		  "Tipo": "RT",
-		  "Grupo": "003",
-		  "Descripcion": "REACTOR DE TERCIARIOS"
+			"Empresa": "100",
+			"Tipo": "RT",
+			"Grupo": "003",
+			"Descripcion": "REACTOR DE TERCIARIOS"
 		},
 		{
-		 
-		  "Empresa": "100",
-		  "Tipo": "RL",
-		  "Grupo": "003",
-		  "Descripcion": "REACTOR DE LÍNEA"
+			"Empresa": "100",
+			"Tipo": "RL",
+			"Grupo": "003",
+			"Descripcion": "REACTOR DE LÍNEA"
 		},
 		{
-		 
-		  "Empresa": "100",
-		  "Tipo": "RB",
-		  "Grupo": "003",
-		  "Descripcion": "REACTOR DE BARRA"
+			"Empresa": "100",
+			"Tipo": "RB",
+			"Grupo": "003",
+			"Descripcion": "REACTOR DE BARRA"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "L5",
-		  "Grupo": "001",
-		  "Descripcion": "LÍNEA DE 500 KV"
+			"Empresa": "100",
+			"Tipo": "L5",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 500 KV"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "L4",
-		  "Grupo": "001",
-		  "Descripcion": "LÍNEA DE 345 KV"
+			"Empresa": "100",
+			"Tipo": "L4",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 345 KV"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "L2",
-		  "Grupo": "001",
-		  "Descripcion": "LÍNEA DE 220 KV"
+			"Empresa": "100",
+			"Tipo": "L2",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 220 KV"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "L1",
-		  "Grupo": "001",
-		  "Descripcion": "LÍNEA DE 132 KV"
+			"Empresa": "100",
+			"Tipo": "L1",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 132 KV"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "P5",
-		  "Grupo": "006",
-		  "Descripcion": "CONEXIÓN DE 500 KV"
+			"Empresa": "100",
+			"Tipo": "P5",
+			"Grupo": "006",
+			"Descripcion": "CONEXIÓN DE 500 KV"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "P2",
-		  "Grupo": "006",
-		  "Descripcion": "CONEXIÓN DE 220 KV"
+			"Empresa": "100",
+			"Tipo": "P2",
+			"Grupo": "006",
+			"Descripcion": "CONEXIÓN DE 220 KV"
 		},
 		{
-		
-		
-		  "Empresa": "100",
-		  "Tipo": "P1",
-		  "Grupo": "006",
-		  "Descripcion": "CONEXIÓN DE 132 KV"
+			"Empresa": "100",
+			"Tipo": "P1",
+			"Grupo": "006",
+			"Descripcion": "CONEXIÓN DE 132 KV"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "CS",
-		  "Grupo": "005",
-		  "Descripcion": "COMPENSADOR SINCRÓNICO"
+			"Empresa": "100",
+			"Tipo": "CS",
+			"Grupo": "005",
+			"Descripcion": "COMPENSADOR SINCRÓNICO"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "KS",
-		  "Grupo": "004",
-		  "Descripcion": "CAPACITOR SERIE"
+			"Empresa": "100",
+			"Tipo": "KS",
+			"Grupo": "004",
+			"Descripcion": "CAPACITOR SERIE"
 		},
 		{
-		
-		  "Empresa": "100",
-		  "Tipo": "KP",
-		  "Grupo": "004",
-		  "Descripcion": "CAPACITOR PARALELO"
+			"Empresa": "100",
+			"Tipo": "KP",
+			"Grupo": "004",
+			"Descripcion": "CAPACITOR PARALELO"
 		},
-	
 		{
-		 
-		  "Empresa": "100",
-		  "Tipo": "AU",
-		  "Grupo": "002",
-		  "Descripcion": "AUTOTRANSFORMADOR"
+			"Empresa": "100",
+			"Tipo": "AU",
+			"Grupo": "002",
+			"Descripcion": "AUTOTRANSFORMADOR"
 		}
-	  ]
+	]
 }

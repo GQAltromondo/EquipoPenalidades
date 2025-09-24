@@ -1,6 +1,13 @@
-<mvc:View controllerName="Transener.Operaciones.EquiposPenalidades.controller.Equipos" xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-	xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:smartTable="sap.ui.comp.smarttable" xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
-	xmlns:l="sap.ui.layout" xmlns:f="sap.f" xmlns:card="sap.f.cards" xmlns:table="sap.ui.table">
+<mvc:View controllerName="Transener.Operaciones.EquiposPenalidades.controller.Equipos"
+	xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:smartTable="sap.ui.comp.smarttable"
+	xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+	xmlns:l="sap.ui.layout"
+	xmlns:f="sap.f"
+	xmlns:card="sap.f.cards"
+	xmlns:table="sap.ui.table">
 	<!--<Shell id="shell">-->
 	<App id="app">
 		<pages>
@@ -17,82 +24,119 @@
 									</OverflowToolbar>
 								</headerToolbar>
 								<content>
-									<smartFilterBar:SmartFilterBar clear="onLimpiarFiltros" useToolbar="false" id="idSmartFilterBar" persistencyKey="UniqueAndStablePersistencyKey"
-										considerSelectionVariants="true" entitySet="EquiposPenalidadesSet" useDateRangeType="false" showClearOnFB="true" showClearButton="true">
+									<smartFilterBar:SmartFilterBar id="idSmartFilterBar" entitySet="EquiposPenalidadesSet" considerSelectionVariants="true" useToolbar="false" useDateRangeType="false" showClearOnFB="true" showClearButton="true" clear="onLimpiarFiltros">
+
 										<smartFilterBar:controlConfiguration>
-											<!--<smartFilterBar:ControlConfiguration key="Desde" index="10" label="{i18n>fb_desde}" groupId="_BASIC"/>-->
-											<smartFilterBar:ControlConfiguration key="FechaCustom" index="10" label="{i18n>fb_desde}" groupId="_BASIC">
+
+											<!-- 1) FechaDesde -->
+											<smartFilterBar:ControlConfiguration key="FechaDesde" index="10" label="{i18n>fb_desde}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<DatePicker displayFormat="dd.MM.yyyy" placeholder="dd.mm.aaaa"/>
+													<DateTimePicker displayFormat="dd.MM.yyyy HH:mm" valueFormat="yyyy-MM-dd'T'HH:mm:ss" placeholder="dd.mm.aaaa hh:mm" />
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
-											<!--<smartFilterBar:ControlConfiguration key="Hasta" index="20" label="{i18n>fb_hasta}" groupId="_BASIC"-->
-											<!--	conditionType="sap.ui.comp.config.condition.DateRangeType"/>-->
-											<smartFilterBar:ControlConfiguration key="Codigoequipo" index="30" label="{i18n>fb_cod_eq}" groupId="_BASIC"/>
-											<smartFilterBar:ControlConfiguration key="Descripcion" index="40" label="{i18n>fb_desc}" groupId="_BASIC"/>
-											<smartFilterBar:ControlConfiguration key="Nroequipocammesa" index="50" label="{i18n>fb_equipo_cam}" groupId="_BASIC"/>
-											<smartFilterBar:ControlConfiguration key="Descequipocammesa" index="60" label="{i18n>fb_desc_cam}" groupId="_BASIC"/>
-											<smartFilterBar:ControlConfiguration key="Tipoequipo" index="70" label="{i18n>fb_tipo_eq}" groupId="_BASIC" filterType="multiple"
-												hasTypeAhead="false" controlType="dropDownList" visible="true">
+
+											<!-- 2) FechaHasta -->
+											<smartFilterBar:ControlConfiguration key="FechaHasta" index="20" label="{i18n>fb_hasta}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<!-- <MultiComboBox items="{/TipoEquipoSet}">
-														<core:Item key="{Tipo}" text="{Tipo} - {Descripcion}"/>
-													</MultiComboBox> -->
-															<MultiComboBox items="{Desplegables>/TipoEquiposModel}">
+													<DateTimePicker displayFormat="dd.MM.yyyy HH:mm" valueFormat="yyyy-MM-dd'T'HH:mm:ss" placeholder="dd.mm.aaaa hh:mm" />
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
+
+											<!-- 3) IdBDE (custom, lo mapearás a contains sobre IdPagoTran) -->
+											<smartFilterBar:ControlConfiguration key="IdBDE" index="30" label="Id BDE" groupId="_BASIC">
+												<smartFilterBar:customControl>
+													<Input placeholder="Buscar Id BDE..." />
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
+
+											<!-- 4) IdPagoTran (estándar) -->
+											<smartFilterBar:ControlConfiguration key="IdPagoTran" index="40" label="Id Pago Tran" groupId="_BASIC"/>
+
+											<!-- 5) Tipoequipo (MultiComboBox) -->
+											<smartFilterBar:ControlConfiguration key="Tipoequipo" index="50" label="{i18n>fb_tipo_eq}" groupId="_BASIC" filterType="multiple" hasTypeAhead="false" controlType="dropDownList" visible="true">
+												<smartFilterBar:customControl>
+													<MultiComboBox items="{Desplegables>/TipoEquiposModel}">
 														<core:Item key="{Desplegables>Tipo}" text="{Desplegables>Tipo} - {Desplegables>Descripcion}"/>
 													</MultiComboBox>
-												
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
-											<smartFilterBar:ControlConfiguration key="Nemo" index="80" label="{i18n>fb_nemo}" groupId="_BASIC"/>
-											<smartFilterBar:ControlConfiguration key="Regionpenalidades" index="90" label="{i18n>fb_reg}" groupId="_BASIC" filterType="multiple"
-												hasTypeAhead="false" controlType="dropDownList" visible="true">
+
+											<!-- 6) Nemo -->
+											<smartFilterBar:ControlConfiguration key="Nemo" index="60" label="{i18n>fb_nemo}" groupId="_BASIC"/>
+
+											<!-- 7) Regionpenalidades (MultiComboBox) -->
+											<smartFilterBar:ControlConfiguration key="Regionpenalidades" index="70" label="{i18n>fb_reg}" groupId="_BASIC" filterType="multiple" hasTypeAhead="false" controlType="dropDownList" visible="true">
 												<smartFilterBar:customControl>
 													<MultiComboBox items="{Desplegables>/RegionPenalidades}">
 														<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
 													</MultiComboBox>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
-											<smartFilterBar:ControlConfiguration key="Remuneracion" index="100" label="{i18n>fb_remuneracion}" groupId="_BASIC" filterType="multiple"
-												hasTypeAhead="false" controlType="dropDownList" visible="true">
+
+											<!-- 8) Remuneracion (Check) -->
+											<smartFilterBar:ControlConfiguration key="Remuneracion" index="80" label="{i18n>fb_remuneracion}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<!--<MultiComboBox>-->
-													<!--	<core:Item key="X" text="{i18n>fb_si}"/>-->
-													<!--	<core:Item key="N" text="{i18n>fb_no}"/>-->
-													<!--</MultiComboBox>-->
 													<CheckBox/>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
+
+											<!-- 9) Penaliza (Check) -->
+											<smartFilterBar:ControlConfiguration key="Penaliza" index="90" label="{i18n>fb_penaliza}" groupId="_BASIC">
+												<smartFilterBar:customControl>
+													<CheckBox/>
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
+
+											<!-- 10) Flagperdidarem (Check Premio) -->
+											<smartFilterBar:ControlConfiguration key="Flagperdidarem" index="100" label="{i18n>fb_premio}" groupId="_BASIC">
+												<smartFilterBar:customControl>
+													<CheckBox/>
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
+
+											<!-- 11) Equipo (Codigoequipo) -->
+											<smartFilterBar:ControlConfiguration key="Codigoequipo" index="110" label="{i18n>fb_cod_eq}" groupId="_BASIC"/>
+
+											<!-- 12) Elemento (MultiComboBox: CON, LIN, TRA, REAC) -->
+											<smartFilterBar:ControlConfiguration key="Elemento" index="120" label="Elemento" groupId="_BASIC" filterType="multiple" hasTypeAhead="false" controlType="dropDownList" visible="true">
+												<smartFilterBar:customControl>
+													<MultiComboBox items="{Desplegables>/Elementos}">
+														<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
+													</MultiComboBox>
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
+
 										</smartFilterBar:controlConfiguration>
 									</smartFilterBar:SmartFilterBar>
+
 								</content>
 							</Panel>
-				<IconTabBar id="idIconTabBar" class="sapUiTinyMargin" expandable="false">
-	<items>
-	<IconTabFilter text="Lineas" design="Horizontal" icon="sap-icon://line-charts" key="Lineas">
+							<IconTabBar id="idIconTabBar" class="sapUiTinyMargin" expandable="false">
+								<items>
+									<IconTabFilter text="Lineas" design="Horizontal" icon="sap-icon://line-charts" key="Lineas">
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaLineas" type="XML"/>
 									</IconTabFilter>
 									<IconTabFilter text="Transformadores" design="Horizontal" icon="sap-icon://machine" key="Transf">
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaTransformadores" type="XML" class="sapUiSmallMarginBottom"/>
-									
+
 									</IconTabFilter>
-										 <IconTabFilter text="Reactivo" design="Horizontal" icon="sap-icon://machine" key="React">
-										
+									<IconTabFilter text="Reactivo" design="Horizontal" icon="sap-icon://machine" key="React">
+
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaReactores" type="XML"/>
 									</IconTabFilter>
 									<IconTabFilter text="Conexion" design="Horizontal" icon="sap-icon://connected" key="Conexiones">
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaConexiones" type="XML"/>
 									</IconTabFilter>
-									<IconTabFilter text="Automatismos" design="Horizontal" icon="sap-icon://developer-settings" key="Automatismos" visible="{= ${viewModel>/sociedad} === '100' }" >
+									<IconTabFilter text="Automatismos" design="Horizontal" icon="sap-icon://developer-settings" key="Automatismos" visible="{= ${viewModel>/sociedad} === '100' }">
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaAutomatismos" type="XML"/>
-									</IconTabFilter> 
-								
-
-	</items>
-</IconTabBar>
+									</IconTabFilter>
 
 
-						
+								</items>
+							</IconTabBar>
+
+
+
 							<layoutData>
 								<l:SplitterLayoutData size="auto" resizable="false"/>
 							</layoutData>
@@ -115,14 +159,10 @@
 										<ObjectAttribute title="{i18n>dt_extremos}" text="{Extremos}"/>
 									</VBox>
 									<VBox class="sapUiMediumMarginEnd">
-										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fec_fin_act}"
-											text="{path:'Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
-										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fec_ini_act}"
-											text="{path:'Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
-										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fec_servicio}"
-											text="{path:'Fechafueraservicio', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
-										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fecha_hora}"
-											text="{path:'Fechahora', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fec_fin_act}" text="{path:'Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fec_ini_act}" text="{path:'Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fec_servicio}" text="{path:'Fechafueraservicio', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_fecha_hora}" text="{path:'Fechahora', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 										<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>dt_hora_fuera}" text="{path:'Horafueraservicio', type: 'sap.ui.model.type.Time', formatOptions: {pattern: 'HH:mm:ss'}}"/>
 										<ObjectAttribute title="{i18n>dt_perten}" text="{Perteneciente}"/>
 									</VBox>
@@ -158,16 +198,16 @@
 						</VBox>
 					</l:Splitter>
 				</content>
-				 <footer>
-      <Toolbar>
-        <content>
-       
-          <ToolbarSpacer />
-          <Text text="V{appCurrentInfo>/version}" />
+				<footer>
+					<Toolbar>
+						<content>
 
-        </content>
-      </Toolbar>
-    </footer>
+							<ToolbarSpacer />
+							<Text text="V{appCurrentInfo>/version}" />
+
+						</content>
+					</Toolbar>
+				</footer>
 			</Page>
 		</pages>
 	</App>

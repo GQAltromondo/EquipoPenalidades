@@ -83,7 +83,7 @@
 									<IconTabFilter text="Conexion" design="Horizontal" icon="sap-icon://connected" key="Conexiones">
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaConexiones" type="XML"/>
 									</IconTabFilter>
-									<IconTabFilter text="Automatismos" design="Horizontal" icon="sap-icon://developer-settings" key="Automatismos">
+									<IconTabFilter text="Automatismos" design="Horizontal" icon="sap-icon://developer-settings" key="Automatismos" visible="{= ${viewModel>/sociedad} === '100' }" >
 										<core:Fragment fragmentName="Transener.Operaciones.EquiposPenalidades.view.Fragments.TablaAutomatismos" type="XML"/>
 									</IconTabFilter> 
 								

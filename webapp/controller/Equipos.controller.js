@@ -58,7 +58,7 @@ sap.ui.define([
 		},
 
 		onBeforeRebindReactores: function (oEvent) {
-			this._applyCustomFilters(oEvent, ["RT", "RL", "RB"]);
+			this._applyCustomFilters(oEvent, ["RB","KS","KP","RT","RL","CS","RG"]);
 		},
 
 		onBeforeRebindAutomatismos: function (oEvent) {
@@ -185,6 +185,7 @@ sap.ui.define([
 			// Formatear campo remuneracion
 			oData.Remuneracion = oData.Remuneracion === 'X';
 			oData.Penaliza = oData.Penaliza === 'X';
+			oData.Flagperdidarem = oData.Flagperdidarem === "X";
 
 			Fragment.load({
 				name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.EditarEquipo",
@@ -227,13 +228,12 @@ sap.ui.define([
 					Codigoequipo: oData.Codigoequipo,
 					Desde: oData.Desde
 				});
+			//delete oData.Premios // Hasta que este el campo en el backend eliminarlo
+			
 
-			// //formateo campo regulado	
-			// oData.Regulado ? oData.Regulado = 'R' : oData.Regulado = 'N';
-
-			//formateo campo remuneracion	
 			oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
 			oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
+			 oData.Flagperdidarem ? oData.Flagperdidarem ="X" : oData.Flagperdidarem = "";
 
 			this._oDialogEdit.setBusy(true);
 			this.getModel().update(sPath, oData, {
@@ -281,7 +281,7 @@ sap.ui.define([
 		onLimpiarFiltros: function (oEvt) {
 			// this.getView().getModel("filters").setData([])
 			var oSmartFilterBar = this.getView().byId("idSmartFilterBar");
-
+	oSmartFilterBar.getControlByKey("CodigoEquipo").setSelectedKeys([]);
 			oSmartFilterBar.getControlByKey("Tipoequipo").setSelectedKeys([]);
 			oSmartFilterBar.getControlByKey("Regionpenalidades").setSelectedKeys([]);
 			oSmartFilterBar.getControlByKey("Desde").setDateValue(null);

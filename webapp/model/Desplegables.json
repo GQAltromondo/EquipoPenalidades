@@ -93,13 +93,13 @@
 		}
 	],
 	"Elementos": [
-		{ "Clave": "CON", "Descripcion": "Conexiones"
+		{ "Clave": "CON", "Descripcion": "CON"
 		},
-		{ "Clave": "LIN", "Descripcion": "Líneas"
+		{ "Clave": "LIN", "Descripcion": "LIN"
 		},
-		{ "Clave": "TRA", "Descripcion": "Transformadores"
+		{ "Clave": "TRA", "Descripcion": "TRA"
 		},
-		{ "Clave": "REAC", "Descripcion": "Reactivos"
+		{ "Clave": "REC", "Descripcion": "REAC"
 		}
 	],
 	"TipoEquiposModel": [

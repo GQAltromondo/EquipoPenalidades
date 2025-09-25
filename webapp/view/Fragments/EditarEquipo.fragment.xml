@@ -28,7 +28,7 @@
 						<VBox class="sapUiMediumMarginEnd">
 							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_equipo_cam}" text="{editModel>/Nroequipocammesa} - {editModel>/Descequipocammesa}"/>
 							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_emp}" text="{editModel>/Empresa}"/>
-							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_tipo_eq}" text="{editModel>/Tipoequipo}"/>
+							<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_tipo_eq}" text="{editModel>/PtoCon}"/>
 							<!-- <ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_desde}" text="{path:'editModel>/Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 							<ObjectAttribute title="{i18n>ed_hasta}" text="{path:'editModel>/Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/> -->
 						</VBox>
@@ -85,7 +85,7 @@
 															</form:label>
 														</form:FormElement>
 													
-												<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isTransformador'}">
+												<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isTransformador'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/Potencia}"/>
 															</form:fields>
@@ -104,7 +104,7 @@
 																<Label text="{i18n>ed_ten}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+															<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<!--<Input maxLength="10" value="{editModel>/Clasepenalizacion}"/>-->
 																<Select forceSelection="false" selectedKey="{editModel>/Clasepenalizacion}" items="{Desplegables>/ClasePenalizacion}">
@@ -115,14 +115,14 @@
 																<Label text="{i18n>ed_clase_pen}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">															<form:fields>
+														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">															<form:fields>
 																<Input type="Number" value="{editModel>/Longitudlineas}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_lon}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
 															</form:fields>
@@ -130,7 +130,7 @@
 																<Label text="{i18n>ed_KmN}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}" >
+														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}" >
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasCentroEste}" visible="{= ${viewModel>/sociedad} === '100' }"/>
 															</form:fields>
@@ -138,7 +138,7 @@
 																<Label text="{i18n>ed_KmCE}" visible="{= ${viewModel>/sociedad} === '100' }"/>
 															</form:label>
 														</form:FormElement>		
-														<form:FormElement  visible="{path: 'editModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasSur}"/>
 															</form:fields>
@@ -183,7 +183,9 @@
 														</form:FormElement>
 														<form:FormElement>
 															<form:fields>
-																<Input maxLength="4" value="{editModel>/Elemento}"/>
+															<ComboBox items="{Desplegables>/Elementos}" selectedKey="{editModel>/Nemo}">
+														<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
+													</ComboBox>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_elemento}"/>
@@ -232,7 +234,7 @@
 														<form:FormElement>
 															<form:fields>
 																<!--<Input maxLength="40" value="{editModel>/Regionpenalidades}"/>-->
-																<MultiComboBox id="selectPenalidades" selectedKeys="{editModel>/Regionpenalidades}" items="{Desplegables>/RegionPenalidades}">
+																<MultiComboBox id="selectPenalidades" selectedKeys="{editModel>/RegionpenalidadesKeys}" items="{Desplegables>/RegionPenalidades}">
 																	<core:ListItem key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
 																</MultiComboBox>
 															</form:fields>

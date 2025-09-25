@@ -112,7 +112,7 @@
                         <ObjectAttribute text="{Resolucion}"/>
                     </table:template>
                 </table:Column> -->
-              <table:Column width="8.5rem" filterProperty="Cebe" sortProperty="Cebe" hAlign="Center">
+              <!-- <table:Column width="8.5rem" filterProperty="Cebe" sortProperty="Cebe" hAlign="Center">
                     <Label text="{i18n>tb_Cebe}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Cebe","columnIndex":"17", "isCurrency": false, "leadingProperty": "Cebe", "sortProperty": "Cebe", "filterProperty": "Cebe", "type": "string" }'/>
@@ -129,7 +129,7 @@
                     <table:template>
                         <ObjectAttribute text="{Ceco}"/>
                     </table:template>
-                </table:Column>
+                </table:Column> -->
 
            
             </table:columns>

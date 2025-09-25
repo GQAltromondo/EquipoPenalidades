@@ -209,21 +209,32 @@ sap.ui.define([
 
 			try {
 				const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
-
-				if (!Historico || Historico.length === 0) {
-					ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
-				} else {
-					ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", true);
-				}
+				ModelHelper.getModel(this.getView(), "evoModel")
+					.setProperty("/enabled", !!(Historico && Historico.length));
 			} catch (error) {
 				console.error("Error al obtener el histórico:", error);
 				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
 			}
 
-			// Formatear campo remuneracion
-			oData.Remuneracion = oData.Remuneracion === 'X';
-			oData.Penaliza = oData.Penaliza === 'X';
+			// Flags a boolean
+			oData.Remuneracion = oData.Remuneracion === "X";
+			oData.Penaliza = oData.Penaliza === "X";
 			oData.Flagperdidarem = oData.Flagperdidarem === "X";
+
+			// ---- NUEVO: normalizar Regionpenalidades a selectedKeys ----
+			const toSelectedKeys = (v) => {
+				if (Array.isArray(v)) return v.map(String).map(s => s.toUpperCase().trim()).filter(Boolean);
+				if (v == null) return [];
+				// Reemplaza separadores comunes por espacios y corta por espacios
+				return String(v)
+					.toUpperCase()
+					.replace(/[;,|]/g, " ")
+					.split(/\s+/)
+					.map(s => s.trim())
+					.filter(Boolean);
+			};
+			// Ej: "M S" -> ["M","S"]
+			oData.RegionpenalidadesKeys = toSelectedKeys(oData.Regionpenalidades);
 
 			Fragment.load({
 				name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.EditarEquipo",
@@ -240,20 +251,19 @@ sap.ui.define([
 				this._oDialogEdit.attachAfterOpen(function () {
 					this._oDialogEdit.setModel(new JSONModel(oData), "editModel");
 
-					// Filtro de region penalidades por empresa seleccionada
+					// Filtros por empresa
 					var sEmpresa = this.getModel("viewModel").getProperty("/sociedad");
-					let aFilters = [
-						new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa)
-					];
+					let aFilters = [new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa)];
 					this.getView().byId("selectPenalidades").getBinding("items").filter(aFilters);
 					this.getView().byId("selectTension").getBinding("items").filter(aFilters);
 					this.getView().byId("selectNemo").getBinding("items").filter(aFilters);
+
 				}.bind(this));
 
 				this._oDialogEdit.open();
 			}.bind(this));
-		}
-		,
+		},
+
 
 		onCancelarEditar: function () {
 			this._oDialogEdit.close();
@@ -268,10 +278,12 @@ sap.ui.define([
 				});
 			//delete oData.Premios // Hasta que este el campo en el backend eliminarlo
 
-
+			oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
 			oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
 			oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
 			oData.Flagperdidarem ? oData.Flagperdidarem = "X" : oData.Flagperdidarem = "";
+
+			delete oData.RegionpenalidadesKeys
 
 			this._oDialogEdit.setBusy(true);
 			this.getModel().update(sPath, oData, {
@@ -333,7 +345,8 @@ sap.ui.define([
 		_getFilters: function () {
 			const oSmartFilterBar = this.getView().byId("idSmartFilterBar");
 			const aFilters = [];
-
+			const sEmpresa = this.getModel("viewModel")?.getProperty("/sociedad");
+			if (sEmpresa) aFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
 			// Utilidad para múltiples claves
 			function buildMultiFilter(sPath, aKeys) {
 				if (!aKeys || aKeys.length === 0) return null;
@@ -351,8 +364,7 @@ sap.ui.define([
 			if (oRegionFilter) aFilters.push(oRegionFilter);
 
 			// Filtro Empresa
-			const sEmpresa = this.getModel("viewModel")?.getProperty("/sociedad");
-			if (sEmpresa) aFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+
 
 			// Filtro Fecha
 			const dFecha = oSmartFilterBar.getControlByKey("FechaCustom")?.getDateValue();

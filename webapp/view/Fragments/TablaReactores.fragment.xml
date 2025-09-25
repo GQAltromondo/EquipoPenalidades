@@ -103,25 +103,34 @@
                 <table:Column width="8rem" filterProperty="Fechainicioactividad" sortProperty="Fechainicioactividad">
                     <Label text="{i18n>tb_inicioAct}" wrapping="true" design="Bold"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Fechainicioactividad","columnIndex":"10", "isCurrency": false, "leadingProperty": "Fechainicioactividad", "sortProperty": "Fechainicioactividad", "filterProperty": "Fechainicioactividad", "type": "date" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Fechainicioactividad","columnIndex":"12", "isCurrency": false, "leadingProperty": "Fechainicioactividad", "sortProperty": "Fechainicioactividad", "filterProperty": "Fechainicioactividad", "type": "date" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{path:'Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-                <!-- <table:Column width="8rem" filterProperty="Desde" sortProperty="Desde">
+                <table:Column width="8rem" filterProperty="Desde" sortProperty="Desde">
                     <Label text="{i18n>tb_desde}" wrapping="true" design="Bold"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Desde","columnIndex":"11", "isCurrency": false, "leadingProperty": "Desde", "sortProperty": "Desde", "filterProperty": "Desde", "type": "date" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Desde","columnIndex":"12", "isCurrency": false, "leadingProperty": "Desde", "sortProperty": "Desde", "filterProperty": "Desde", "type": "date" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{path:'Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
-                </table:Column> -->
+                </table:Column>
+                  <table:Column width="8rem" filterProperty="Hasta" sortProperty="Hasta">
+                    <Label text="{i18n>tb_hasta}" wrapping="true" design="Bold"/>
+                    <table:customData>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hasta","columnIndex":"11", "isCurrency": false, "leadingProperty": "Hasta", "sortProperty": "Hasta", "filterProperty": "Hasta", "type": "date" }'/>
+                    </table:customData>
+                    <table:template>
+                        <ObjectAttribute text="{path:'Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+                    </table:template>
+                </table:Column>
              <table:Column width="8rem" filterProperty="Fechafinactividad" sortProperty="Fechafinactividad">
                     <Label text="{i18n>tb_finAct}" wrapping="true" design="Bold"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Hasta","columnIndex":"15", "isCurrency": false, "leadingProperty": "Fechafinactividad", "sortProperty": "Fechafinactividad", "filterProperty": "Fechafinactividad", "type": "date" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hasta","columnIndex":"12", "isCurrency": false, "leadingProperty": "Fechafinactividad", "sortProperty": "Fechafinactividad", "filterProperty": "Fechafinactividad", "type": "date" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{path:'Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>

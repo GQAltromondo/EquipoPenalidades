@@ -225,10 +225,18 @@
 														</form:FormElement>
 														<form:FormElement >
 															<form:fields>
+																<DatePicker  value="{path:'editModel>/HastaCoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_HastaCoefSup}"/>
+															</form:label>
+														</form:FormElement>
+														<form:FormElement >
+															<form:fields>
 																<Input type="Number" value="{editModel>/Coeficiente}"/>
 															</form:fields>
 															<form:label>
-																<Label text="{i18n>ed_CoefRed}"/>
+																<Label text="{i18n>ed_CoefRem}"/>
 															</form:label>
 														</form:FormElement>
 														<form:FormElement>

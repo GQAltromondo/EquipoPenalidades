@@ -65,7 +65,7 @@
                <table:Column width="8rem" filterProperty="Potencia" sortProperty="Potencia">
                     <Label text="{i18n>tb_potencia}" wrapping="true" design="Bold"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Potencia","columnIndex":"6", "isCurrency": false, "leadingProperty": "Potencia", "sortProperty": "Potencia", "filterProperty": "Potencia", "type": "string" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Potencia","columnIndex":"6", "isCurrency": false, "leadingProperty": "Potencia", "sortProperty": "Potencia", "filterProperty": "Potencia", "type": "numeric" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{Potencia}"/>
@@ -222,7 +222,7 @@
                   <table:Column width="8.5rem" filterProperty="Coeficiente" sortProperty="Coeficiente" hAlign="Center">
                     <Label text="{i18n>tb_Coef}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Coeficiente","columnIndex":"20", "isCurrency": false, "leadingProperty": "Coeficiente", "sortProperty": "Coeficiente", "filterProperty": "Coeficiente", "type": "string" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Coeficiente","columnIndex":"20", "isCurrency": false, "leadingProperty": "Coeficiente", "sortProperty": "Coeficiente", "filterProperty": "Coeficiente", "type": "numeric" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{Coeficiente}"/>
@@ -231,7 +231,7 @@
                 <table:Column width="8.5rem" filterProperty="HastaCoeficiente" sortProperty="HastaCoeficiente" hAlign="Center">
                     <Label text="{i18n>tb_SupHasta}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "HastaCoeficiente","columnIndex":"21", "isCurrency": false, "leadingProperty": "HastaCoeficiente", "sortProperty": "HastaCoeficiente", "filterProperty": "HastaCoeficiente", "type": "string" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "HastaCoeficiente","columnIndex":"21", "isCurrency": false, "leadingProperty": "HastaCoeficiente", "sortProperty": "HastaCoeficiente", "filterProperty": "HastaCoeficiente", "type": "numeric" }'/>
                     </table:customData>
                     <table:template>
                    <ObjectAttribute text="{HastaCoeficiente}"/>

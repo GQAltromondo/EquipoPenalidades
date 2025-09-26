@@ -29,16 +29,17 @@
 										<smartFilterBar:controlConfiguration>
 
 											<!-- 1) FechaDesde -->
-											<smartFilterBar:ControlConfiguration key="FechaDesde" index="10" label="{i18n>fb_desde}" groupId="_BASIC">
+											<smartFilterBar:ControlConfiguration key="FechaDesde" label="{i18n>fb_desde}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<DateTimePicker displayFormat="dd.MM.yyyy HH:mm" valueFormat="yyyy-MM-dd'T'HH:mm:ss" placeholder="dd.mm.aaaa hh:mm" />
+													<DatePicker displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" placeholder="dd.mm.aaaa"/>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
+
 
 											<!-- 2) FechaHasta -->
 											<smartFilterBar:ControlConfiguration key="FechaHasta" index="20" label="{i18n>fb_hasta}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<DateTimePicker displayFormat="dd.MM.yyyy HH:mm" valueFormat="yyyy-MM-dd'T'HH:mm:ss" placeholder="dd.mm.aaaa hh:mm" />
+													<DatePicker displayFormat="dd.MM.yyyy" valueFormat="yyyy-MM-dd" placeholder="dd.mm.aaaa" />
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
 
@@ -73,24 +74,34 @@
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
 
-											<!-- 8) Remuneracion (Check) -->
+									
 											<smartFilterBar:ControlConfiguration key="Remuneracion" index="80" label="{i18n>fb_remuneracion}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<CheckBox/>
+													<HBox>
+														<CheckBox id="chkRemuYes" text="Sí"/>
+														<CheckBox id="chkRemuNo" text="No"/>
+													</HBox>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
+
 
 											<!-- 9) Penaliza (Check) -->
 											<smartFilterBar:ControlConfiguration key="Penaliza" index="90" label="{i18n>fb_penaliza}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<CheckBox/>
+													<HBox>
+														<CheckBox id="chkPenYes" text="Sí"/>
+														<CheckBox id="chkPenNo" text="No"/>
+													</HBox>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
 
 											<!-- 10) Flagperdidarem (Check Premio) -->
 											<smartFilterBar:ControlConfiguration key="Flagperdidarem" index="100" label="{i18n>fb_premio}" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<CheckBox/>
+														<HBox>
+														<CheckBox id="chkPremioYes" text="Sí"/>
+														<CheckBox id="chkPremioNo" text="No"/>
+													</HBox>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
 

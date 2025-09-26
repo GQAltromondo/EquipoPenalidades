@@ -269,35 +269,87 @@ sap.ui.define([
 			this._oDialogEdit.close();
 		},
 
+		// onGuardarEquipo: function () {
+		// 	var oData = this._oDialogEdit.getModel("editModel").getData(),
+		// 		sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+		// 			Empresa: oData.Empresa,
+		// 			Codigoequipo: oData.Codigoequipo,
+		// 			Desde: oData.Desde
+		// 		});
+		// 	//delete oData.Premios // Hasta que este el campo en el backend eliminarlo
+
+		// 	oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
+		// 	oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
+		// 	oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
+		// 	oData.Flagperdidarem ? oData.Flagperdidarem = "X" : oData.Flagperdidarem = "";
+
+		// 	delete oData.RegionpenalidadesKeys
+
+		// 	this._oDialogEdit.setBusy(true);
+		// 	this.getModel().update(sPath, oData, {
+		// 		success: function () {
+		// 			MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+		// 			this._oDialogEdit.setBusy(false);
+		// 			this._oDialogEdit.close();
+		// 		}.bind(this),
+		// 		error: function () {
+		// 			MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
+		// 			this._oDialogEdit.setBusy(false);
+		// 		}.bind(this)
+		// 	});
+		// },
 		onGuardarEquipo: function () {
-			var oData = this._oDialogEdit.getModel("editModel").getData(),
-				sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
-					Empresa: oData.Empresa,
-					Codigoequipo: oData.Codigoequipo,
-					Desde: oData.Desde
-				});
-			//delete oData.Premios // Hasta que este el campo en el backend eliminarlo
+    var oData = this._oDialogEdit.getModel("editModel").getData(),
+        sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+            Empresa: oData.Empresa,
+            Codigoequipo: oData.Codigoequipo,
+            Desde: oData.Desde
+        });
 
-			oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
-			oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
-			oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
-			oData.Flagperdidarem ? oData.Flagperdidarem = "X" : oData.Flagperdidarem = "";
+    // Normalizar campos antes del guardado
+    oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
+    oData.Remuneracion = oData.Remuneracion ? "X" : "";
+    oData.Penaliza = oData.Penaliza ? "X" : "";
+    oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
+    delete oData.RegionpenalidadesKeys;
 
-			delete oData.RegionpenalidadesKeys
+    // === Popup para pedir fecha de modificación ===
+    var oDatePicker = new sap.m.DatePicker({
+        valueFormat: "yyyy-MM-dd",
+        displayFormat: "dd.MM.yyyy",
+        placeholder: "dd.mm.aaaa"
+    });
 
-			this._oDialogEdit.setBusy(true);
-			this.getModel().update(sPath, oData, {
-				success: function () {
-					MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
-					this._oDialogEdit.setBusy(false);
-					this._oDialogEdit.close();
-				}.bind(this),
-				error: function () {
-					MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
-					this._oDialogEdit.setBusy(false);
-				}.bind(this)
-			});
-		},
+    MessageBox.confirm("Ingrese la fecha de modificación:", {
+        title: "Confirmar",
+        icon: MessageBox.Icon.QUESTION,
+        actions: ["Guardar", "Cancelar"],
+        content: oDatePicker,  // agregamos el DatePicker al popup
+        onClose: function (sAction) {
+            if (sAction === "Guardar") {
+                var sFecha = oDatePicker.getDateValue();
+                if (sFecha) {
+                    // Agregar la fecha al payload
+                    oData.FechaModificacion = sFecha.toISOString().split("T")[0];
+                }
+
+                this._oDialogEdit.setBusy(true);
+                this.getModel().update(sPath, oData, {
+                    success: function () {
+                        MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+                        this._oDialogEdit.setBusy(false);
+                        this._oDialogEdit.close();
+                    }.bind(this),
+                    error: function () {
+                        MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
+                        this._oDialogEdit.setBusy(false);
+                    }.bind(this)
+                });
+            }
+        }.bind(this)
+    });
+}
+,
 
 		onVerDetalle: function (oEvent) {
 			// var oContext = oEvent.getSource().getBindingContext(), //responsive table 
@@ -328,25 +380,45 @@ sap.ui.define([
 			}
 		},
 
-		onLimpiarFiltros: function (oEvt) {
-			// this.getView().getModel("filters").setData([])
-			var oSmartFilterBar = this.getView().byId("idSmartFilterBar");
-			oSmartFilterBar.getControlByKey("CodigoEquipo").setSelectedKeys([]);
-			oSmartFilterBar.getControlByKey("Tipoequipo").setSelectedKeys([]);
-			oSmartFilterBar.getControlByKey("Regionpenalidades").setSelectedKeys([]);
-			oSmartFilterBar.getControlByKey("Desde").setDateValue(null);
-			oSmartFilterBar.getControlByKey("Hasta").setDateValue(null);
+		onLimpiarFiltros: function () {
+			const oSFB = this.getView().byId("idSmartFilterBar");
+			const oView = this.getView()
 
-			this.getView().byId("idSmartTable").rebindTable();
+			
+			oSFB.getControlByKey("CodigoEquipo")?.setSelectedKeys([]);
+			oSFB.getControlByKey("Tipoequipo")?.setSelectedKeys([]);
+			oSFB.getControlByKey("Regionpenalidades")?.setSelectedKeys([]);
 
+			
+			oSFB.getControlByKey("FechaDesde")?.setDateValue(null);
+			oSFB.getControlByKey("FechaHasta")?.setDateValue(null);
+
+			
+			const clearYesNoChecks = (sKey) => {
+				const oContainer = oSFB.getControlByKey(sKey);
+				if (!oContainer || !oContainer.findAggregatedObjects) return;
+				const aChecks = oContainer.findAggregatedObjects(true, o => o.isA("sap.m.CheckBox"));
+				aChecks.forEach(cb => cb.setSelected(false));
+			};
+
+			clearYesNoChecks("Remuneracion");
+			clearYesNoChecks("Penaliza");
+			clearYesNoChecks("Flagperdidarem");
+
+			// refrescar la tabla
+		oView.byId("LineasTable").rebindTable();
+			oView.byId("TransformadoresTable").rebindTable();
+			oView.byId("ReactoresTable").rebindTable();
+			oView.byId("AutomatismosTable").rebindTable();
+			oView.byId("ConexionesTable").rebindTable();
 		},
+
 
 		//------------------------------ Metodos Internos ------------------------------------------
 		_getFilters: function () {
 			const oSmartFilterBar = this.getView().byId("idSmartFilterBar");
 			const aFilters = [];
-			const sEmpresa = this.getModel("viewModel")?.getProperty("/sociedad");
-			if (sEmpresa) aFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
+
 			// Utilidad para múltiples claves
 			function buildMultiFilter(sPath, aKeys) {
 				if (!aKeys || aKeys.length === 0) return null;
@@ -364,30 +436,55 @@ sap.ui.define([
 			if (oRegionFilter) aFilters.push(oRegionFilter);
 
 			// Filtro Empresa
-
+			const sEmpresa = this.getModel("viewModel")?.getProperty("/sociedad");
+			if (sEmpresa) aFilters.push(new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa));
 
 			// Filtro Fecha
-			const dFecha = oSmartFilterBar.getControlByKey("FechaCustom")?.getDateValue();
+			const dFecha = oSmartFilterBar.getControlByKey("FechaDesde")?.getDateValue();
 			if (dFecha) {
-				aFilters.push(new sap.ui.model.Filter("Desde", sap.ui.model.FilterOperator.LE, dFecha));
-				aFilters.push(new sap.ui.model.Filter("Hasta", sap.ui.model.FilterOperator.GE, dFecha));
+				aFilters.push(new sap.ui.model.Filter("Desde", sap.ui.model.FilterOperator.GE, dFecha));
+			}
+			const hFecha = oSmartFilterBar.getControlByKey("FechaHasta")?.getDateValue();
+			if (hFecha) {
+				aFilters.push(new sap.ui.model.Filter("Hasta", sap.ui.model.FilterOperator.LE, hFecha));
 			}
 
 			// Filtro Remuneración
-			const bRemuneracion = oSmartFilterBar.getControlByKey("Remuneracion")?.getSelected();
-			if (bRemuneracion) {
-				aFilters.push(new sap.ui.model.Filter("Remuneracion", sap.ui.model.FilterOperator.EQ, "X"));
-			}
-			const bPremia = oSmartFilterBar.getControlByKey("Flagperdidarem")?.getSelected();
-			if (bPremia) {
-				aFilters.push(new sap.ui.model.Filter("Flagperdidarem", sap.ui.model.FilterOperator.EQ, "X"));
-			}
-			const bPenaliza = oSmartFilterBar.getControlByKey("Penaliza")?.getSelected();
-			if (bPenaliza) {
-				aFilters.push(new sap.ui.model.Filter("Penaliza", sap.ui.model.FilterOperator.EQ, "X"));
-			}
+			this.addYesNoFilterByKey(oSmartFilterBar, "Remuneracion", "Remuneracion", aFilters);
+			this.addYesNoFilterByKey(oSmartFilterBar, "Penaliza", "Penaliza", aFilters);
+			this.addYesNoFilterByKey(oSmartFilterBar, "Flagperdidarem", "Flagperdidarem", aFilters);
 
 			return aFilters;
+		},
+
+		addYesNoFilterByKey: function (oSFB, sFieldKey, sProperty, aFilters) {
+			const oContainer = oSFB.getControlByKey(sFieldKey); // <-- "Remuneracion", "Penaliza", etc.
+			if (!oContainer) return;
+
+			// Buscar los CheckBox dentro del HBox (o lo que tengas)
+			const aChecks = oContainer.findAggregatedObjects(true, function (oChild) {
+				return oChild.isA("sap.m.CheckBox");
+			});
+
+			if (!aChecks || aChecks.length < 2) return;
+
+			// Intentá reconocerlos por id o por texto
+			const getBy = (pred) => aChecks.find(pred);
+			const oYes = getBy(cb => cb.getId().endsWith("chkRemuYes") || cb.getText() === "Sí") || aChecks[0];
+			const oNo = getBy(cb => cb.getId().endsWith("chkRemuNo") || cb.getText() === "No") || aChecks[1];
+
+			const bYes = oYes?.getSelected();
+			const bNo = oNo?.getSelected();
+
+			// Ambos seleccionados => no filtrar
+			if (bYes && bNo) return;
+
+			if (bYes) {
+				aFilters.push(new sap.ui.model.Filter(sProperty, sap.ui.model.FilterOperator.EQ, "X"));
+			} else if (bNo) {
+				// Ajustá si tu backend usa " " o "0" para "No"
+				aFilters.push(new sap.ui.model.Filter(sProperty, sap.ui.model.FilterOperator.EQ, ""));
+			}
 		},
 
 

@@ -2,9 +2,9 @@ sap.ui.define([], function () {
     "use strict";
 
     // ======= Nuevas constantes y util =======
-    const LINEAS = new Set(["L1","L2","L3","L4","L5","L6"]);
-    const TRANSFREACT = new Set(["CS","KS","RB","RL","RT","TR","AU","P6","P5","P4","P3","P2","P1"]);                
-   
+    const LINEAS = new Set(["L1", "L2", "L3", "L4", "L5", "L6"]);
+    const TRANSFREACT = new Set(["CS", "KS", "RB", "RL", "RT", "TR", "AU", "P6", "P5", "P4", "P3", "P2", "P1"]);
+
 
     function norm(v) {
         return (v == null ? "" : String(v)).trim().toUpperCase();
@@ -33,18 +33,27 @@ sap.ui.define([], function () {
             return LINEAS.has(norm(sTipoEquipo));
         },
 
-    
+
         isTransformador: function (sTipoEquipo) {
             return TRANSFREACT.has(norm(sTipoEquipo));
         },
 
-    
+
         // Devuelve la categoría en texto: LINEA | TRANSFORMADOR | REACTOR | OTRO
         categoriaEquipo: function (sTipoEquipo) {
             const v = norm(sTipoEquipo);
-            if (LINEAS.has(v))  return "LINEA";
-            if (TRANSF.has(v))  return "TRANSFORMADOR";
+            if (LINEAS.has(v)) return "LINEA";
+            if (TRANSF.has(v)) return "TRANSFORMADOR";
             return "OTRO";
+        },
+        formatDateFromYYYYMMDD: function (value) {
+            if (!value || typeof value !== "string" || value.length !== 8) return value;
+
+            const year = value.substring(0, 4);
+            const month = value.substring(4, 6);
+            const day = value.substring(6, 8);
+
+            return `${day}.${month}.${year}`;
         }
     };
 });

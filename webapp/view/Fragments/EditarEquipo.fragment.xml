@@ -33,16 +33,12 @@
 							<ObjectAttribute title="{i18n>ed_hasta}" text="{path:'editModel>/Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/> -->
 						</VBox>
 
-						<HBox width="700px" alignItems="Center">
-							
-							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
-							<Button
-    enabled="{evoModel>/enabled}"
-    text="{= ${evoModel>/enabled} ? 'Evolución del Equipo' : 'No posee historial' }"
-    type="Emphasized"
-    press="onEvolucionEquipo"
-/>
+						<HBox width="700px" alignItems="Center" justifyContent="End">
 
+							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
+
+								<Button visible="{evoModel>/enabled}" text="{= ${evoModel>/enabled} ? 'Evolución del Equipo' : 'No posee historial' }" type="Emphasized" press="onEvolucionEquipo" />
+								<ObjectAttribute visible="{evoModel>/enabled}" class="sapUiTinyMarginBottom" title="{i18n>ed_ult_modif}"   text="{path: 'editModel>/FechaMod', formatter: '.formatter.formatDateFromYYYYMMDD'}" />
 							</VBox>
 						</HBox>
 					</HBox>
@@ -57,35 +53,35 @@
 											<form:formContainers>
 												<form:FormContainer>
 													<form:formElements>
-													
+
 														<form:FormElement >
 															<form:fields>
-																<Input  value="{editModel>/Descripcion}"/>
+																<Input value="{editModel>/Descripcion}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_desc}"/>
 															</form:label>
 														</form:FormElement>
-													
+
 														<form:FormElement >
 															<form:fields>
-																<DatePicker  value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_inicioAct}"/>
 															</form:label>
 														</form:FormElement>
 
-																<form:FormElement >
+														<form:FormElement >
 															<form:fields>
-																<DatePicker  value="{path:'editModel>/Fechafinoactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_finAct}"/>
 															</form:label>
 														</form:FormElement>
-													
-												<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isTransformador'}">
+
+														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isTransformador'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/Potencia}"/>
 															</form:fields>
@@ -104,7 +100,7 @@
 																<Label text="{i18n>ed_ten}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
+														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<!--<Input maxLength="10" value="{editModel>/Clasepenalizacion}"/>-->
 																<Select forceSelection="false" selectedKey="{editModel>/Clasepenalizacion}" items="{Desplegables>/ClasePenalizacion}">
@@ -115,14 +111,15 @@
 																<Label text="{i18n>ed_clase_pen}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">															<form:fields>
+														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
+															<form:fields>
 																<Input type="Number" value="{editModel>/Longitudlineas}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_lon}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
+														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
 															</form:fields>
@@ -130,15 +127,15 @@
 																<Label text="{i18n>ed_KmN}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}" >
+														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasCentroEste}" visible="{= ${viewModel>/sociedad} === '100' }"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_KmCE}" visible="{= ${viewModel>/sociedad} === '100' }"/>
 															</form:label>
-														</form:FormElement>		
-														<form:FormElement  visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
+														</form:FormElement>
+														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isLinea'}">
 															<form:fields>
 																<Input type="Number" value="{editModel>/KMLineasSur}"/>
 															</form:fields>
@@ -146,13 +143,12 @@
 																<Label text="{i18n>ed_KmS}"/>
 															</form:label>
 														</form:FormElement>
-													
+
 													</form:formElements>
 												</form:FormContainer>
 											</form:formContainers>
 											<form:layout>
-												<form:ResponsiveGridLayout labelSpanXL="12" labelSpanL="12" labelSpanM="12" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0"
-													emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"/>
+												<form:ResponsiveGridLayout labelSpanXL="12" labelSpanL="12" labelSpanM="12" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false"/>
 											</form:layout>
 										</form:Form>
 									</VBox>
@@ -161,7 +157,7 @@
 											<form:formContainers>
 												<form:FormContainer>
 													<form:formElements>
-											
+
 														<form:FormElement>
 															<form:fields>
 																<Input maxLength="4" value="{editModel>/EmpresaInt}"/>
@@ -183,15 +179,15 @@
 														</form:FormElement>
 														<form:FormElement>
 															<form:fields>
-															<ComboBox items="{Desplegables>/Elementos}" selectedKey="{editModel>/Nemo}">
-														<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
-													</ComboBox>
+																<ComboBox items="{Desplegables>/Elementos}" selectedKey="{editModel>/Nemo}">
+																	<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
+																</ComboBox>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_elemento}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement>
+														<form:FormElement>
 															<form:fields>
 																<Input maxLength="250" value="{editModel>/Observaciones}"/>
 															</form:fields>
@@ -199,9 +195,9 @@
 																<Label text="{i18n>ed_observacion}"/>
 															</form:label>
 														</form:FormElement>
-																<!-- <form:FormElement>
+														<!-- <form:FormElement>
 															<form:fields>
-																<Input  value="{editModel>/Cebe}"/>
+																<Input value="{editModel>/Cebe}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_cebe}"/>
@@ -209,13 +205,13 @@
 														</form:FormElement>
 																<form:FormElement>
 															<form:fields>
-																<Input  value="{editModel>/Kostl}"/>
+																<Input value="{editModel>/Kostl}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_ceco}"/>
 															</form:label>
 														</form:FormElement> -->
-															<form:FormElement >
+														<form:FormElement >
 															<form:fields>
 																<Input type="Number" value="{editModel>/Coeficiente}"/>
 															</form:fields>
@@ -225,7 +221,7 @@
 														</form:FormElement>
 														<form:FormElement >
 															<form:fields>
-																<DatePicker  value="{path:'editModel>/HastaCoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker value="{path:'editModel>/HastaCoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_HastaCoefSup}"/>
@@ -250,37 +246,25 @@
 																<Label text="{i18n>ed_region}"/>
 															</form:label>
 														</form:FormElement>
-														
+
 														<form:FormElement>
-											
-    <form:fields>
-        <HBox >
-            <VBox class="sapUiSmallMarginEnd">
-                <Label text="{i18n>ed_remuneracion}" labelFor="remSwitch"/>
-                <Switch id="remSwitch"
-                        state="{editModel>/Remuneracion}"
-                        customTextOn="Si"
-                        customTextOff="No"
-                        type="AcceptReject"/>
-            </VBox>
-            <VBox class="sapUiSmallMarginEnd">
-                <Label text="{i18n>ed_penaliza}" labelFor="penSwitch"/>
-                <Switch id="penSwitch"
-                        state="{editModel>/Penaliza}"
-                        customTextOn="Si"
-                        customTextOff="No"
-                        type="AcceptReject"/>
-            </VBox>
-			   <VBox class="sapUiSmallMarginEnd">
-                <Label text="{i18n>ed_premio}" labelFor="premioSwitch"/>
-                <Switch id="premioSwitch"
-                        state="{editModel>/Flagperdidarem}"
-                        customTextOn="Si"
-                        customTextOff="No"
-                        type="AcceptReject"/>
-            </VBox>
-        </HBox>
-    </form:fields>
+
+															<form:fields>
+																<HBox >
+																	<VBox class="sapUiSmallMarginEnd">
+																		<Label text="{i18n>ed_remuneracion}" labelFor="remSwitch"/>
+																		<Switch id="remSwitch" state="{editModel>/Remuneracion}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>
+																	</VBox>
+																	<VBox class="sapUiSmallMarginEnd">
+																		<Label text="{i18n>ed_penaliza}" labelFor="penSwitch"/>
+																		<Switch id="penSwitch" state="{editModel>/Penaliza}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>
+																	</VBox>
+																	<VBox class="sapUiSmallMarginEnd">
+																		<Label text="{i18n>ed_premio}" labelFor="premioSwitch"/>
+																		<Switch id="premioSwitch" state="{editModel>/Flagperdidarem}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>
+																	</VBox>
+																</HBox>
+															</form:fields>
 														</form:FormElement>
 													</form:formElements>
 												</form:FormContainer>

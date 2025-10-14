@@ -7,6 +7,7 @@ sap.ui.define([
 	"sap/ui/core/Fragment",
 	"sap/m/MessageBox",
 	"Transener/Operaciones/EquiposPenalidades/utils/ModelHelper"
+
 ], function (BaseController, formatter, Filter, FilterOperator, JSONModel, Fragment, MessageBox, ModelHelper) {
 	"use strict";
 
@@ -298,56 +299,90 @@ sap.ui.define([
 		// 		}.bind(this)
 		// 	});
 		// },
-		onGuardarEquipo: function () {
-    var oData = this._oDialogEdit.getModel("editModel").getData(),
-        sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
-            Empresa: oData.Empresa,
-            Codigoequipo: oData.Codigoequipo,
-            Desde: oData.Desde
+	onGuardarEquipo: function () {
+  var oData = this._oDialogEdit.getModel("editModel").getData(),
+      sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+        Empresa: oData.Empresa,
+        Codigoequipo: oData.Codigoequipo,
+        Desde: oData.Desde
+      });
+
+  // Normalizar campos antes del guardado
+  oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
+  oData.Remuneracion   = oData.Remuneracion   ? "X" : "";
+  oData.Penaliza       = oData.Penaliza       ? "X" : "";
+  oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
+  delete oData.RegionpenalidadesKeys;
+
+  // === Diálogo para pedir fecha de modificación ===
+  var oDatePicker = new sap.m.DatePicker({
+    valueFormat: "yyyy-MM-dd",
+    displayFormat: "dd.MM.yyyy",
+    placeholder: "dd.mm.aaaa"
+  });
+  // Prefijar hoy
+  oDatePicker.setDateValue(new Date());
+
+  // helper local para YYYY-MM-DD sin usar toISOString()
+  var fmtYMD = function (d) {
+    if (!d) return "";
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  };
+
+  var oDialog = new sap.m.Dialog({
+    title: "Ingrese fecha de modificacion",
+    type: "Message",
+    content: [ oDatePicker ],
+    beginButton: new sap.m.Button({
+      text: "Guardar",
+      type: "Emphasized",
+      press: function () {
+        var dSel = oDatePicker.getDateValue();
+
+        // Validación simple
+        if (!dSel) {
+          oDatePicker.setValueState(sap.ui.core.ValueState.Error);
+          oDatePicker.setValueStateText("Seleccioná una fecha.");
+          return;
+        }
+        oDatePicker.setValueState(sap.ui.core.ValueState.None);
+
+        // Agregar la fecha al payload en YYYY-MM-DD
+        oData.FechaModificacion = fmtYMD(dSel);
+
+        this._oDialogEdit.setBusy(true);
+        this.getModel().update(sPath, oData, {
+          success: function () {
+            sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+            this._oDialogEdit.setBusy(false);
+            this._oDialogEdit.close();
+            oDialog.close();
+          }.bind(this),
+          error: function () {
+            sap.m.MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
+            this._oDialogEdit.setBusy(false);
+          }.bind(this)
         });
+      }.bind(this)
+    }),
+    endButton: new sap.m.Button({
+      text: "Cancelar",
+      press: function () { oDialog.close(); }
+    }),
+    afterClose: function () {
+      oDialog.destroy();
+    }
+  });
 
-    // Normalizar campos antes del guardado
-    oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
-    oData.Remuneracion = oData.Remuneracion ? "X" : "";
-    oData.Penaliza = oData.Penaliza ? "X" : "";
-    oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
-    delete oData.RegionpenalidadesKeys;
+  // (Opcional) foco al DatePicker
+  oDialog.addEventDelegate({
+    onAfterRendering: function () { oDatePicker.focus(); }
+  });
 
-    // === Popup para pedir fecha de modificación ===
-    var oDatePicker = new sap.m.DatePicker({
-        valueFormat: "yyyy-MM-dd",
-        displayFormat: "dd.MM.yyyy",
-        placeholder: "dd.mm.aaaa"
-    });
-
-    MessageBox.confirm("Ingrese la fecha de modificación:", {
-        title: "Confirmar",
-        icon: MessageBox.Icon.QUESTION,
-        actions: ["Guardar", "Cancelar"],
-        content: oDatePicker,  // agregamos el DatePicker al popup
-        onClose: function (sAction) {
-            if (sAction === "Guardar") {
-                var sFecha = oDatePicker.getDateValue();
-                if (sFecha) {
-                    // Agregar la fecha al payload
-                    oData.FechaModificacion = sFecha.toISOString().split("T")[0];
-                }
-
-                this._oDialogEdit.setBusy(true);
-                this.getModel().update(sPath, oData, {
-                    success: function () {
-                        MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
-                        this._oDialogEdit.setBusy(false);
-                        this._oDialogEdit.close();
-                    }.bind(this),
-                    error: function () {
-                        MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
-                        this._oDialogEdit.setBusy(false);
-                    }.bind(this)
-                });
-            }
-        }.bind(this)
-    });
+  oDialog.open();
 }
 ,
 

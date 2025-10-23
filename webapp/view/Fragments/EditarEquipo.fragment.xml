@@ -38,7 +38,7 @@
 							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
 
 								<Button visible="{evoModel>/enabled}" text="{= ${evoModel>/enabled} ? 'Evolución del Equipo' : 'No posee historial' }" type="Emphasized" press="onEvolucionEquipo" />
-								<ObjectAttribute visible="{evoModel>/enabled}" class="sapUiTinyMarginBottom" title="{i18n>ed_ult_modif}"   text="{path: 'editModel>/FechaMod', formatter: '.formatter.formatDateFromYYYYMMDD'}" />
+								<ObjectAttribute visible="{evoModel>/enabled}" class="sapUiTinyMarginBottom" title="{i18n>ed_ult_modif}"   text="{path: 'editModel>/Hasta', formatter: '.formatter.formatDateDDMMYYYY'}" />
 							</VBox>
 						</HBox>
 					</HBox>
@@ -213,7 +213,7 @@
 														</form:FormElement> -->
 														<form:FormElement >
 															<form:fields>
-																<Input type="Number" value="{editModel>/Coeficiente}"/>
+																<Input type="Number" value="{editModel>/Coefreduc}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_CoefSup}"/>

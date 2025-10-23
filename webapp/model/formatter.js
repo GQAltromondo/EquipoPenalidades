@@ -54,6 +54,19 @@ sap.ui.define([], function () {
             const day = value.substring(6, 8);
 
             return `${day}.${month}.${year}`;
-        }
-    };
+        },
+        formatDateDDMMYYYY: function (date) {
+            if (!date) return "";
+            const d = new Date(date);
+            const day = String(d.getDate()).padStart(2, "0");
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const year = d.getFullYear();
+            return `${day}.${month}.${year}`;
+        },
+        formatCoeficiente5: function (v) {
+  if (v == null || v === "") return "";
+  const n = Number(String(v).replace(",", ".")); // por si viniera con coma
+
+    }
+}
 });

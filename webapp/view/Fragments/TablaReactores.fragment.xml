@@ -194,22 +194,22 @@
                 </table:Column>
 
               
-                 <table:Column width="8.5rem" filterProperty="Coefreduc" sortProperty="Coefreduc" hAlign="Center">
+                <table:Column width="8.5rem" filterProperty="Coeficiente" sortProperty="Coeficiente" hAlign="Center">
                     <Label text="{i18n>tb_CoefRem}" wrapping="true" design="Bold" textAlign="Center"/>
                       <table:customData>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Coeficiente","columnIndex":"19", "isCurrency": false, "leadingProperty": "Coeficiente", "sortProperty": "Coeficiente", "filterProperty": "Coefreduc", "type": "string" }'/>
+                    </table:customData>
+                    <table:template>
+                        <ObjectAttribute text="{Coeficiente}"/>
+                    </table:template>
+                </table:Column> 
+                  <table:Column width="8.5rem" filterProperty="Coefreduc" sortProperty="Coefreduc" hAlign="Center">
+                    <Label text="{i18n>tb_Coef}" wrapping="true" design="Bold" textAlign="Center"/>
+                    <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Coefreduc","columnIndex":"20", "isCurrency": false, "leadingProperty": "Coefreduc", "sortProperty": "Coefreduc", "filterProperty": "Coefreduc", "type": "numeric" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{Coefreduc}"/>
-                    </table:template>
-                </table:Column> 
-                  <table:Column width="8.5rem" filterProperty="Coeficiente" sortProperty="Coeficiente" hAlign="Center">
-                    <Label text="{i18n>tb_Coef}" wrapping="true" design="Bold" textAlign="Center"/>
-                    <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Coeficiente","columnIndex":"21", "isCurrency": false, "leadingProperty": "Coeficiente", "sortProperty": "Coeficiente", "filterProperty": "Coeficiente", "type": "numeric" }'/>
-                    </table:customData>
-                    <table:template>
-                        <ObjectAttribute text="{Coeficiente}"/>
                     </table:template>
                 </table:Column>
                 <table:Column width="8.5rem" filterProperty="HastaCoeficiente" sortProperty="HastaCoeficiente" hAlign="Center">

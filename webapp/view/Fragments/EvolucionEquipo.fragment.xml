@@ -33,19 +33,19 @@
                 <Column>
                     <Text text="Premio" />
                 </Column>
-                  <Column>
+                <Column>
                     <Text text="MVA (Potencia)" />
                 </Column>
-                  <Column>
+                <Column>
                     <Text text="Observ." />
                 </Column>
-                  <Column>
+                <Column>
                     <Text text="Coef Remu" />
                 </Column>
-                  <Column>
+                <Column>
                     <Text text="Coef Superv" />
                 </Column>
-                    <Column>
+                <Column>
                     <Text text="Hasta Superv." />
                 </Column>
                 <Column>
@@ -68,8 +68,8 @@
                         <Text text="{historicoEquipoModel>OBSERVACIONES}" />
                         <Text text="{historicoEquipoModel>COEFREDUC}" />
                         <Text text="{historicoEquipoModel>COEFICIENTE}" />
-                        <Text text="{historicoEquipoModel>HASTACOEFICIENTE}" />
-                        
+                        <Text text="{path:'historicoEquipoModel>HASTACOEFICIENTE', formatter: '.formatter.formatDateFromYYYYMMDD'}" />
+
                         <!-- más celdas -->
                         <Button icon="sap-icon://search" tooltip="Ver detalles" press=".onVerDetalleHistorico" type="Emphasized"/>
                     </cells>

@@ -270,121 +270,121 @@ sap.ui.define([
 			this._oDialogEdit.close();
 		},
 
-		// onGuardarEquipo: function () {
-		// 	var oData = this._oDialogEdit.getModel("editModel").getData(),
-		// 		sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
-		// 			Empresa: oData.Empresa,
-		// 			Codigoequipo: oData.Codigoequipo,
-		// 			Desde: oData.Desde
-		// 		});
-		// 	//delete oData.Premios // Hasta que este el campo en el backend eliminarlo
+		onGuardarEquipo: function () {
+			var oData = this._oDialogEdit.getModel("editModel").getData(),
+				sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+					Empresa: oData.Empresa,
+					Codigoequipo: oData.Codigoequipo,
+					Desde: oData.Desde
+				});
+			//delete oData.Premios // Hasta que este el campo en el backend eliminarlo
 
-		// 	oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
-		// 	oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
-		// 	oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
-		// 	oData.Flagperdidarem ? oData.Flagperdidarem = "X" : oData.Flagperdidarem = "";
+			oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
+			oData.Remuneracion ? oData.Remuneracion = 'X' : oData.Remuneracion = '';
+			oData.Penaliza ? oData.Penaliza = 'X' : oData.Penaliza = '';
+			oData.Flagperdidarem ? oData.Flagperdidarem = "X" : oData.Flagperdidarem = "";
 
-		// 	delete oData.RegionpenalidadesKeys
+			delete oData.RegionpenalidadesKeys
 
-		// 	this._oDialogEdit.setBusy(true);
-		// 	this.getModel().update(sPath, oData, {
-		// 		success: function () {
-		// 			MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
-		// 			this._oDialogEdit.setBusy(false);
-		// 			this._oDialogEdit.close();
-		// 		}.bind(this),
-		// 		error: function () {
-		// 			MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
-		// 			this._oDialogEdit.setBusy(false);
-		// 		}.bind(this)
-		// 	});
-		// },
-	onGuardarEquipo: function () {
-  var oData = this._oDialogEdit.getModel("editModel").getData(),
-      sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
-        Empresa: oData.Empresa,
-        Codigoequipo: oData.Codigoequipo,
-        Desde: oData.Desde
-      });
+			this._oDialogEdit.setBusy(true);
+			this.getModel().update(sPath, oData, {
+				success: function () {
+					MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+					this._oDialogEdit.setBusy(false);
+					this._oDialogEdit.close();
+				}.bind(this),
+				error: function () {
+					MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
+					this._oDialogEdit.setBusy(false);
+				}.bind(this)
+			});
+		},
+// 	onGuardarEquipo: function () {
+//   var oData = this._oDialogEdit.getModel("editModel").getData(),
+//       sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+//         Empresa: oData.Empresa,
+//         Codigoequipo: oData.Codigoequipo,
+//         Desde: oData.Desde
+//       });
 
-  // Normalizar campos antes del guardado
-  oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
-  oData.Remuneracion   = oData.Remuneracion   ? "X" : "";
-  oData.Penaliza       = oData.Penaliza       ? "X" : "";
-  oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
-  delete oData.RegionpenalidadesKeys;
+//   // Normalizar campos antes del guardado
+//   oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
+//   oData.Remuneracion   = oData.Remuneracion   ? "X" : "";
+//   oData.Penaliza       = oData.Penaliza       ? "X" : "";
+//   oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
+//   delete oData.RegionpenalidadesKeys;
 
-  // === Diálogo para pedir fecha de modificación ===
-  var oDatePicker = new sap.m.DatePicker({
-    valueFormat: "yyyy-MM-dd",
-    displayFormat: "dd.MM.yyyy",
-    placeholder: "dd.mm.aaaa"
-  });
-  // Prefijar hoy
-  oDatePicker.setDateValue(new Date());
+//   // === Diálogo para pedir fecha de modificación ===
+//   var oDatePicker = new sap.m.DatePicker({
+//     valueFormat: "yyyy-MM-dd",
+//     displayFormat: "dd.MM.yyyy",
+//     placeholder: "dd.mm.aaaa"
+//   });
+//   // Prefijar hoy
+//   oDatePicker.setDateValue(new Date());
 
-  // helper local para YYYY-MM-DD sin usar toISOString()
-  var fmtYMD = function (d) {
-    if (!d) return "";
-    var y = d.getFullYear();
-    var m = String(d.getMonth() + 1).padStart(2, "0");
-    var day = String(d.getDate()).padStart(2, "0");
-    return y + "-" + m + "-" + day;
-  };
+//   // helper local para YYYY-MM-DD sin usar toISOString()
+//   var fmtYMD = function (d) {
+//     if (!d) return "";
+//     var y = d.getFullYear();
+//     var m = String(d.getMonth() + 1).padStart(2, "0");
+//     var day = String(d.getDate()).padStart(2, "0");
+//     return y + "-" + m + "-" + day;
+//   };
 
-  var oDialog = new sap.m.Dialog({
-    title: "Ingrese fecha de modificacion",
-    type: "Message",
-    content: [ oDatePicker ],
-    beginButton: new sap.m.Button({
-      text: "Guardar",
-      type: "Emphasized",
-      press: function () {
-        var dSel = oDatePicker.getDateValue();
+//   var oDialog = new sap.m.Dialog({
+//     title: "Ingrese fecha de modificacion",
+//     type: "Message",
+//     content: [ oDatePicker ],
+//     beginButton: new sap.m.Button({
+//       text: "Guardar",
+//       type: "Emphasized",
+//       press: function () {
+//         var dSel = oDatePicker.getDateValue();
 
-        // Validación simple
-        if (!dSel) {
-          oDatePicker.setValueState(sap.ui.core.ValueState.Error);
-          oDatePicker.setValueStateText("Seleccioná una fecha.");
-          return;
-        }
-        oDatePicker.setValueState(sap.ui.core.ValueState.None);
+//         // Validación simple
+//         if (!dSel) {
+//           oDatePicker.setValueState(sap.ui.core.ValueState.Error);
+//           oDatePicker.setValueStateText("Seleccioná una fecha.");
+//           return;
+//         }
+//         oDatePicker.setValueState(sap.ui.core.ValueState.None);
 
-        // Agregar la fecha al payload en YYYY-MM-DD
-        oData.FechaModificacion = fmtYMD(dSel);
+//         // Agregar la fecha al payload en YYYY-MM-DD
+//         oData.FechaModificacion = fmtYMD(dSel);
 
-        this._oDialogEdit.setBusy(true);
-        this.getModel().update(sPath, oData, {
-          success: function () {
-            sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
-            this._oDialogEdit.setBusy(false);
-            this._oDialogEdit.close();
-            oDialog.close();
-          }.bind(this),
-          error: function () {
-            sap.m.MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
-            this._oDialogEdit.setBusy(false);
-          }.bind(this)
-        });
-      }.bind(this)
-    }),
-    endButton: new sap.m.Button({
-      text: "Cancelar",
-      press: function () { oDialog.close(); }
-    }),
-    afterClose: function () {
-      oDialog.destroy();
-    }
-  });
+//         this._oDialogEdit.setBusy(true);
+//         this.getModel().update(sPath, oData, {
+//           success: function () {
+//             sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+//             this._oDialogEdit.setBusy(false);
+//             this._oDialogEdit.close();
+//             oDialog.close();
+//           }.bind(this),
+//           error: function () {
+//             sap.m.MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
+//             this._oDialogEdit.setBusy(false);
+//           }.bind(this)
+//         });
+//       }.bind(this)
+//     }),
+//     endButton: new sap.m.Button({
+//       text: "Cancelar",
+//       press: function () { oDialog.close(); }
+//     }),
+//     afterClose: function () {
+//       oDialog.destroy();
+//     }
+//   });
 
-  // (Opcional) foco al DatePicker
-  oDialog.addEventDelegate({
-    onAfterRendering: function () { oDatePicker.focus(); }
-  });
+//   // (Opcional) foco al DatePicker
+//   oDialog.addEventDelegate({
+//     onAfterRendering: function () { oDatePicker.focus(); }
+//   });
 
-  oDialog.open();
-}
-,
+//   oDialog.open();
+// }
+// ,
 
 		onVerDetalle: function (oEvent) {
 			// var oContext = oEvent.getSource().getBindingContext(), //responsive table 

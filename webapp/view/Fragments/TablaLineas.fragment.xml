@@ -13,7 +13,14 @@
     xmlns:semantic="sap.f.semantic">
 
 
-    <smartTable:SmartTable id="LineasTable" beforeRebindTable="onBeforeRebindLineas" busyIndicatorDelay="0" persistencyKey="LineasTablePers" smartFilterId="idSmartFilterBar" useTablePersonalisation="true" entitySet="EquiposPenalidadesSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_lineas}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Empresa,Codigoequipo,Desde,Descripcion,Ubicacion,PtoCon,Tipoequipo,Region,Circuito,Corredor,Zona,Nroserie,Fechainicioactividad,Fechafinactividad,Perteneciente,Tipoestacion,Potencia,Tension,Clasepenalizacion,Longitudlineas,Extremos,Coefreduc,Nroequipocammesa,Descequipocammesa,Hasta,Regulado,Fechafueraservicio,Horafueraservicio,Usuario,Fechahora,Maniobrable,Flagenvio,Registro,Lineapartida,Id,Flagpenalidades,Porcpenalidades,Flagperdidarem,Porcperdidarem,Penaliza,Extremoa,Extremob,Extremoaregion,Extremobregion,EmpresaInt,Nemo,Regionpenalidades,Remuneracion,HastaCoeficiente" ignoreFromPersonalisation="Descequipocammesa,Circuito,Corredor,Extremoa,Extremob,Extremos,Fechafueraservicio,Fechahora,Horafueraservicio,Perteneciente,Flagenvio,Flagpenalidades,Tipoestacion,Id,Nroserie,Porcpenalidades,Porcperdidarem,Extremoaregion,Extremobregion,Registro,Maniobrable,Lineapartida,Ubicacion,Usuario,Zona">
+    <smartTable:SmartTable id="LineasTable" beforeRebindTable="onBeforeRebindLineas" busyIndicatorDelay="0" persistencyKey="LineasTablePers" smartFilterId="idSmartFilterBar" useTablePersonalisation="true" entitySet="EquiposPenalidadesSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_lineas}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Empresa,Codigoequipo,Desde,Descripcion,Ubicacion,PtoCon,Tipoequipo,Region,Circuito,Corredor,Zona,Nroserie,Fechainicioactividad,Fechafinactividad,Perteneciente,Tipoestacion,Potencia,Tension,Clasepenalizacion,Longitudlineas,Extremos,Coefreduc,Nroequipocammesa,Descequipocammesa,Hasta,Regulado,Fechafueraservicio,Horafueraservicio,Usuario,Fechahora,Maniobrable,Flagenvio,Registro,Lineapartida,Id,Flagpenalidades,Porcpenalidades,Flagperdidarem,Porcperdidarem,Penaliza,Extremoa,Extremob,Extremoaregion,Extremobregion,EmpresaInt,Nemo,Regionpenalidades,Remuneracion,Hastacoeficiente,FechaMod" ignoreFromPersonalisation="Descequipocammesa,Circuito,Corredor,Extremoa,Extremob,Extremos,Fechafueraservicio,Fechahora,Horafueraservicio,Perteneciente,Flagenvio,Flagpenalidades,Tipoestacion,Id,Nroserie,Porcpenalidades,Porcperdidarem,Extremoaregion,Extremobregion,Registro,Maniobrable,Lineapartida,Ubicacion,Usuario,Zona">
+        <smartTable:customToolbar>
+            <OverflowToolbar>
+                <ToolbarSpacer/>
+                <Button icon="sap-icon://bell" text="Coef. vencidos" type="Negative" press=".onToggleCoefVencidos" visible="{= ${viewModel>/hasVencidos} === true }"/>
+                <Button id="btnVencidosOff" icon="sap-icon://clear-filter" text="Quitar filtro Vencidos" type="Transparent" press=".onClearCoefVencidos" visible="{= ${viewModel>/showCoefVencidosOnly} }"/>
+            </OverflowToolbar>
+        </smartTable:customToolbar>
         <table:Table class="customGridTable" rowActionCount="1" selectionMode="None" selectionBehavior="RowOnly" visibleRowCount="8" ariaLabelledBy="title" alternateRowColors="true" visibleRowCountMode="Interactive">
             <table:columns>
                 <table:Column width="11rem" filterProperty="Nemo" sortProperty="Nemo">
@@ -61,25 +68,25 @@
                         <ObjectAttribute text="{Descripcion}"/>
                     </table:template>
                 </table:Column>
-                   <table:Column width="8rem" filterProperty="KMLineasNorte" sortProperty="KMLineasNorte">
+                <table:Column width="8rem" filterProperty="KMLineasNorte" sortProperty="KMLineasNorte">
                     <Label text="{i18n>tb_kmN}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "KMLineasNorte","columnIndex":"6", "isCurrency": false, "leadingProperty": "KMLineasNorte", "sortProperty": "KMLineasNorte", "filterProperty": "KMLineasNorte", "type": "numeric" }'/>
                     </table:customData>
-                  <table:template>
+                    <table:template>
                         <ObjectNumber number="{path: 'KMLineasNorte', type: 'sap.ui.model.type.Float', formatOptions: {minFractionDigits: 0, maxFractionDigits: 2 } }"/>
                     </table:template>
                 </table:Column>
-                     <table:Column width="8rem" filterProperty="KMLineasSur" sortProperty="KMLineasSur">
+                <table:Column width="8rem" filterProperty="KMLineasSur" sortProperty="KMLineasSur">
                     <Label text="{i18n>tb_kmS}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "KMLineasSur","columnIndex":"7", "isCurrency": false, "leadingProperty": "KMLineasSur", "sortProperty": "KMLineasSur", "filterProperty": "KMLineasSur", "type": "numeric" }'/>
                     </table:customData>
-                     <table:template>
+                    <table:template>
                         <ObjectNumber number="{path: 'KMLineasSur', type: 'sap.ui.model.type.Float', formatOptions: {minFractionDigits: 0, maxFractionDigits: 2 } }"/>
                     </table:template>
                 </table:Column>
-                     <table:Column width="8rem" filterProperty="KMLineasCentroEste" sortProperty="KMLineasCentroEste" visible="{= ${viewModel>/sociedad} === '100' }">
+                <table:Column width="8rem" filterProperty="KMLineasCentroEste" sortProperty="KMLineasCentroEste" visible="{= ${viewModel>/sociedad} === '100' }">
                     <Label text="{i18n>tb_kmCE}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "KMLineasCentroEste","columnIndex":"8", "isCurrency": false, "leadingProperty": "KMLineasCentroEste", "sortProperty": "KMLineasCentroEste", "filterProperty": "KMLineasCentroEste", "type": "numeric" }'/>
@@ -88,7 +95,7 @@
                         <ObjectNumber number="{path: 'KMLineasCentroEste', type: 'sap.ui.model.type.Float', formatOptions: {minFractionDigits: 0, maxFractionDigits: 2 } }"/>
                     </table:template>
                 </table:Column>
-                  <table:Column width="6rem" filterProperty="Longitudlineas" sortProperty="Longitudlineas">
+                <table:Column width="6rem" filterProperty="Longitudlineas" sortProperty="Longitudlineas">
                     <Label text="{i18n>tb_long}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Longitudlineas","columnIndex":"9", "isCurrency": false, "leadingProperty": "Longitudlineas", "sortProperty": "Longitudlineas", "filterProperty": "Longitudlineas", "type": "numeric" }'/>
@@ -97,7 +104,7 @@
                         <ObjectNumber number="{path: 'Longitudlineas', type: 'sap.ui.model.type.Float', formatOptions: {minFractionDigits: 0, maxFractionDigits: 2 } }"/>
                     </table:template>
                 </table:Column>
-                  <table:Column width="6rem" filterProperty="Tension" sortProperty="Tension">
+                <table:Column width="6rem" filterProperty="Tension" sortProperty="Tension">
                     <Label text="{i18n>tb_tension}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Tension","columnIndex":"10", "isCurrency": false, "leadingProperty": "Tension", "sortProperty": "Tension", "filterProperty": "Tension", "type": "string" }'/>
@@ -106,7 +113,7 @@
                         <ObjectAttribute text="{Tension}"/>
                     </table:template>
                 </table:Column>
-                    <table:Column width="8rem" filterProperty="Desde" sortProperty="Desde">
+                <table:Column width="8rem" filterProperty="Desde" sortProperty="Desde">
                     <Label text="{i18n>tb_desde}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Desde","columnIndex":"11", "isCurrency": false, "leadingProperty": "Desde", "sortProperty": "Desde", "filterProperty": "Desde", "type": "date" }'/>
@@ -115,7 +122,7 @@
                         <ObjectAttribute text="{path:'Desde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-                  <table:Column width="8rem" filterProperty="Hasta" sortProperty="Hasta">
+                <table:Column width="8rem" filterProperty="Hasta" sortProperty="Hasta">
                     <Label text="{i18n>tb_hasta}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Hasta","columnIndex":"12", "isCurrency": false, "leadingProperty": "Hasta", "sortProperty": "Hasta", "filterProperty": "Hasta", "type": "date" }'/>
@@ -124,7 +131,7 @@
                         <ObjectAttribute text="{path:'Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-                      <table:Column width="8rem" filterProperty="Fechainicioactividad" sortProperty="Fechainicioactividad">
+                <table:Column width="8rem" filterProperty="Fechainicioactividad" sortProperty="Fechainicioactividad">
                     <Label text="{i18n>tb_inicioAct}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Fechainicioactividad","columnIndex":"13", "isCurrency": false, "leadingProperty": "Fechainicioactividad", "sortProperty": "Fechainicioactividad", "filterProperty": "Fechainicioactividad", "type": "date" }'/>
@@ -133,8 +140,8 @@
                         <ObjectAttribute text="{path:'Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-              
-                
+
+
                 <table:Column width="8rem" filterProperty="Fechafinactividad" sortProperty="Fechafinactividad">
                     <Label text="{i18n>tb_finAct}" wrapping="true" design="Bold"/>
                     <table:customData>
@@ -144,7 +151,7 @@
                         <ObjectAttribute text="{path:'Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-                  <table:Column width="3rem" filterProperty="Clasepenalizacion" sortProperty="Clasepenalizacion" hAlign="Center">
+                <table:Column width="3rem" filterProperty="Clasepenalizacion" sortProperty="Clasepenalizacion" hAlign="Center">
                     <Label text="{i18n>tb_clase_pen}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Clasepenalizacion","columnIndex":"15", "isCurrency": false, "leadingProperty": "Clasepenalizacion", "sortProperty": "Clasepenalizacion", "filterProperty": "Clasepenalizacion", "type": "string" }'/>
@@ -153,7 +160,7 @@
                         <ObjectAttribute text="{Clasepenalizacion}"/>
                     </table:template>
                 </table:Column>
-                   <table:Column width="6rem" filterProperty="Elemento" sortProperty="Elemento" hAlign="Center">
+                <table:Column width="6rem" filterProperty="Elemento" sortProperty="Elemento" hAlign="Center">
                     <Label text="{i18n>tb_elemento}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Elemento","columnIndex":"16", "isCurrency": false, "leadingProperty": "Elemento", "sortProperty": "Elemento", "filterProperty": "Elemento", "type": "string" }'/>
@@ -162,7 +169,7 @@
                         <ObjectAttribute text="{Elemento}"/>
                     </table:template>
                 </table:Column>
-                     <table:Column width="11rem" filterProperty="Regionpenalidades" sortProperty="Regionpenalidades">
+                <table:Column width="11rem" filterProperty="Regionpenalidades" sortProperty="Regionpenalidades">
                     <Label text="{i18n>tb_reg}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Regionpenalidades","columnIndex":"17", "isCurrency": false, "leadingProperty": "Regionpenalidades", "sortProperty": "Regionpenalidades", "filterProperty": "Regionpenalidades", "type": "string" }'/>
@@ -170,21 +177,21 @@
                     <table:template>
                         <ObjectAttribute text="{Regionpenalidades}"/>
                     </table:template>
-                    
+
                 </table:Column>
-          
-        
+
+
                 <table:Column width="8.5rem" filterProperty="Observaciones" sortProperty="Observaciones" hAlign="Center">
                     <Label text="{i18n>tb_observaciones}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Observaciones","columnIndex":"18", "isCurrency": false, "leadingProperty": "Observaciones", "sortProperty": "Observaciones", "filterProperty": "Observaciones", "type": "string" }'/>
                     </table:customData>
                     <table:template>
-                   <ObjectAttribute text="{Observaciones}"/>
+                        <ObjectAttribute text="{Observaciones}"/>
                     </table:template>
                 </table:Column>
-                             
-                   <table:Column width="8.5rem" filterProperty="Remuneracion" sortProperty="Remuneracion" hAlign="Center">
+
+                <table:Column width="8.5rem" filterProperty="Remuneracion" sortProperty="Remuneracion" hAlign="Center">
                     <Label text="{i18n>tb_remuneracion}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Remuneracion","columnIndex":"19", "isCurrency": false, "leadingProperty": "Remuneracion", "sortProperty": "Remuneracion", "filterProperty": "Remuneracion", "type": "string" }'/>
@@ -193,7 +200,7 @@
                         <core:Icon size="1.3rem" src="{ path: 'Remuneracion', formatter: '.formatter.iconReg' }" color="{ path: 'Remuneracion', formatter: '.formatter.colorReg' }"/>
                     </table:template>
                 </table:Column>
-                      <table:Column width="8.5rem" filterProperty="Penaliza" sortProperty="Penaliza" hAlign="Center">
+                <table:Column width="8.5rem" filterProperty="Penaliza" sortProperty="Penaliza" hAlign="Center">
                     <Label text="{i18n>tb_penaliza}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Penaliza","columnIndex":"20", "isCurrency": false, "leadingProperty": "Penaliza", "sortProperty": "Penaliza", "filterProperty": "Penaliza", "type": "string" }'/>
@@ -202,7 +209,7 @@
                         <core:Icon size="1.3rem" src="{ path: 'Penaliza', formatter: '.formatter.iconReg' }" color="{ path: 'Penaliza', formatter: '.formatter.colorReg' }"/>
                     </table:template>
                 </table:Column>
-                 <table:Column width="8.5rem" filterProperty="Flagperdidarem" sortProperty="Flagperdidarem" hAlign="Center">
+                <table:Column width="8.5rem" filterProperty="Flagperdidarem" sortProperty="Flagperdidarem" hAlign="Center">
                     <Label text="{i18n>tb_premio}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Flagperdidarem","columnIndex":"21", "isCurrency": false, "leadingProperty": "Flagperdidarem", "sortProperty": "Flagperdidarem", "filterProperty": "Flagperdidarem", "type": "string" }'/>
@@ -211,28 +218,28 @@
                         <core:Icon size="1.3rem" src="{ path: 'Flagperdidarem', formatter: '.formatter.iconReg' }" color="{ path: 'Flagperdidarem', formatter: '.formatter.colorReg' }"/>
                     </table:template>
                 </table:Column>
-           
-                       <table:Column width="8.5rem" filterProperty="Coeficiente" sortProperty="Coeficiente" hAlign="Center">
+
+                <table:Column width="8.5rem" filterProperty="Coeficiente" sortProperty="Coeficiente" hAlign="Center">
                     <Label text="{i18n>tb_CoefRem}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Coeficiente","columnIndex":"22", "isCurrency": false, "leadingProperty": "Coeficiente", "sortProperty": "Coeficiente", "filterProperty": "Coeficiente", "type": "numeric" }'/>
                     </table:customData>
                     <table:template>
-                   <ObjectAttribute text="{Coeficiente}"/>
+                        <ObjectAttribute text="{Coeficiente}"/>
                     </table:template>
                 </table:Column>
-                           <table:Column width="8.5rem" filterProperty="HastaCoeficiente" sortProperty="HastaCoeficiente" hAlign="Center">
+                <table:Column width="8.5rem" filterProperty="Hastacoeficiente" sortProperty="Hastacoeficiente" hAlign="Center">
                     <Label text="{i18n>tb_SupHasta}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "HastaCoeficiente","columnIndex":"23", "isCurrency": false, "leadingProperty": "HastaCoeficiente", "sortProperty": "HastaCoeficiente", "filterProperty": "HastaCoeficiente", "type": "numeric" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hastacoeficiente","columnIndex":"23", "isCurrency": false, "leadingProperty": "Hastacoeficiente", "sortProperty": "Hastacoeficiente", "filterProperty": "Hastacoeficiente", "type": "date" }'/>
                     </table:customData>
                     <table:template>
-                   <ObjectAttribute text="{HastaCoeficiente}"/>
+                        <ObjectAttribute text="{path:'Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-        
 
-           
+
+
             </table:columns>
             <table:rowActionTemplate>
                 <table:RowAction>

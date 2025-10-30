@@ -55,14 +55,20 @@ sap.ui.define([], function () {
 
             return `${day}.${month}.${year}`;
         },
-        formatDateDDMMYYYY: function (date) {
-            if (!date) return "";
-            const d = new Date(date);
-            const day = String(d.getDate()).padStart(2, "0");
-            const month = String(d.getMonth() + 1).padStart(2, "0");
-            const year = d.getFullYear();
-            return `${day}.${month}.${year}`;
-        },
+    formatDateDDMMYYYY: function (date) {
+    if (!date) return "";
+
+    const d = new Date(date); // 2025-10-30T00:00:00Z
+    // 🚀 Crear copia “localizada” sumando el offset para compensar la conversión del navegador
+    const corrected = new Date(d.getTime() + d.getTimezoneOffset() * 60000);
+
+    const day = String(corrected.getDate()).padStart(2, "0");
+    const month = String(corrected.getMonth() + 1).padStart(2, "0");
+    const year = corrected.getFullYear();
+
+    return `${day}.${month}.${year}`;
+},
+
         formatCoeficiente5: function (v) {
   if (v == null || v === "") return "";
   const n = Number(String(v).replace(",", ".")); // por si viniera con coma

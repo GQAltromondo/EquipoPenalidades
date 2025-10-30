@@ -13,7 +13,7 @@
     xmlns:semantic="sap.f.semantic">
 
 
-    <smartTable:SmartTable id="ReactoresTable" beforeRebindTable="onBeforeRebindReactores" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" smartFilterId="idSmartFilterBar" useTablePersonalisation="true" entitySet="EquiposPenalidadesSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_reactores}" enableAutoBinding="true"  showFullScreenButton="false"  useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Empresa,HastaCoeficiente,Codigoequipo,Desde,Descripcion,Ubicacion,PtoCon,Tipoequipo,Region,Circuito,Corredor,Zona,Nroserie,Fechainicioactividad,Fechafinactividad,Perteneciente,Tipoestacion,Potencia,Tension,Clasepenalizacion,Longitudlineas,Extremos,Coefreduc,Nroequipocammesa,Descequipocammesa,Hasta,Regulado,Fechafueraservicio,Horafueraservicio,Usuario,Fechahora,Maniobrable,Flagenvio,Registro,Lineapartida,Id,Flagpenalidades,Porcpenalidades,Flagperdidarem,Porcperdidarem,Penaliza,Extremoa,Extremob,Extremoaregion,Extremobregion,EmpresaInt,Nemo,Regionpenalidades,Remuneracion" ignoreFromPersonalisation="Descequipocammesa,Circuito,Corredor,Extremoa,Extremob,Extremos,Fechafueraservicio,Fechahora,Horafueraservicio,Perteneciente,Flagenvio,Flagpenalidades,Tipoestacion,Id,Nroserie,Porcpenalidades,Porcperdidarem,Region,Extremoaregion,Extremobregion,Registro,Maniobrable,Lineapartida,Usuario,Zona">
+    <smartTable:SmartTable id="ReactoresTable" beforeRebindTable="onBeforeRebindReactores" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" smartFilterId="idSmartFilterBar" useTablePersonalisation="true" entitySet="EquiposPenalidadesSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_reactores}" enableAutoBinding="true"  showFullScreenButton="false"  useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Empresa,Hastacoeficiente,Codigoequipo,Desde,Descripcion,Ubicacion,PtoCon,Tipoequipo,Region,Circuito,Corredor,Zona,Nroserie,Fechainicioactividad,Fechafinactividad,Perteneciente,Tipoestacion,Potencia,Tension,Clasepenalizacion,Longitudlineas,Extremos,Coefreduc,Nroequipocammesa,Descequipocammesa,Hasta,Regulado,Fechafueraservicio,Horafueraservicio,Usuario,Fechahora,Maniobrable,Flagenvio,Registro,Lineapartida,Id,Flagpenalidades,Porcpenalidades,Flagperdidarem,Porcperdidarem,Penaliza,Extremoa,Extremob,Extremoaregion,Extremobregion,EmpresaInt,Nemo,Regionpenalidades,Remuneracion" ignoreFromPersonalisation="Descequipocammesa,Circuito,Corredor,Extremoa,Extremob,Extremos,Fechafueraservicio,Fechahora,Horafueraservicio,Perteneciente,Flagenvio,Flagpenalidades,Tipoestacion,Id,Nroserie,Porcpenalidades,Porcperdidarem,Region,Extremoaregion,Extremobregion,Registro,Maniobrable,Lineapartida,Usuario,Zona">
 
         <table:Table class="customGridTable" rowActionCount="1" selectionMode="None" selectionBehavior="RowOnly" visibleRowCount="8" ariaLabelledBy="title" alternateRowColors="true" visibleRowCountMode="Interactive">
           <table:columns>
@@ -212,13 +212,13 @@
                         <ObjectAttribute text="{Coefreduc}"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="8.5rem" filterProperty="HastaCoeficiente" sortProperty="HastaCoeficiente" hAlign="Center">
+                     <table:Column width="8.5rem" filterProperty="Hastacoeficiente" sortProperty="Hastacoeficiente" hAlign="Center">
                     <Label text="{i18n>tb_SupHasta}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "HastaCoeficiente","columnIndex":"22", "isCurrency": false, "leadingProperty": "HastaCoeficiente", "sortProperty": "HastaCoeficiente", "filterProperty": "HastaCoeficiente", "type": "string" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hastacoeficiente","columnIndex":"23", "isCurrency": false, "leadingProperty": "Hastacoeficiente", "sortProperty": "Hastacoeficiente", "filterProperty": "Hastacoeficiente", "type": "date" }'/>
                     </table:customData>
                     <table:template>
-                   <ObjectAttribute text="{HastaCoeficiente}"/>
+                           <ObjectAttribute text="{path:'Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
             </table:columns>

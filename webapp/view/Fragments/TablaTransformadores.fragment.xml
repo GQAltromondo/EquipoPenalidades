@@ -228,13 +228,13 @@
                         <ObjectAttribute text="{Coefreduc}"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="8.5rem" filterProperty="HastaCoeficiente" sortProperty="HastaCoeficiente" hAlign="Center">
+                      <table:Column width="8.5rem" filterProperty="Hastacoeficiente" sortProperty="Hastacoeficiente" hAlign="Center">
                     <Label text="{i18n>tb_SupHasta}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "HastaCoeficiente","columnIndex":"21", "isCurrency": false, "leadingProperty": "HastaCoeficiente", "sortProperty": "HastaCoeficiente", "filterProperty": "HastaCoeficiente", "type": "numeric" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hastacoeficiente","columnIndex":"23", "isCurrency": false, "leadingProperty": "Hastacoeficiente", "sortProperty": "Hastacoeficiente", "filterProperty": "Hastacoeficiente", "type": "date" }'/>
                     </table:customData>
                     <table:template>
-                   <ObjectAttribute text="{HastaCoeficiente}"/>
+                           <ObjectAttribute text="{path:'Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
             </table:columns>

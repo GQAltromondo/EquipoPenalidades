@@ -20,7 +20,8 @@ sap.ui.define([
 				sizeDetail: "0%",
 				sociedad: "",
 				hasVencidos: false,
-				_hasVencidosMap: {}
+				_hasVencidosMap: {},
+				showCoefVencidosOnly: false
 			}), "viewModel");
 			["LineasTable", "TransformadoresTable", "ReactoresTable", "ConexionesTable"]
 				.forEach(id => this._wireHasVencidosMonitor(id));
@@ -186,7 +187,7 @@ sap.ui.define([
 			if (vm?.getProperty("/showCoefVencidosOnly")) {
 				const today = this._todayYMD(); // "YYYYMMDD"
 				pushIfNotDuplicate(aFinalFilters,
-					new Filter("Hastacoeficiente", FilterOperator.LE, today)
+					new Filter("Hastacoeficiente", FilterOperator.LE, new Date())
 				);
 			}
 

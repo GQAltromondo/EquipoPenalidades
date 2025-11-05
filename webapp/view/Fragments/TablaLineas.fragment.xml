@@ -18,7 +18,7 @@
             <OverflowToolbar>
                 <ToolbarSpacer/>
                 <Button icon="sap-icon://bell" text="Coef. vencidos" type="Negative" press=".onToggleCoefVencidos" visible="{= ${viewModel>/hasVencidos} === true }"/>
-                <Button id="btnVencidosOff" icon="sap-icon://clear-filter" text="Quitar filtro Vencidos" type="Transparent" press=".onClearCoefVencidos" visible="{= ${viewModel>/showCoefVencidosOnly} }"/>
+                <Button  icon="sap-icon://clear-filter" text="Quitar filtro Vencidos" type="Transparent" press=".onClearCoefVencidos" visible="{= ${viewModel>/showCoefVencidosOnly} }"/>
             </OverflowToolbar>
         </smartTable:customToolbar>
         <table:Table class="customGridTable" rowActionCount="1" selectionMode="None" selectionBehavior="RowOnly" visibleRowCount="8" ariaLabelledBy="title" alternateRowColors="true" visibleRowCountMode="Interactive">
@@ -226,6 +226,15 @@
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{Coeficiente}"/>
+                    </table:template>
+                </table:Column>
+                     <table:Column width="8.5rem" filterProperty="Coefreduc" sortProperty="Coefreduc" hAlign="Center">
+                    <Label text="{i18n>tb_Coef}" wrapping="true" design="Bold" textAlign="Center"/>
+                    <table:customData>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Coefreduc","columnIndex":"22", "isCurrency": false, "leadingProperty": "Coefreduc", "sortProperty": "Coefreduc", "filterProperty": "Coefreduc", "type": "numeric" }'/>
+                    </table:customData>
+                    <table:template>
+                        <ObjectAttribute text="{Coefreduc}"/>
                     </table:template>
                 </table:Column>
                 <table:Column width="8.5rem" filterProperty="Hastacoeficiente" sortProperty="Hastacoeficiente" hAlign="Center">

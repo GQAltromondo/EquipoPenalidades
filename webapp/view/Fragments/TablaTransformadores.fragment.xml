@@ -14,7 +14,13 @@
 
 
     <smartTable:SmartTable id="TransformadoresTable" beforeRebindTable="onBeforeRebindTransformadores" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" smartFilterId="idSmartFilterBar" useTablePersonalisation="true" entitySet="EquiposPenalidadesSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_transformadores}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Empresa,Codigoequipo,Desde,Descripcion,Ubicacion,PtoCon,Tipoequipo,Region,Circuito,Corredor,Zona,Nroserie,Fechainicioactividad,Fechafinactividad,Perteneciente,Tipoestacion,Potencia,Tension,Clasepenalizacion,Longitudlineas,Extremos,Nroequipocammesa,Descequipocammesa,Hasta,Regulado,Fechafueraservicio,Horafueraservicio,Usuario,Fechahora,Maniobrable,Flagenvio,Registro,Lineapartida,Id,Flagpenalidades,Porcpenalidades,Flagperdidarem,Porcperdidarem,Penaliza,Extremoa,Extremob,Extremoaregion,Extremobregion,EmpresaInt,Nemo,Regionpenalidades,Remuneracion" ignoreFromPersonalisation="Descequipocammesa,Circuito,Corredor,Extremoa,Extremob,Extremos,Fechafueraservicio,Fechahora,Horafueraservicio,Perteneciente,Flagenvio,Flagpenalidades,Tipoestacion,Id,Nroserie,Porcpenalidades,Porcperdidarem,Region,Extremoaregion,Extremobregion,Registro,Maniobrable,Lineapartida,Usuario,Zona">
-
+ <smartTable:customToolbar>
+            <OverflowToolbar>
+                <ToolbarSpacer/>
+                <Button icon="sap-icon://bell" text="Coef. vencidos" type="Negative" press=".onToggleCoefVencidos" visible="{= ${viewModel>/hasVencidos} === true }"/>
+                <Button  icon="sap-icon://clear-filter" text="Quitar filtro Vencidos" type="Transparent" press=".onClearCoefVencidos" visible="{= ${viewModel>/showCoefVencidosOnly} }"/>
+            </OverflowToolbar>
+        </smartTable:customToolbar>
         <table:Table class="customGridTable" rowActionCount="1" selectionMode="None" selectionBehavior="RowOnly" visibleRowCount="8" ariaLabelledBy="title" alternateRowColors="true" visibleRowCountMode="Interactive">
             <table:columns>
                 <table:Column width="11rem" filterProperty="Nemo" sortProperty="Nemo">

@@ -85,16 +85,29 @@ sap.ui.define([
 
 		onBeforeRebindConexiones: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["P5", "P4", "P3", "P2", "P1"]);
-		}, _applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
+		},
+		_todayYMD: function () {
+			const d = new Date();
+			const y = d.getFullYear();
+			const m = String(d.getMonth() + 1).padStart(2, "0");
+			const day = String(d.getDate()).padStart(2, "0");
+			return `${y}${m}${day}`; // ajustá formato si tu backend espera otro
+		},
+
+		_applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
 			const oBindingParams = oEvent.getParameter("bindingParams");
 			const aSmartFilters = oBindingParams.filters || [];
 			const Filter = sap.ui.model.Filter;
 			const FilterOperator = sap.ui.model.FilterOperator;
 
+			const allowedTipoEq = Array.isArray(aDefaultTipoEquipo) ? new Set(aDefaultTipoEquipo) : new Set();
+			const NO_MATCH_VALUE = "XX"; // cambiá a "" si preferís
+
 			// ===== helpers =====
 			function fixFilterFecha(oFilter) {
 				try {
-					if (oFilter.sPath?.includes("Desde") || oFilter.sPath?.includes("Hasta")) {
+					const p = oFilter.sPath || "";
+					if (p.includes("Desde") || p.includes("Hasta")) {
 						if (oFilter.sOperator === "LE") {
 							oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
 						} else {
@@ -102,7 +115,7 @@ sap.ui.define([
 							oFilter.oValue2?.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
 						}
 					}
-				} catch (e) { console.error("Error ajustando fechas:", e); }
+				} catch (e) { }
 			}
 
 			function walkFixDates(aFilters) {
@@ -131,6 +144,57 @@ sap.ui.define([
 				if (!arr._sigs.has(sig)) { arr.push(f); arr._sigs.add(sig); }
 			}
 
+			// Quitar SIEMPRE cualquier filtro de Tipoequipo; luego lo REEMPLAZAMOS por uno solo
+			function stripTipoEq(f) {
+				if (f.aFilters && f.aFilters.length) {
+					const kids = f.aFilters.map(stripTipoEq).filter(Boolean);
+					if (!kids.length) return null;
+					if (kids.length === 1) return kids[0];
+					return new Filter({ filters: kids, and: !!f.bAnd });
+				} else {
+					return (f.sPath === "Tipoequipo") ? null : f;
+				}
+			}
+
+			// Recolectar Tipoequipo desde la lista de filtros (SFB ya procesada)
+			function collectRequestedTipoEqFromFilters(f, bucket) {
+				if (f.aFilters && f.aFilters.length) {
+					f.aFilters.forEach(c => collectRequestedTipoEqFromFilters(c, bucket));
+				} else if (f.sPath === "Tipoequipo" && f.oValue1 != null) {
+					bucket.push(f.oValue1);
+				}
+			}
+
+			// Recolectar Tipoequipo directamente del control de la SFB (Combo/MultiCombo)
+			function collectRequestedTipoEqFromSFBControl(oSFB, bucket) {
+				if (!oSFB) return;
+				const ctl = oSFB.getControlByKey?.("Tipoequipo");
+				if (!ctl) return;
+
+				// MultiComboBox
+				if (typeof ctl.getSelectedKeys === "function") {
+					const keys = ctl.getSelectedKeys() || [];
+					keys.forEach(k => { if (k) bucket.push(k); });
+				}
+				// ComboBox con selectedKey
+				else if (typeof ctl.getSelectedKey === "function") {
+					const k = ctl.getSelectedKey();
+					if (k) bucket.push(k);
+				}
+				// ComboBox editable o Input: como último recurso usamos el value si coincide con alguna clave del allowed
+				else if (typeof ctl.getValue === "function") {
+					const v = (ctl.getValue() || "").trim();
+					if (v) bucket.push(v);
+				}
+			}
+
+			function buildTipoEqOr(values) {
+				return new Filter({
+					filters: values.map(v => new Filter("Tipoequipo", FilterOperator.EQ, v)),
+					and: false
+				});
+			}
+
 			// ===== 1) Fix fechas SFB =====
 			walkFixDates(aSmartFilters);
 
@@ -149,31 +213,53 @@ sap.ui.define([
 				const oElem = oSFB.getControlByKey?.("Elemento");
 				const selectedKeys = oElem?.getSelectedKeys?.() || [];
 				if (selectedKeys.length) {
-					aCustomFilters.push(
-						new Filter(selectedKeys.map(k => new Filter("Elemento", FilterOperator.EQ, k)), false)
-					);
+					aCustomFilters.push(new Filter(
+						selectedKeys.map(k => new Filter("Elemento", FilterOperator.EQ, k)),
+						false
+					));
 				}
 			}
 
-			// ===== 4) Ensamblar final con deduplicación =====
+			// ===== 4) Detectar intento de Tipoequipo robusto (filtros + control SFB) =====
+			const requestedTipoEq = [];
+			aSmartFilters.forEach(f => collectRequestedTipoEqFromFilters(f, requestedTipoEq));
+			collectRequestedTipoEqFromSFBControl(oSFB, requestedTipoEq);
+
+			// normalizar (quitar duplicados)
+			const requestedSet = new Set(requestedTipoEq.filter(Boolean));
+			const attemptedByUser = requestedSet.size > 0;
+
+			// Intersección con el grupo de ESTA tabla
+			const allowedIntersection = [...requestedSet].filter(v => allowedTipoEq.has(v));
+
+			// ===== 5) Ensamblar final SIN Tipoequipo (luego lo reemplazamos) =====
 			const aFinalFilters = [];
-			for (const f of aSmartFilters) pushIfNotDuplicate(aFinalFilters, f);
-			for (const f of aCustomFilters) pushIfNotDuplicate(aFinalFilters, f);
-
-			// ===== 5) Default Tipoequipo =====
-			const hasTipoEquipoFilter =
-				aFinalFilters.some(f => (f.sPath === "Tipoequipo") ||
-					(f.aFilters && f.aFilters.some(sub => sub.sPath === "Tipoequipo")));
-
-			if (!hasTipoEquipoFilter && Array.isArray(aDefaultTipoEquipo) && aDefaultTipoEquipo.length) {
-				const tipoEqOr = new Filter({
-					filters: aDefaultTipoEquipo.map(s => new Filter("Tipoequipo", FilterOperator.EQ, s)),
-					and: false
-				});
-				pushIfNotDuplicate(aFinalFilters, tipoEqOr);
+			for (const f of aSmartFilters) {
+				const s = stripTipoEq(f);
+				if (s) pushIfNotDuplicate(aFinalFilters, s);
+			}
+			for (const f of aCustomFilters) {
+				const s = stripTipoEq(f);
+				if (s) pushIfNotDuplicate(aFinalFilters, s);
 			}
 
-			// ===== 6) Filtro Empresa =====
+			// ===== 6) Reemplazo de Tipoequipo por tabla =====
+			if (attemptedByUser) {
+				if (allowedIntersection.length > 0) {
+					// Esta tabla reconoce el/los valores pedidos
+					pushIfNotDuplicate(aFinalFilters, buildTipoEqOr(allowedIntersection));
+				} else {
+					// Esta tabla NO los reconoce → forzar 0 resultados con "XX"
+					pushIfNotDuplicate(aFinalFilters, new Filter("Tipoequipo", FilterOperator.EQ, NO_MATCH_VALUE));
+				}
+			} else {
+				// Usuario NO filtró → aplicar default del grupo de la tabla
+				if (allowedTipoEq.size) {
+					pushIfNotDuplicate(aFinalFilters, buildTipoEqOr([...allowedTipoEq]));
+				}
+			}
+
+			// ===== 7) Filtro Empresa =====
 			const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
 			const alreadyHasEmpresa = aFinalFilters.some(f =>
 				(f.sPath === "Empresa") || (f.aFilters && f.aFilters.some(sub => sub.sPath === "Empresa"))
@@ -182,10 +268,9 @@ sap.ui.define([
 				pushIfNotDuplicate(aFinalFilters, new Filter("Empresa", FilterOperator.EQ, sEmpresa));
 			}
 
-			// ===== 7) (NEW) Vencidos: si el toggle está activo agregar Hastacoeficiente <= hoy =====
+			// ===== 8) Vencidos =====
 			const vm = this.getModel("viewModel");
 			if (vm?.getProperty("/showCoefVencidosOnly")) {
-				const today = this._todayYMD(); // "YYYYMMDD"
 				pushIfNotDuplicate(aFinalFilters,
 					new Filter("Hastacoeficiente", FilterOperator.LE, new Date())
 				);
@@ -194,153 +279,9 @@ sap.ui.define([
 			// ===== devolver =====
 			oBindingParams.filters = aFinalFilters;
 		},
-		_todayYMD: function () {
-			const d = new Date();
-			const y = d.getFullYear();
-			const m = String(d.getMonth() + 1).padStart(2, "0");
-			const day = String(d.getDate()).padStart(2, "0");
-			return `${y}${m}${day}`; // ajustá formato si tu backend espera otro
-		},
 
-	_applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
-  const oBindingParams = oEvent.getParameter("bindingParams");
-  const aSmartFilters = oBindingParams.filters || [];
-  const Filter = sap.ui.model.Filter;
-  const FilterOperator = sap.ui.model.FilterOperator;
 
-  // ===== allowlist para Tipoequipo =====
-  const allowedTipoEq = Array.isArray(aDefaultTipoEquipo) ? new Set(aDefaultTipoEquipo) : new Set();
 
-  // ===== helpers =====
-  function fixFilterFecha(oFilter) {
-    try {
-      if (oFilter.sPath?.includes("Desde") || oFilter.sPath?.includes("Hasta")) {
-        if (oFilter.sOperator === "LE") {
-          oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
-        } else {
-          oFilter.oValue1?.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
-          oFilter.oValue2?.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
-        }
-      }
-    } catch (e) { /* no-op */ }
-  }
-
-  function walkFixDates(aFilters) {
-    for (const f of aFilters) {
-      if (f.aFilters && f.aFilters.length) walkFixDates(f.aFilters);
-      else fixFilterFecha(f);
-    }
-  }
-
-  function serializeFilter(f) {
-    if (f.aFilters && f.aFilters.length) {
-      const children = f.aFilters.map(serializeFilter).sort();
-      return JSON.stringify({ group: true, and: !!f.bAnd, children });
-    }
-    return JSON.stringify({
-      path: f.sPath || null,
-      op: f.sOperator || null,
-      v1: f.oValue1 instanceof Date ? f.oValue1.toISOString() : f.oValue1,
-      v2: f.oValue2 instanceof Date ? f.oValue2.toISOString() : f.oValue2
-    });
-  }
-
-  function pushIfNotDuplicate(arr, f) {
-    const sig = serializeFilter(f);
-    if (!arr._sigs) arr._sigs = new Set(arr.map(serializeFilter));
-    if (!arr._sigs.has(sig)) { arr.push(f); arr._sigs.add(sig); }
-  }
-
-  // Poda SOLO de filtros de Tipoequipo que no estén en la allowlist
-  function pruneTipoEqByAllowed(f) {
-    if (f.aFilters && f.aFilters.length) {
-      const kids = f.aFilters.map(pruneTipoEqByAllowed).filter(Boolean);
-      if (!kids.length) return null;
-      if (kids.length === 1) return kids[0];
-      return new Filter({ filters: kids, and: !!f.bAnd });
-    } else {
-      if (f.sPath === "Tipoequipo") {
-        // En la práctica usamos EQ; si viniera otro operador, se evalúa por oValue1 igual
-        if (f.sOperator === FilterOperator.EQ) {
-          return allowedTipoEq.has(f.oValue1) ? f : null;
-        }
-        return allowedTipoEq.has(f.oValue1) ? f : null;
-      }
-      return f;
-    }
-  }
-
-  // ===== 1) Fix fechas SFB =====
-  walkFixDates(aSmartFilters);
-
-  // ===== 2) Custom filters existentes (si los tienes) =====
-  const aCustomFilters = this._getFilters?.() || [];
-
-  // ===== 3) Filtros desde SFB (IdBDE, Elemento) =====
-  const oSFB = this.byId("idSmartFilterBar");
-  if (oSFB) {
-    const oIdBDE = oSFB.getControlByKey?.("IdBDE");
-    const idBDEVal = oIdBDE?.getValue?.().trim();
-    if (idBDEVal) {
-      aCustomFilters.push(new Filter("IdPagoTran", FilterOperator.Contains, idBDEVal));
-    }
-
-    const oElem = oSFB.getControlByKey?.("Elemento");
-    const selectedKeys = oElem?.getSelectedKeys?.() || [];
-    if (selectedKeys.length) {
-      aCustomFilters.push(
-        new Filter(selectedKeys.map(k => new Filter("Elemento", FilterOperator.EQ, k)), false)
-      );
-    }
-  }
-
-  // ===== 4) Ensamblar final con deduplicación + PODA SOLO PARA Tipoequipo =====
-  const aFinalFilters = [];
-  for (const f of aSmartFilters) {
-    const p = pruneTipoEqByAllowed(f);
-    if (p) pushIfNotDuplicate(aFinalFilters, p);
-  }
-  for (const f of aCustomFilters) {
-    const p = pruneTipoEqByAllowed(f);
-    if (p) pushIfNotDuplicate(aFinalFilters, p);
-  }
-
-  // ===== 5) Tipoequipo por defecto (P5..P1 en tu caso Conexiones):
-  // Si tras la poda no quedó NINGÚN filtro de Tipoequipo, inyectamos el OR con aDefaultTipoEquipo
-  const hasTipoEq = (f) =>
-    (f.sPath === "Tipoequipo") ||
-    (f.aFilters && f.aFilters.some(hasTipoEq));
-
-  const hasTipoEquipoFilter = aFinalFilters.some(hasTipoEq);
-
-  if (!hasTipoEquipoFilter && allowedTipoEq.size) {
-    const tipoEqOr = new Filter({
-      filters: [...allowedTipoEq].map(s => new Filter("Tipoequipo", FilterOperator.EQ, "XX")),
-      and: false
-    });
-    pushIfNotDuplicate(aFinalFilters, tipoEqOr);
-  }
-
-  // ===== 6) Filtro Empresa =====
-  const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
-  const alreadyHasEmpresa = aFinalFilters.some(f =>
-    (f.sPath === "Empresa") || (f.aFilters && f.aFilters.some(sub => sub.sPath === "Empresa"))
-  );
-  if (sEmpresa && !alreadyHasEmpresa) {
-    pushIfNotDuplicate(aFinalFilters, new Filter("Empresa", FilterOperator.EQ, sEmpresa));
-  }
-
-  // ===== 7) Vencidos: si el toggle está activo agregar Hastacoeficiente <= hoy =====
-  const vm = this.getModel("viewModel");
-  if (vm?.getProperty("/showCoefVencidosOnly")) {
-    pushIfNotDuplicate(aFinalFilters,
-      new Filter("Hastacoeficiente", FilterOperator.LE, new Date())
-    );
-  }
-
-  // ===== devolver =====
-  oBindingParams.filters = aFinalFilters;
-},
 
 		onEditarEquipo: async function (oEvent) {
 			var oData = oEvent.getSource().getBindingContext().getObject(),

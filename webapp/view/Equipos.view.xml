@@ -63,7 +63,13 @@
 											</smartFilterBar:ControlConfiguration>
 
 											<!-- 6) Nemo -->
-											<smartFilterBar:ControlConfiguration key="Nemo" index="60" label="{i18n>fb_nemo}" groupId="_BASIC"/>
+											<smartFilterBar:ControlConfiguration key="Nemo" index="60" label="{i18n>fb_nemo}" groupId="_BASIC"  filterType="multiple">
+												<smartFilterBar:customControl>
+													<MultiComboBox items="{NemoSet>/}">
+														<core:Item key="{NemoSet>NemoId}" text="{NemoSet>NemoId} - {NemoSet>Descripcion}"/>
+													</MultiComboBox>
+												</smartFilterBar:customControl>
+												</smartFilterBar:ControlConfiguration>
 
 											<!-- 7) Regionpenalidades (MultiComboBox) -->
 											<smartFilterBar:ControlConfiguration key="Regionpenalidades" index="70" label="{i18n>fb_reg}" groupId="_BASIC" filterType="multiple" hasTypeAhead="false" controlType="dropDownList" visible="true">

@@ -125,16 +125,6 @@
                     </table:template>
                 </table:Column>
            
-           
-                <table:Column width="3rem" filterProperty="Clasepenalizacion" sortProperty="Clasepenalizacion" hAlign="Center">
-                    <Label text="{i18n>tb_clase_pen}" wrapping="true" design="Bold" textAlign="Center"/>
-                    <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Clasepenalizacion","columnIndex":"14", "isCurrency": false, "leadingProperty": "Clasepenalizacion", "sortProperty": "Clasepenalizacion", "filterProperty": "Clasepenalizacion", "type": "string" }'/>
-                    </table:customData>
-                    <table:template>
-                        <ObjectAttribute text="{Clasepenalizacion}"/>
-                    </table:template>
-                </table:Column>
                 <table:Column width="6rem" filterProperty="Elemento" sortProperty="Elemento" hAlign="Center">
                     <Label text="{i18n>tb_elemento}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>

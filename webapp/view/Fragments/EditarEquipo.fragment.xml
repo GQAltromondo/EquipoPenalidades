@@ -80,6 +80,14 @@
 																<Label text="{i18n>ed_finAct}"/>
 															</form:label>
 														</form:FormElement>
+														<form:FormElement >
+															<form:fields>
+																<Input type="Number" value="{editModel>/IdBde}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_idBde}"/>
+															</form:label>
+														</form:FormElement>
 
 														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isTransformador'}">
 															<form:fields>
@@ -179,7 +187,7 @@
 														</form:FormElement>
 														<form:FormElement>
 															<form:fields>
-																<ComboBox items="{Desplegables>/Elementos}" selectedKey="{editModel>/Nemo}">
+																<ComboBox items="{Desplegables>/Elementos}" selectedKey="{editModel>/Elemento}">
 																	<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
 																</ComboBox>
 															</form:fields>

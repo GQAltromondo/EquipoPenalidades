@@ -165,26 +165,15 @@ sap.ui.define([
 				}
 			}
 
-			// Recolectar Tipoequipo directamente del control de la SFB (Combo/MultiCombo)
+
 			function collectRequestedTipoEqFromSFBControl(oSFB, bucket) {
 				if (!oSFB) return;
 				const ctl = oSFB.getControlByKey?.("Tipoequipo");
 				if (!ctl) return;
 
-				// MultiComboBox
 				if (typeof ctl.getSelectedKeys === "function") {
 					const keys = ctl.getSelectedKeys() || [];
 					keys.forEach(k => { if (k) bucket.push(k); });
-				}
-				// ComboBox con selectedKey
-				else if (typeof ctl.getSelectedKey === "function") {
-					const k = ctl.getSelectedKey();
-					if (k) bucket.push(k);
-				}
-				// ComboBox editable o Input: como último recurso usamos el value si coincide con alguna clave del allowed
-				else if (typeof ctl.getValue === "function") {
-					const v = (ctl.getValue() || "").trim();
-					if (v) bucket.push(v);
 				}
 			}
 
@@ -215,6 +204,14 @@ sap.ui.define([
 				if (selectedKeys.length) {
 					aCustomFilters.push(new Filter(
 						selectedKeys.map(k => new Filter("Elemento", FilterOperator.EQ, k)),
+						false
+					));
+				}
+				const oNemo = oSFB.getControlByKey?.("Nemo");
+				const aNemoKeys = oNemo?.getSelectedKeys?.() || [];
+				if (aNemoKeys.length) {
+					aCustomFilters.push(new Filter(
+						aNemoKeys.map(k => new Filter("Nemo", FilterOperator.EQ, k)),
 						false
 					));
 				}
@@ -271,10 +268,17 @@ sap.ui.define([
 			// ===== 8) Vencidos =====
 			const vm = this.getModel("viewModel");
 			if (vm?.getProperty("/showCoefVencidosOnly")) {
-				pushIfNotDuplicate(aFinalFilters,
-					new Filter("Hastacoeficiente", FilterOperator.LE, new Date())
-				);
+				const vencidosFilter = new Filter({
+					filters: [
+						new Filter("Hastacoeficiente", FilterOperator.LE, new Date()),
+						new Filter("Coefreduc", FilterOperator.LE, "0.0000")
+					],
+					and: true // o false si querés un OR
+				});
+				pushIfNotDuplicate(aFinalFilters, vencidosFilter);
+
 			}
+
 
 			// ===== devolver =====
 			oBindingParams.filters = aFinalFilters;
@@ -475,6 +479,8 @@ sap.ui.define([
 			oSFB.getControlByKey("CodigoEquipo")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Tipoequipo")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Regionpenalidades")?.setSelectedKeys([]);
+			oSFB.getControlByKey("Elemento")?.setSelectedKeys([]);
+			oSFB.getControlByKey("Nemo")?.setSelectedKeys([]);
 
 
 			oSFB.getControlByKey("FechaDesde")?.setDateValue(null);
@@ -649,7 +655,7 @@ sap.ui.define([
 		},
 		onEvolucionEquipo: async function (Codigoequipo) {
 			let sCodigoEquipo = "";
-
+			var sEmpresa = this.getModel("viewModel").getProperty("/sociedad")
 			const bFromParam = typeof Codigoequipo === "string" && Codigoequipo.trim() !== "";
 
 			if (bFromParam) {
@@ -663,7 +669,14 @@ sap.ui.define([
 			const oModel = this.getView().getModel();
 			oModel.setUseBatch(false);
 
-			const oFilter = new sap.ui.model.Filter("CODIGOEQUIPO", sap.ui.model.FilterOperator.EQ, sCodigoEquipo);
+			const oFilter = new sap.ui.model.Filter({
+				filters: [
+					new sap.ui.model.Filter("CODIGOEQUIPO", sap.ui.model.FilterOperator.EQ, sCodigoEquipo),
+					new sap.ui.model.Filter("EMPRESA", sap.ui.model.FilterOperator.EQ, sEmpresa)
+				],
+				and: true
+			});
+
 
 			return new Promise((resolve, reject) => {
 				oModel.read("/HistoricoEquipoSet", {
@@ -779,7 +792,7 @@ sap.ui.define([
 			let has = false;
 			for (let i = 0; i < ctxs.length; i++) {
 				const row = ctxs[i].getObject() || {};
-				if (this._isExpired(row.Hastacoeficiente)) { has = true; break; }
+				if (this._isExpired(row.Hastacoeficiente, row.Coefreduc)) { has = true; break; }
 			}
 
 			// guardo por tabla y recalculo el global
@@ -790,7 +803,10 @@ sap.ui.define([
 			vm.setProperty("/hasVencidos", any);
 		},
 
-		_isExpired: function (v) {
+		_isExpired: function (v, coef) {
+			const coefNum = Number(coef);
+			if (!Number.isFinite(coefNum)) return false; // coef inválido => no vencido
+
 			const toDate = (val) => {
 				if (val == null) return null;
 				if (val instanceof Date) return val;
@@ -808,14 +824,16 @@ sap.ui.define([
 			};
 
 			const d = toDate(v);
-			if (!d || isNaN(d.getTime())) return false;
+			if (!d || isNaN(d.getTime())) return false; // sin fecha válida => no vencido
 
 			const today = new Date();
 			d.setHours(0, 0, 0, 0);
 			today.setHours(0, 0, 0, 0);
 
-			return d.getTime() <= today.getTime();
+			const isExpired = d.getTime() <= today.getTime();
+			return isExpired && (coefNum > 0); // ambas condiciones
 		},
+
 		onToggleCoefVencidos: function () {
 			const vm = this.getModel("viewModel");
 			const cur = !!vm.getProperty("/showCoefVencidosOnly");

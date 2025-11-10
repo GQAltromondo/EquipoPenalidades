@@ -151,6 +151,12 @@
 			"Grupo": "001",
 			"Descripcion": "LÍNEA DE 132 KV"
 		},
+			{
+			"Empresa": "100",
+			"Tipo": "L6",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 66 KV"
+		},
 		{
 			"Empresa": "100",
 			"Tipo": "P5",
@@ -189,6 +195,102 @@
 		},
 		{
 			"Empresa": "100",
+			"Tipo": "AU",
+			"Grupo": "002",
+			"Descripcion": "AUTOTRANSFORMADOR"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "TR",
+			"Grupo": "002",
+			"Descripcion": "TRANSFORMADOR"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "RT",
+			"Grupo": "003",
+			"Descripcion": "REACTOR DE TERCIARIOS"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "RL",
+			"Grupo": "003",
+			"Descripcion": "REACTOR DE LÍNEA"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "RB",
+			"Grupo": "003",
+			"Descripcion": "REACTOR DE BARRA"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "L5",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 500 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "L4",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 345 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "L2",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 220 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "L1",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 132 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "L6",
+			"Grupo": "001",
+			"Descripcion": "LÍNEA DE 66 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "P5",
+			"Grupo": "006",
+			"Descripcion": "CONEXIÓN DE 500 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "P2",
+			"Grupo": "006",
+			"Descripcion": "CONEXIÓN DE 220 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "P1",
+			"Grupo": "006",
+			"Descripcion": "CONEXIÓN DE 132 KV"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "CS",
+			"Grupo": "005",
+			"Descripcion": "COMPENSADOR SINCRÓNICO"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "KS",
+			"Grupo": "004",
+			"Descripcion": "CAPACITOR SERIE"
+		},
+		{
+			"Empresa": "300",
+			"Tipo": "KP",
+			"Grupo": "004",
+			"Descripcion": "CAPACITOR PARALELO"
+		},
+		{
+			"Empresa": "300",
 			"Tipo": "AU",
 			"Grupo": "002",
 			"Descripcion": "AUTOTRANSFORMADOR"

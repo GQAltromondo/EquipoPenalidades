@@ -122,6 +122,11 @@
 													</MultiComboBox>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
+											<smartFilterBar:ControlConfiguration key="Ubicacion" index="130" label="Ubicacion" groupId="_BASIC">
+												<smartFilterBar:customControl>
+													<Input placeholder="Buscar Ubicacion..." />
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
 
 										</smartFilterBar:controlConfiguration>
 									</smartFilterBar:SmartFilterBar>

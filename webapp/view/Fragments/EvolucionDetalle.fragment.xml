@@ -26,8 +26,8 @@
 				</VBox>
 				<VBox class="sapUiMediumMarginEnd">
 					<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_equipo_cam}" text="{detalleHistoricoModel>/NROEQUIPOCAMMESA} - {detalleHistoricoModel>/DESCEQUIPOCAMMESA}"/>
-					<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_desde}" text="{ path: 'historicoEquipoModel>DESDE', formatter: '.formatter.formatDateFromYYYYMMDD' }"/>
-					<ObjectAttribute title="{i18n>ed_hasta}" text="{ path: 'historicoEquipoModel>HASTA', formatter: '.formatter.formatDateFromYYYYMMDD' }"/>
+					<ObjectAttribute class="sapUiTinyMarginBottom" title="{i18n>ed_desde}" text="{ path: 'detalleHistoricoModel>/DESDE', formatter: '.formatter.formatDateFromYYYYMMDD' }"/>
+					<ObjectAttribute title="{i18n>ed_hasta}" text="{ path: 'detalleHistoricoModel>/HASTA', formatter: '.formatter.formatDateFromYYYYMMDD' }"/>
 				</VBox>
 
 				<HBox width="700px">
@@ -53,7 +53,7 @@
 											
 														<form:FormElement >
 															<form:fields>
-																<Input  value="{detalleHistoricoModel>/Descripcion}"/>
+																<Input  value="{detalleHistoricoModel>/DESCRIPCION}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_desc}"/>
@@ -61,7 +61,7 @@
 														</form:FormElement>
 															<form:FormElement >
 															<form:fields>
-																<DatePicker  value="{path:'detalleHistoricoModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker  value="{path:'detalleHistoricoModel>/FECHAINICIOACTIVIDAD', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_inicioAct}"/>
@@ -69,25 +69,26 @@
 														</form:FormElement>
 												<form:FormElement>
 													<form:fields>
-														<Input value="{detalleHistoricoModel>/CODIGOEQUIPO}" enabled="false"/>
+												<Input	value="{ path: 'detalleHistoricoModel>/FECHAFINACTIVIDAD', formatter: '.formatter.formatDateFromYYYYMMDD' }" enabled="false"/>
+																<!-- <DatePicker  value="{path:'detalleHistoricoModel>/FECHAFINACTIVIDAD', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}" enabled="false"/> -->
 													</form:fields>
 													<form:label>
 														<Label text="{i18n>ed_equipo}"/>
 													</form:label>
 												</form:FormElement>
 
-												<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isTransformador'}">
+												<form:FormElement >
 													<form:fields>
-														<Input type="Number" value="{detalleHistoricoModel>/POTENCIA_DIR}"/>
+														<Input  value="{detalleHistoricoModel>/ID_BDE}" enabled="false" />
 													</form:fields>
 													<form:label>
-														<Label text="{i18n>ed_pot}"/>
+														<Label text="{i18n>ed_idBde}"/>
 													</form:label>
 												</form:FormElement>
 												<form:FormElement>
 													<form:fields>
-														<!--<Input maxLength="20" value="{detalleHistoricoModel>/Tension}"/>-->
-														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/TENSION_DIR}" items="{Desplegables>/Tensiones}">
+														
+														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/TENSION_DIR}" items="{Desplegables>/Tensiones}" enabled="false">
 															<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
 														</Select>
 													</form:fields>
@@ -97,8 +98,7 @@
 												</form:FormElement>
 												<form:FormElement>
 													<form:fields>
-														<!--<Input maxLength="10" value="{detalleHistoricoModel>/Clasepenalizacion}"/>-->
-														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/CLASEPENALIZACION}" items="{Desplegables>/ClasePenalizacion}">
+														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/CLASEPENALIZACION}" items="{Desplegables>/ClasePenalizacion}" enabled="false">
 															<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
 														</Select>
 													</form:fields>
@@ -106,33 +106,33 @@
 														<Label text="{i18n>ed_clase_pen}"/>
 													</form:label>
 												</form:FormElement>
-											<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+											<form:FormElement  visible="{path: 'detalleHistoricoModel>/TIPOEQUIPO', formatter: '.formatter.isLinea'}">
 													<form:fields>
-														<Input type="Number" value="{detalleHistoricoModel>/LONGITUDLINEAS}"/>
+														<Input  value="{detalleHistoricoModel>/LONGITUDLINEAS}" enabled="false"/>
 													</form:fields>
 													<form:label>
 														<Label text="{i18n>ed_lon}"/>
 													</form:label>
 												</form:FormElement>
-													<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+													<form:FormElement  visible="{path: 'detalleHistoricoModel>/TIPOEQUIPO', formatter: '.formatter.isLinea'}">
 															<form:fields>
-																<Input type="Number" value="{editModel>/KMLineasNorte}"/>
+																<Input  value="{editModel>/KMLINEASNORTE}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_KmN}"/>
 															</form:label>
 														</form:FormElement>
-																<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+																<form:FormElement  visible="{path: 'detalleHistoricoModel>/TIPOEQUIPO', formatter: '.formatter.isLinea'}">
 															<form:fields>
-																<Input type="Number" value="{editModel>/KMLineasCentroEste}"/>
+																<Input  value="{editModel>KMLINEASCENTROESTE}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_KmCE}"/>
 															</form:label>
 														</form:FormElement>		
-															<form:FormElement  visible="{path: 'detalleHistoricoModel>/Tipoequipo', formatter: '.formatter.isLinea'}">
+															<form:FormElement  visible="{path: 'detalleHistoricoModel>/TIPOEQUIPO', formatter: '.formatter.isLinea'}">
 															<form:fields>
-																<Input type="Number" value="{editModel>/KMLineasSur}"/>
+																<Input  value="{editModel>KMLINEASSUR}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_KmS}"/>
@@ -151,17 +151,10 @@
 									<form:formContainers>
 										<form:FormContainer>
 											<form:formElements>
+					
 												<form:FormElement>
 													<form:fields>
-														<Input maxLength="4" value="{detalleHistoricoModel>/EMPRESA_INT}"/>
-													</form:fields>
-													<form:label>
-														<Label text="{i18n>ed_reporte}"/>
-													</form:label>
-												</form:FormElement>
-												<form:FormElement>
-													<form:fields>
-														<Input maxLength="40" value="{detalleHistoricoModel>/NEMO}"/>
+														<Input maxLength="40" value="{detalleHistoricoModel>/NEMO}" enabled="false"/>
 
 													</form:fields>
 													<form:label>
@@ -170,7 +163,7 @@
 												</form:FormElement>
 												<form:FormElement>
 															<form:fields>
-																<Input maxLength="4" value="{editModel>/Elemento}"/>
+																<Input maxLength="4" value="{detalleHistoricoModel>/ELEMENTO}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_elemento}"/>
@@ -178,7 +171,7 @@
 														</form:FormElement>
 															<form:FormElement>
 															<form:fields>
-																<Input maxLength="250" value="{editModel>/Observaciones}"/>
+																<Input maxLength="250" value="{detalleHistoricoModel>/OBSERVACIONES}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_observacion}"/>
@@ -186,7 +179,7 @@
 														</form:FormElement>
 																<form:FormElement>
 															<form:fields>
-																<Input  value="{editModel>/Cebe}"/>
+																<Input  value="{detalleHistoricoModel>/CEBE}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_cebe}"/>
@@ -194,7 +187,7 @@
 														</form:FormElement>
 																<form:FormElement>
 															<form:fields>
-																<Input  value="{editModel>/Kostl}"/>
+																<Input  value="{detalleHistoricoModel>/KOSTL}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_ceco}"/>
@@ -203,24 +196,33 @@
 														
 															<form:FormElement >
 															<form:fields>
-																<Input type="Number" value="{editModel>/Coeficiente}"/>
+																<Input  value="{detalleHistoricoModel>/COEFICIENTE}" enabled="false"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_CoefSup}"/>
 															</form:label>
 														</form:FormElement>
+															<form:FormElement>
+													<form:fields>
+													<Input	value="{ path: 'detalleHistoricoModel>/HASTACOEFICIENTE', formatter: '.formatter.formatDateFromYYYYMMDD' }" enabled="false"/>
+																<!-- <DatePicker  value="{path:'detalleHistoricoModel>/HASTACOEFICIENTE', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}" enabled="false"/> -->
+													</form:fields>
+													<form:label>
+														<Label text="{i18n>ed_HastaCoefSup}"/>
+													</form:label>
+												</form:FormElement>
 														<form:FormElement >
 															<form:fields>
-																<Input type="Number" value="{editModel>/Coeficiente}"/>
+																<Input  value="{detalleHistoricoModel>/COEFREDUC}" enabled="false"/>
 															</form:fields>
 															<form:label>
-																<Label text="{i18n>ed_CoefRed}"/>
+																<Label text="{i18n>ed_CoefRem}"/>
 															</form:label>
 														</form:FormElement>
 												<form:FormElement>
 													<form:fields>
 														<!--<Input maxLength="40" value="{detalleHistoricoModel>/Regionpenalidades}"/>-->
-														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/REGIONPENALIDADES}" items="{Desplegables>/RegionPenalidades}">
+														<Select forceSelection="false" selectedKey="{detalleHistoricoModel>/REGIONPENALIDADES}" items="{Desplegables>/RegionPenalidades}" enabled="false">
 															<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}"/>
 														</Select>
 													</form:fields>
@@ -228,46 +230,25 @@
 														<Label text="{i18n>ed_region}"/>
 													</form:label>
 												</form:FormElement>
-												<form:FormElement>
-													<form:fields>
-														<Input maxLength="40" value="{detalleHistoricoModel>/KMLINEASNORTE}"/>
+											<form:FormElement>
 
-													</form:fields>
-													<form:label>
-														<Label text="{i18n>ed_KmNorte}"/>
-													</form:label>
-												</form:FormElement>
-												<form:FormElement>
-													<form:fields>
-														<Input maxLength="40" value="{detalleHistoricoModel>/KMLINEASNORTE}"/>
-
-													</form:fields>
-													<form:label>
-														<Label text="{i18n>ed_KmCe}"/>
-													</form:label>
-												</form:FormElement>
-												<form:FormElement>
-													<form:fields>
-														<Input maxLength="40" value="{detalleHistoricoModel>/KMLINEASSUR}"/>
-													</form:fields>
-													<form:label>
-														<Label text="{i18n>ed_KmSur}"/>
-													</form:label>
-												</form:FormElement>
-												<!--<form:FormElement>-->
-												<!--	<form:fields>-->
-												<!--		<Switch state="{detalleHistoricoModel>/Regulado}" customTextOn="Si" customTextOff="No" type="AcceptReject"/>-->
-												<!--	</form:fields>-->
-												<!--	<form:label>-->
-												<!--		<Label text="{i18n>ed_regulado}"/>-->
-												<!--	</form:label>-->
-												<!--</form:FormElement>-->
-												<form:FormElement>
-													<form:label>
-														<!-- Etiqueta vacía o común si se desea -->
-													</form:label>
-
-												</form:FormElement>
+															<form:fields>
+																<HBox >
+																	<VBox class="sapUiSmallMarginEnd">
+																		<Label text="{i18n>ed_remuneracion}" labelFor="remSwitch"/>
+																		<Switch  state="{detalleHistoricoModel>/REMUNERACION}" customTextOn="Si" customTextOff="No" type="AcceptReject" enabled="false"/>
+																	</VBox>
+																	<VBox class="sapUiSmallMarginEnd">
+																		<Label text="{i18n>ed_penaliza}" labelFor="penSwitch"/>
+																		<Switch  state="{detalleHistoricoModel>/PENALIZA}" customTextOn="Si" customTextOff="No" type="AcceptReject" enabled="false"/>
+																	</VBox>
+																	<VBox class="sapUiSmallMarginEnd">
+																		<Label text="{i18n>ed_premio}" labelFor="premioSwitch"/>
+																		<Switch  state="{detalleHistoricoModel>/FLAGPERDIDAREM}" customTextOn="Si" customTextOff="No" type="AcceptReject" enabled="false"/>
+																	</VBox>
+																</HBox>
+															</form:fields>
+														</form:FormElement>
 
 											</form:formElements>
 										</form:FormContainer>

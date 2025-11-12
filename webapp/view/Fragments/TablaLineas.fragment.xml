@@ -169,6 +169,16 @@
                         <ObjectAttribute text="{Elemento}"/>
                     </table:template>
                 </table:Column>
+                 <table:Column width="11rem" filterProperty="Ubicacion" sortProperty="Ubicacion">
+                    <Label text="{i18n>tb_estacion}" wrapping="true" design="Bold"/>
+                    <table:customData>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Ubicacion","columnIndex":"17", "isCurrency": false, "leadingProperty": "Ubicacion", "sortProperty": "Ubicacion", "filterProperty": "Ubicacion", "type": "string" }'/>
+                    </table:customData>
+                    <table:template>
+                        <ObjectAttribute text="{Ubicacion}"/>
+                    </table:template>
+
+                </table:Column>
                 <table:Column width="11rem" filterProperty="Regionpenalidades" sortProperty="Regionpenalidades">
                     <Label text="{i18n>tb_reg}" wrapping="true" design="Bold"/>
                     <table:customData>
@@ -231,7 +241,7 @@
                      <table:Column width="8.5rem" filterProperty="Coefreduc" sortProperty="Coefreduc" hAlign="Center">
                     <Label text="{i18n>tb_Coef}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Coefreduc","columnIndex":"22", "isCurrency": false, "leadingProperty": "Coefreduc", "sortProperty": "Coefreduc", "filterProperty": "Coefreduc", "type": "numeric" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Coefreduc","columnIndex":"23", "isCurrency": false, "leadingProperty": "Coefreduc", "sortProperty": "Coefreduc", "filterProperty": "Coefreduc", "type": "numeric" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{Coefreduc}"/>
@@ -240,7 +250,7 @@
                 <table:Column width="8.5rem" filterProperty="Hastacoeficiente" sortProperty="Hastacoeficiente" hAlign="Center">
                     <Label text="{i18n>tb_SupHasta}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "Hastacoeficiente","columnIndex":"23", "isCurrency": false, "leadingProperty": "Hastacoeficiente", "sortProperty": "Hastacoeficiente", "filterProperty": "Hastacoeficiente", "type": "date" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hastacoeficiente","columnIndex":"24", "isCurrency": false, "leadingProperty": "Hastacoeficiente", "sortProperty": "Hastacoeficiente", "filterProperty": "Hastacoeficiente", "type": "date" }'/>
                     </table:customData>
                     <table:template>
                         <ObjectAttribute text="{path:'Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>

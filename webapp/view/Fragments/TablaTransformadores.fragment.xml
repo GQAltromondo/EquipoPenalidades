@@ -169,7 +169,7 @@
                         <core:Icon size="1.3rem" src="{ path: 'Flagperdidarem', formatter: '.formatter.iconReg' }" color="{ path: 'Flagperdidarem', formatter: '.formatter.colorReg' }"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="3rem" filterProperty="Clasepenalizacion" sortProperty="Clasepenalizacion" hAlign="Center">
+                <!-- <table:Column width="3rem" filterProperty="Clasepenalizacion" sortProperty="Clasepenalizacion" hAlign="Center">
                     <Label text="{i18n>tb_clase_pen}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Clasepenalizacion","columnIndex":"18", "isCurrency": false, "leadingProperty": "Clasepenalizacion", "sortProperty": "Clasepenalizacion", "filterProperty": "Clasepenalizacion", "type": "string" }'/>
@@ -177,7 +177,7 @@
                     <table:template>
                         <ObjectAttribute text="{Clasepenalizacion}"/>
                     </table:template>
-                </table:Column>
+                </table:Column> -->
                 <table:Column width="6rem" filterProperty="Elemento" sortProperty="Elemento" hAlign="Center">
                     <Label text="{i18n>tb_elemento}" wrapping="true" design="Bold" textAlign="Center"/>
                     <table:customData>

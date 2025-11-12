@@ -166,14 +166,14 @@
 												<form:FormContainer>
 													<form:formElements>
 
-														<form:FormElement>
+														<!-- <form:FormElement>
 															<form:fields>
 																<Input maxLength="4" value="{editModel>/EmpresaInt}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_reporte}"/>
 															</form:label>
-														</form:FormElement>
+														</form:FormElement> -->
 														<form:FormElement>
 															<form:fields>
 																<!--<Input maxLength="40" value="{editModel>/Nemo}"/>-->

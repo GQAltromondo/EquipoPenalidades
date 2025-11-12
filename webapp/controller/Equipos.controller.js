@@ -196,7 +196,13 @@ sap.ui.define([
 				const oIdBDE = oSFB.getControlByKey?.("IdBDE");
 				const idBDEVal = oIdBDE?.getValue?.().trim();
 				if (idBDEVal) {
-					aCustomFilters.push(new Filter("IdPagoTran", FilterOperator.Contains, idBDEVal));
+					aCustomFilters.push(new Filter("IdBDE", FilterOperator.Contains, idBDEVal));
+				}
+
+					const oUbicacion = oSFB.getControlByKey?.("Ubicacion");
+				const ubicacionEVal = oUbicacion?.getValue?.().trim();
+				if (ubicacionEVal) {
+					aCustomFilters.push(new Filter("Ubicacion", FilterOperator.Contains, ubicacionEVal));
 				}
 
 				const oElem = oSFB.getControlByKey?.("Elemento");
@@ -270,14 +276,14 @@ sap.ui.define([
 			if (vm?.getProperty("/showCoefVencidosOnly")) {
 				const vencidosFilter = new Filter({
 					filters: [
-						new Filter("Hastacoeficiente", FilterOperator.LE, new Date()),
-						new Filter("Coefreduc", FilterOperator.LE, "0.0000")
+						new Filter("Hastacoeficiente", FilterOperator.LT, new Date()), // menor a hoy
+						new Filter("Coefreduc", FilterOperator.GT, "0.0000")           // mayor a 0.0000
 					],
-					and: true // o false si querés un OR
+					and: true // usa AND para que cumpla ambas condiciones
 				});
 				pushIfNotDuplicate(aFinalFilters, vencidosFilter);
-
 			}
+
 
 
 			// ===== devolver =====
@@ -368,18 +374,18 @@ sap.ui.define([
 			let oHastaCoefPicker = oView.byId("Hastacoeficiente");
 
 
-			// 🔸 Validar campo requerido
-			if (!oData.Hastacoeficiente) {
-				if (oHastaCoefPicker) {
-					oHastaCoefPicker.setValueState(sap.ui.core.ValueState.Error);
-					oHastaCoefPicker.setValueStateText("Campo requerido: Hasta coeficiente");
-					oHastaCoefPicker.focus();
-				}
-				sap.m.MessageBox.warning("El campo 'Hasta coeficiente' es obligatorio.");
-				return; // detener ejecución
-			} else if (oHastaCoefPicker) {
-				oHastaCoefPicker.setValueState(sap.ui.core.ValueState.None);
-			}
+			// // 🔸 Validar campo requerido
+			// if (!oData.Hastacoeficiente) {
+			// 	if (oHastaCoefPicker) {
+			// 		oHastaCoefPicker.setValueState(sap.ui.core.ValueState.Error);
+			// 		oHastaCoefPicker.setValueStateText("Campo requerido: Hasta coeficiente");
+			// 		oHastaCoefPicker.focus();
+			// 	}
+			// 	sap.m.MessageBox.warning("El campo 'Hasta coeficiente' es obligatorio.");
+			// 	return; // detener ejecución
+			// } else if (oHastaCoefPicker) {
+			// 	oHastaCoefPicker.setValueState(sap.ui.core.ValueState.None);
+			// }
 
 			// === Normalizar campos antes del guardado ===
 			oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
@@ -714,10 +720,14 @@ sap.ui.define([
 		}
 		,
 		onVerDetalleHistorico: function (oEvent) {
+			
 			const oItem = oEvent.getSource().getParent();
 			const oContext = oItem.getBindingContext("historicoEquipoModel");
+			
 			const oData = oContext.getObject();
-
+			oData.REMUNERACION = oData.REMUNERACION === "X";
+			oData.PENALIZA = oData.PENALIZA === "X";
+			oData.FLAGPERDIDAREM = oData.FLAGPERDIDAREM === "X";
 
 			const oDetailModel = ModelHelper.getModel(this.getView(), "detalleHistoricoModel").setData(oData)
 

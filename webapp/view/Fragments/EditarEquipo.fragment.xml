@@ -229,7 +229,8 @@
 														</form:FormElement>
 														<form:FormElement >
 															<form:fields>
-																<DatePicker value="{path:'editModel>/Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}" id="Hastacoeficiente"/>
+																<DatePicker value="{path:'editModel>/Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_HastaCoefSup}"/>

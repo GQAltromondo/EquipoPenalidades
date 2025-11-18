@@ -394,23 +394,6 @@ sap.ui.define([
 			oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
 			delete oData.RegionpenalidadesKeys;
 
-			function toODataDate(sYyyyMmDd) {
-				if (!sYyyyMmDd) return null;
-
-				const [year, month, day] = sYyyyMmDd.split("-").map(Number);
-
-				// Crear fecha en UTC “pura” (sin usar zona local)
-				const msUtc = Date.UTC(year, month - 1, day); // medianoche UTC
-				return `/Date(${msUtc})/`;
-			}
-			
-			if (oData.Hastacoeficiente === "9999-12-31") {
-				oData.Hastacoeficiente = "/Date(253402214400000)/"
-			} else {
-				oData.Hastacoeficiente = toODataDate(oData.Hastacoeficiente)
-			}
-
-
 			// === Diálogo para pedir fecha de modificación ===
 			const oDatePicker = new sap.m.DatePicker({
 				valueFormat: "yyyy-MM-dd",

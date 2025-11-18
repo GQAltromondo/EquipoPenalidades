@@ -93,13 +93,55 @@
 		}
 	],
 	"Elementos": [
-		{ "Clave": "CON", "Descripcion": "CON"
+		{
+			"Empresa": "100",
+			"Clave": "AUT",
+			"Descripcion": "AUT"
 		},
-		{ "Clave": "LIN", "Descripcion": "LIN"
+		{
+			"Empresa": "100",
+			"Clave": "SMO",
+			"Descripcion": "SMO"
 		},
-		{ "Clave": "TRA", "Descripcion": "TRA"
+		{
+			"Empresa": "100",
+			"Clave": "LIN",
+			"Descripcion": "LIN"
 		},
-		{ "Clave": "REC", "Descripcion": "REAC"
+		{
+			"Empresa": "100",
+			"Clave": "RAM",
+			"Descripcion": "RAM"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "CON",
+			"Descripcion": "CON"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "REC",
+			"Descripcion": "REC"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "SER",
+			"Descripcion": "SER"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "SHU",
+			"Descripcion": "SHU"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "SIN",
+			"Descripcion": "SIN"
+		},
+		{
+			"Empresa": "100",
+			"Clave": "TRA",
+			"Descripcion": "TRA"
 		}
 	],
 	"TipoEquiposModel": [
@@ -151,7 +193,7 @@
 			"Grupo": "001",
 			"Descripcion": "LÍNEA DE 132 KV"
 		},
-			{
+		{
 			"Empresa": "100",
 			"Tipo": "L6",
 			"Grupo": "001",

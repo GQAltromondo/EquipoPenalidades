@@ -3,7 +3,8 @@ sap.ui.define([], function () {
 
     // ======= Nuevas constantes y util =======
     const LINEAS = new Set(["L1", "L2", "L3", "L4", "L5", "L6"]);
-    const TRANSFREACT = new Set(["CS", "KS", "RB", "RL", "RT", "TR", "AU", "P6", "P5", "P4", "P3", "P2", "P1"]);
+    const TRANSFREACT = new Set(["CS", "KS", "RB", "RL", "RT", "TR", "AU"]);
+    const CONEXIONES = new Set(["P6", "P5", "P4", "P3", "P2", "P1"])
 
 
     function norm(v) {
@@ -73,6 +74,9 @@ sap.ui.define([], function () {
   if (v == null || v === "") return "";
   const n = Number(String(v).replace(",", ".")); // por si viniera con coma
 
-    }
+    },
+    stateForChanged: function (changed) {
+    return changed ? sap.ui.core.ValueState.Warning : sap.ui.core.ValueState.None;
+  }
 }
 });

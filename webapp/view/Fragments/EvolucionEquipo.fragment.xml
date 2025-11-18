@@ -3,80 +3,102 @@
     xmlns:core="sap.ui.core">
     <VBox>
         <Table items="{historicoEquipoModel>/}">
-            <!-- columnas -->
             <columns>
-                <Column>
-                    <Text text="Codigo" />
-                </Column>
-                <Column>
-                    <Text text="Bde" />
-                </Column>
-                <Column>
-                    <Text text="Pagotran" />
-                </Column>
-                <!-- <Column>
-                    <Text text="Descripción" />
-                </Column> -->
-
-                <Column>
-                    <Text text="Fecha desde" />
-                </Column>
-                <Column>
-                    <Text text="Fecha hasta" />
-                </Column>
-                <Column>
-                    <Text text="Fecha de E. Comercial" />
-                </Column>
-                <Column>
-                    <Text text="Fecha de S. Comercial" />
-                </Column>
-                <Column>
-                    <Text text="Premio" />
-                </Column>
-                <Column>
-                    <Text text="MVA (Potencia)" />
-                </Column>
-                <Column>
-                    <Text text="Observ." />
-                </Column>
-                <Column>
-                    <Text text="Coef Remu" />
-                </Column>
-                <Column>
-                    <Text text="Coef Superv" />
-                </Column>
-                <Column>
-                    <Text text="Hasta Superv." />
-                </Column>
-                <Column>
-                    <Text text="" />
-                </Column>
+                <Column><Text text="Codigo"/></Column>
+                <Column><Text text="Bde"/></Column>
+                <Column><Text text="Pagotran"/></Column>
+                <!-- <Column><Text text="Descripción"/></Column> -->
+                <Column><Text text="Fecha desde"/></Column>
+                <Column><Text text="Fecha hasta"/></Column>
+                <Column><Text text="Fecha de E. Comercial"/></Column>
+                <Column><Text text="Fecha de S. Comercial"/></Column>
+                <Column><Text text="Premio"/></Column>
+                <Column><Text text="MVA (Potencia)"/></Column>
+                <Column><Text text="Observ."/></Column>
+                <Column><Text text="Coef Remu"/></Column>
+                <Column><Text text="Coef Superv"/></Column>
+                <Column><Text text="Hasta Superv."/></Column>
+                <Column><Text text=""/></Column>
             </columns>
-            <items>
-                <ColumnListItem>
-                    <cells>
-                        <Text text="{historicoEquipoModel>CODIGOEQUIPO}" />
-                        <Text text="{historicoEquipoModel>ID_BDE}" />
-                        <Text text="{historicoEquipoModel>ID_PAGOTRAN}" />
-                        <!-- <Text text="{historicoEquipoModel>DESCRIPCION}" /> -->
-                        <Text text="{ path: 'historicoEquipoModel>DESDE', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
-                        <Text text="{ path: 'historicoEquipoModel>HASTA', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
-                        <Text text="{ path: 'historicoEquipoModel>FECHAINICIOACTIVIDAD', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
-                        <Text text="{ path: 'historicoEquipoModel>FECHAFINACTIVIDAD', formatter: '.formatter.formatDateFromYYYYMMDD' }" />
-                        <Text text="{historicoEquipoModel>PREMIO}" />
-                        <Text text="{historicoEquipoModel>POTENCIA}" />
-                        <Text text="{historicoEquipoModel>OBSERVACIONES}" />
-                        <Text text="{historicoEquipoModel>COEFREDUC}" />
-                        <Text text="{historicoEquipoModel>COEFICIENTE}" />
-                        <Text text="{path:'historicoEquipoModel>HASTACOEFICIENTE', formatter: '.formatter.formatDateFromYYYYMMDD'}" />
 
-                        <!-- más celdas -->
-                        <Button icon="sap-icon://search" tooltip="Ver detalles" press=".onVerDetalleHistorico" type="Emphasized"/>
+            <items>
+                <ColumnListItem
+                    highlight="{= ${historicoEquipoModel>_changed} ? 'Warning' : 'None' }">
+                    <cells>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>CODIGOEQUIPO}"
+                            state="{path:'historicoEquipoModel>_changedFields/CODIGOEQUIPO', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/CODIGOEQUIPO} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>ID_BDE}"
+                            state="{path:'historicoEquipoModel>_changedFields/ID_BDE', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/ID_BDE} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>ID_PAGOTRAN}"
+                            state="{path:'historicoEquipoModel>_changedFields/ID_PAGOTRAN', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/ID_PAGOTRAN} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoEquipoModel>DESDE', formatter: '.formatter.formatDateFromYYYYMMDD' }"
+                            state="{path:'historicoEquipoModel>_changedFields/DESDE', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/DESDE} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoEquipoModel>HASTA', formatter: '.formatter.formatDateFromYYYYMMDD' }"
+                            state="{path:'historicoEquipoModel>_changedFields/HASTA', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/HASTA} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoEquipoModel>FECHAINICIOACTIVIDAD', formatter: '.formatter.formatDateFromYYYYMMDD' }"
+                            state="{path:'historicoEquipoModel>_changedFields/FECHAINICIOACTIVIDAD', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/FECHAINICIOACTIVIDAD} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoEquipoModel>FECHAFINACTIVIDAD', formatter: '.formatter.formatDateFromYYYYMMDD' }"
+                            state="{path:'historicoEquipoModel>_changedFields/FECHAFINACTIVIDAD', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/FECHAFINACTIVIDAD} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>PREMIO}"
+                            state="{path:'historicoEquipoModel>_changedFields/PREMIO', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/PREMIO} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>POTENCIA}"
+                            state="{path:'historicoEquipoModel>_changedFields/POTENCIA', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/POTENCIA} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>OBSERVACIONES}"
+                            state="{path:'historicoEquipoModel>_changedFields/OBSERVACIONES', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/OBSERVACIONES} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>COEFREDUC}"
+                            state="{path:'historicoEquipoModel>_changedFields/COEFREDUC', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/COEFREDUC} }"/>
+
+                        <ObjectStatus
+                            text="{historicoEquipoModel>COEFICIENTE}"
+                            state="{path:'historicoEquipoModel>_changedFields/COEFICIENTE', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/COEFICIENTE} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoEquipoModel>HASTACOEFICIENTE', formatter: '.formatter.formatDateFromYYYYMMDD'}"
+                            state="{path:'historicoEquipoModel>_changedFields/HASTACOEFICIENTE', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoEquipoModel>_changedFields/HASTACOEFICIENTE} }"/>
+
+                        <Button icon="sap-icon://search" tooltip="Ver detalles"
+                                press=".onVerDetalleHistorico" type="Emphasized"/>
                     </cells>
                 </ColumnListItem>
             </items>
         </Table>
     </VBox>
+
     <beginButton>
         <Button text="Cerrar" press="onCloseHistoricoDialog"/>
     </beginButton>

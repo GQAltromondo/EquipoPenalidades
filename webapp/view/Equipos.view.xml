@@ -66,7 +66,7 @@
 											<smartFilterBar:ControlConfiguration key="Nemo" index="60" label="{i18n>fb_nemo}" groupId="_BASIC"  filterType="multiple">
 												<smartFilterBar:customControl>
 													<MultiComboBox items="{NemoSet>/}">
-														<core:Item key="{NemoSet>NemoId}" text="{NemoSet>NemoId} - {NemoSet>Descripcion}"/>
+														<core:Item key="{NemoSet>NemoId}" text="{NemoSet>Descripcion}"/>
 													</MultiComboBox>
 												</smartFilterBar:customControl>
 												</smartFilterBar:ControlConfiguration>
@@ -122,9 +122,9 @@
 													</MultiComboBox>
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
-											<smartFilterBar:ControlConfiguration key="Ubicacion" index="130" label="Ubicacion" groupId="_BASIC">
+											<smartFilterBar:ControlConfiguration key="Estacion" index="130" label="Estacion" groupId="_BASIC">
 												<smartFilterBar:customControl>
-													<Input placeholder="Buscar Ubicacion..." />
+													<Input placeholder="Buscar Estacion..." />
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
 

@@ -38,7 +38,7 @@
 							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
 
 								<Button visible="{evoModel>/enabled}" text="{= ${evoModel>/enabled} ? 'Evolución del Equipo' : 'No posee historial' }" type="Emphasized" press="onEvolucionEquipo" />
-								<ObjectAttribute visible="{evoModel>/enabled}" class="sapUiTinyMarginBottom" title="{i18n>ed_ult_modif}"   text="{path: 'editModel>/FechaMod', formatter: '.formatter.formatDateDDMMYYYY'}" />
+								<ObjectAttribute visible="{evoModel>/enabled}" class="sapUiTinyMarginBottom" title="{i18n>ed_ult_modif}" text="{path: 'editModel>/FechaMod', formatter: '.formatter.formatDateDDMMYYYY'}" />
 							</VBox>
 						</HBox>
 					</HBox>

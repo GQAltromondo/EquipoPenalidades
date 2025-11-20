@@ -365,27 +365,27 @@ sap.ui.define([
 			const oDialogEdit = this._oDialogEdit;
 			const oData = oDialogEdit.getModel("editModel").getData();
 
+
 			const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
 				Empresa: oData.Empresa,
 				Codigoequipo: oData.Codigoequipo,
 				Desde: oData.Desde
 			});
-
 			let oHastaCoefPicker = oView.byId("Hastacoeficiente");
 
+			if (!oData.Hastacoeficiente) {
 
-			// // 🔸 Validar campo requerido
-			// if (!oData.Hastacoeficiente) {
-			// 	if (oHastaCoefPicker) {
-			// 		oHastaCoefPicker.setValueState(sap.ui.core.ValueState.Error);
-			// 		oHastaCoefPicker.setValueStateText("Campo requerido: Hasta coeficiente");
-			// 		oHastaCoefPicker.focus();
-			// 	}
-			// 	sap.m.MessageBox.warning("El campo 'Hasta coeficiente' es obligatorio.");
-			// 	return; // detener ejecución
-			// } else if (oHastaCoefPicker) {
-			// 	oHastaCoefPicker.setValueState(sap.ui.core.ValueState.None);
-			// }
+				// Fecha por defecto 31/12/9999
+				const fechaDefault = new Date(9999, 11, 31);
+
+			
+				oData.Hastacoeficiente = fechaDefault;
+
+				
+				if (oHastaCoefPicker) {
+					oHastaCoefPicker.setDateValue(fechaDefault);
+				}
+			}
 
 			// === Normalizar campos antes del guardado ===
 			oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");

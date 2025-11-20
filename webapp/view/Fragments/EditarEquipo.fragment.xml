@@ -88,6 +88,15 @@
 																<Label text="{i18n>ed_idBde}"/>
 															</form:label>
 														</form:FormElement>
+															<form:FormElement >
+															<form:fields>
+																<Input type="Number" value="{editModel>/IdPagoTran}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_idPagotran}"/>
+															</form:label>
+														</form:FormElement>
+														
 
 														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isTransformador'}">
 															<form:fields>
@@ -230,7 +239,7 @@
 														<form:FormElement >
 															<form:fields>
 																<DatePicker value="{path:'editModel>/Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
-																<DatePicker value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<!-- <DatePicker value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/> -->
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_HastaCoefSup}"/>

@@ -193,10 +193,16 @@ sap.ui.define([
 			// ===== 3) Filtros desde SFB (IdBDE, Elemento) =====
 			const oSFB = this.byId("idSmartFilterBar");
 			if (oSFB) {
-				const oIdBDE = oSFB.getControlByKey?.("IdBDE");
+				const oIdBDE = oSFB.getControlByKey?.("IdBde");
 				const idBDEVal = oIdBDE?.getValue?.().trim();
 				if (idBDEVal) {
-					aCustomFilters.push(new Filter("IdBDE", FilterOperator.Contains, idBDEVal));
+					aCustomFilters.push(new Filter("IdBde", FilterOperator.EQ, idBDEVal));
+				}
+
+					const IdPagoTran = oSFB.getControlByKey?.("IdPagoTran");
+				const IdPagoTranVal = IdPagoTran?.getValue?.().trim();
+				if (IdPagoTranVal) {
+					aCustomFilters.push(new Filter("IdPagoTran", FilterOperator.EQ, IdPagoTranVal));
 				}
 
 				const oUbicacion = oSFB.getControlByKey?.("Estacion");
@@ -378,10 +384,10 @@ sap.ui.define([
 				// Fecha por defecto 31/12/9999
 				const fechaDefault = new Date(9999, 11, 31);
 
-			
+
 				oData.Hastacoeficiente = fechaDefault;
 
-				
+
 				if (oHastaCoefPicker) {
 					oHastaCoefPicker.setDateValue(fechaDefault);
 				}
@@ -488,6 +494,8 @@ sap.ui.define([
 			oSFB.getControlByKey("Elemento")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Nemo")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Estacion")?.setValue("");
+			oSFB.getControlByKey("IdBDE")?.setValue("");
+			oSFB.getControlByKey("IdPagoTran")?.setValue("");
 
 
 			oSFB.getControlByKey("FechaDesde")?.setDateValue(null);
@@ -951,8 +959,12 @@ sap.ui.define([
 
 		_updateHasVencidosFromBinding: function (oBinding, tableId) {
 			const vm = this.getModel("viewModel");
-			const ctxs = oBinding.getContexts(0, Infinity) || [];
+			// const ctxs = oBinding.getAllCurrentContexts()
+			//const ctxs = oBinding.getContexts(0) || [];
 
+			// o si querés asegurarte con length:
+			const iLength = oBinding.getLength();
+			const ctxs = oBinding.getContexts(0, iLength) || [];
 			let has = false;
 			for (let i = 0; i < ctxs.length; i++) {
 				const row = ctxs[i].getObject() || {};

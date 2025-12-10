@@ -13,6 +13,16 @@ sap.ui.define([
 
 	return BaseController.extend("Transener.Operaciones.EquiposPenalidades.controller.Equipos", {
 		formatter: formatter,
+		_isAutomSetName: function (sName) {
+			return ((sName || "").toLowerCase().indexOf("/automatismos") === 0);
+		},
+		_normalizeAutomSetName: function (sName) {
+			const base = (sName || "/AutomatismosSet").split("(")[0] || "/AutomatismosSet";
+			const withSlash = base.startsWith("/") ? base : `/${base}`;
+			if (/automatismosset$/i.test(withSlash)) { return withSlash; }
+			if (/automatismos$/i.test(withSlash)) { return `${withSlash}Set`; }
+			return withSlash;
+		},
 
 		//------------------------------ Metodos Ciclo de vida -------------------------------------
 		onInit: function () {
@@ -76,6 +86,11 @@ sap.ui.define([
 			// Asegurar que no quede nada en la URL
 			delete m.parameters.$filter; // OData V2
 			delete m.parameters.$apply;  // por si hubiera agregaciones
+
+			const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
+			if (sEmpresa) {
+				m.filters.push(new Filter("Empresa", FilterOperator.EQ, sEmpresa));
+			}
 
 			// (Opcional) forzar sólo ciertos campos o expansiones
 			// m.parameters.$select = "Empresa,Codigoequipo,Descripcion,Desde,Hasta,Nemo,IdBde,IdPagoTran";
@@ -300,15 +315,45 @@ sap.ui.define([
 
 
 		onEditarEquipo: async function (oEvent) {
-			var oData = oEvent.getSource().getBindingContext().getObject(),
+			var oContext = oEvent.getSource().getBindingContext(),
 				oView = this.getView();
 
-			try {
-				const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
-				ModelHelper.getModel(this.getView(), "evoModel")
-					.setProperty("/enabled", !!(Historico && Historico.length));
-			} catch (error) {
-				console.error("Error al obtener el histórico:", error);
+			this._sEditingEntityPath = oContext ? oContext.getPath() : null;
+			const rawSetName = this._sEditingEntityPath ? this._sEditingEntityPath.split("(")[0] : null;
+			this._sEditingEntitySet = this._isAutomSetName(rawSetName)
+				? this._normalizeAutomSetName(rawSetName)
+				: rawSetName;
+			const bIsAutomSet = this._isAutomSetName(this._sEditingEntitySet);
+			this._oAutomatismoKeyCache = bIsAutomSet
+				? this._parseAutomKeyFromPath(this._sEditingEntityPath)
+				: null;
+
+			let oData = oContext.getObject();
+			if (this._isAutomSetName(this._sEditingEntitySet) && this._sEditingEntityPath) {
+				try {
+					const oAutomKey = this._buildAutomatismoKey(oContext.getObject(), this._oAutomatismoKeyCache, this._sEditingEntitySet);
+					const sFetchPath = oAutomKey?.path || this._sEditingEntityPath;
+					oData = await this._fetchEntityByPath(sFetchPath);
+					oData = this._mapAutomatismoDataForEdit(oData);
+				} catch (e) {
+					console.error("No se pudo obtener datos actualizados del automatismo:", e);
+					oData = this._mapAutomatismoDataForEdit(oData);
+				}
+			} else if (this._isAutomSetName(this._sEditingEntitySet)) {
+				oData = this._mapAutomatismoDataForEdit(oData);
+			}
+			oData._isAutomatismo = this._isAutomSetName(this._sEditingEntitySet);
+
+			if (!this._isAutomSetName(this._sEditingEntitySet)) {
+				try {
+					const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
+					ModelHelper.getModel(this.getView(), "evoModel")
+						.setProperty("/enabled", !!(Historico && Historico.length));
+				} catch (error) {
+					console.error("Error al obtener el histórico:", error);
+					ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
+				}
+			} else {
 				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
 			}
 
@@ -341,8 +386,11 @@ sap.ui.define([
 				this.getView().addDependent(oPopup);
 
 				this._oDialogEdit.attachAfterClose(function (oEvent) {
+					this._sEditingEntityPath = null;
+					this._sEditingEntitySet = null;
+					this._oAutomatismoKeyCache = null;
 					oEvent.getSource().destroy();
-				});
+				}.bind(this));
 
 				this._oDialogEdit.attachAfterOpen(function () {
 					this._oDialogEdit.setModel(new JSONModel(oData), "editModel");
@@ -359,6 +407,68 @@ sap.ui.define([
 				this._oDialogEdit.open();
 			}.bind(this));
 		},
+		_fetchEntityByPath: function (sPath, vModel) {
+			return new Promise((resolve, reject) => {
+				const oModel = typeof vModel === "string"
+					? this.getOwnerComponent().getModel(vModel)
+					: (vModel || this.getModel());
+				oModel.read(sPath, {
+					success: function (oData) {
+						resolve(oData);
+					},
+					error: function (oError) {
+						reject(oError);
+					}
+				});
+			});
+		},
+		_mapAutomatismoDataForEdit: function (oData) {
+			if (!oData) { return oData; }
+			const keyCache = this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
+			const preferVal = (...vals) => {
+				for (const v of vals) {
+					const val = (typeof v === "function") ? v() : v;
+					if (val !== undefined && val !== null && val !== "") {
+						return val;
+					}
+				}
+				return null;
+			};
+			const toDate = (val) => this._parseDateValue(val) || val;
+
+			const fechaEntrada = toDate(oData.FechaEntrada);
+			const fechaDesde = toDate(oData.FechaDesde);
+			const fechaHasta = toDate(oData.FechaHasta);
+
+			if (!oData.Fechainicioactividad) {
+				oData.Fechainicioactividad = fechaEntrada || fechaDesde || oData.Fechainicioactividad;
+			} else {
+				oData.Fechainicioactividad = toDate(oData.Fechainicioactividad);
+			}
+
+			if (!oData.Fechafinactividad) {
+				oData.Fechafinactividad = fechaHasta || oData.Fechafinactividad;
+			} else {
+				oData.Fechafinactividad = toDate(oData.Fechafinactividad);
+			}
+
+			oData.FechaDesde = fechaDesde || oData.FechaDesde;
+			oData.FechaHasta = fechaHasta || oData.FechaHasta;
+			oData.FechaEntrada = fechaEntrada || oData.FechaEntrada;
+
+			if (!oData.IdPagoTran && oData.IdPagotran) {
+				oData.IdPagoTran = oData.IdPagotran;
+			}
+			oData.IdPagotran = preferVal(oData.IdPagotran, oData.IdPagoTran, oData.ID_PAGOTRAN, keyCache.IdPagotran, keyCache.IdPagoTran);
+			oData.IdPagoTran = preferVal(oData.IdPagoTran, oData.IdPagotran, oData.ID_PAGOTRAN, keyCache.IdPagotran, keyCache.IdPagoTran);
+			oData.IdBde = preferVal(oData.IdBde, oData.ID_BDE, keyCache.IdBde);
+			oData.Empresa = preferVal(oData.Empresa, oData.EMPRESA, keyCache.Empresa, keyCache.EMPRESA, () => this.getModel("viewModel")?.getProperty("/sociedad"));
+			oData.Idauto = preferVal(oData.Idauto, oData.IdAuto, oData.IDAUTO, keyCache.Idauto, keyCache.IdAuto, keyCache.IDAUTO);
+			oData.Descripcion = oData.Descripcion || "";
+			oData.Nemo = oData.Nemo || "";
+
+			return oData;
+		},
 
 
 		onCancelarEditar: function () {
@@ -371,12 +481,46 @@ sap.ui.define([
 			const oDialogEdit = this._oDialogEdit;
 			const oData = oDialogEdit.getModel("editModel").getData();
 
+			if (!this._validateAutomatismoActivityDates(oData)) {
+				return;
+			}
 
-			const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+
+			// const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+			// 	Empresa: oData.Empresa,
+			// 	Codigoequipo: oData.Codigoequipo,
+			// 	Desde: oData.Desde
+			// });
+			const oKeyParams = {
 				Empresa: oData.Empresa,
 				Codigoequipo: oData.Codigoequipo,
 				Desde: oData.Desde
-			});
+			};
+			const sDefaultPath = this.getModel().createKey("/EquiposPenalidadesSet", oKeyParams);
+			const sEntitySet = this._sEditingEntitySet || "";
+			let sPath = this._sEditingEntityPath || sDefaultPath;
+
+			let oPayloadForUpdate = oData;
+
+			const bIsAutomatismo = (sEntitySet || "").toLowerCase().indexOf("/automatismos") === 0;
+			if (bIsAutomatismo) {
+				const sAutomKeyError = "Faltan datos clave para actualizar el automatismo (Empresa/Idauto o identificadores de Elemento, IdBDE e IdPagotran).";
+				const oParsedPathKey = this._parseAutomKeyFromPath(this._sEditingEntityPath);
+				const oAutomKey = this._buildAutomatismoKey(oData, oParsedPathKey, sEntitySet);
+				if (!oAutomKey) {
+					MessageBox.error(sAutomKeyError);
+					return;
+				}
+
+				sPath = oAutomKey.path;
+				const oAutomPayload = this._buildAutomatismoPayload(oData, oAutomKey);
+				if (!oAutomPayload) {
+					MessageBox.error(sAutomKeyError);
+					return;
+				}
+				oPayloadForUpdate = oAutomPayload;
+			}
+
 			let oHastaCoefPicker = oView.byId("Hastacoeficiente");
 
 			if (!oData.Hastacoeficiente) {
@@ -427,10 +571,19 @@ sap.ui.define([
 						oDatePicker.setValueState(sap.ui.core.ValueState.None);
 						oData.FechaMod = dSel;
 
+						const oPayloadForBackend = { ...oPayloadForUpdate };
+						delete oPayloadForBackend._isAutomatismo;
+
+						if (bIsAutomatismo) {
+							console.debug("[Automatismo] update path/payload", sPath, oPayloadForBackend);
+						}
+
 						oDialogEdit.setBusy(true);
-						this.getModel().update(sPath, oData, {
+						const sEntitySetToRefresh = sEntitySet;
+						this.getModel().update(sPath, oPayloadForBackend, {
 							success: function () {
 								sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+								this._refreshTablesAfterUpdate(sEntitySetToRefresh);
 								oDialogEdit.setBusy(false);
 								oDialogEdit.close();
 								oDialog.close();
@@ -452,6 +605,38 @@ sap.ui.define([
 			});
 
 			oDialog.open();
+		},
+
+		_validateAutomatismoActivityDates: function (oData) {
+			if (!this._isAutomSetName(this._sEditingEntitySet)) {
+				return true;
+			}
+
+			const oView = this.getView();
+			const oInicioPicker = oView.byId("dpInicioActividad");
+			const oFinPicker = oView.byId("dpFinActividad");
+			const toDate = (v) => this._parseDateValue(v);
+			const oInicio = toDate(oData?.Fechainicioactividad);
+			const oFin = toDate(oData?.Fechafinactividad);
+
+			const setState = (oPicker, bHasValue, sText) => {
+				if (!oPicker) { return; }
+				const state = bHasValue ? sap.ui.core.ValueState.None : sap.ui.core.ValueState.Error;
+				oPicker.setValueState(state);
+				oPicker.setValueStateText(bHasValue ? "" : sText);
+			};
+
+			setState(oInicioPicker, !!oInicio, "Ingresá la fecha de inicio de actividad.");
+			setState(oFinPicker, !!oFin, "Ingresá la fecha de fin de actividad.");
+
+			if (!oInicio || !oFin) {
+				MessageBox.warning("Debés completar Fecha inicio de actividad y Fecha fin de actividad para guardar los cambios.");
+				return false;
+			}
+
+			oData.Fechainicioactividad = oInicio;
+			oData.Fechafinactividad = oFin;
+			return true;
 		},
 
 		onVerDetalle: function (oEvent) {
@@ -563,6 +748,213 @@ sap.ui.define([
 			this.addYesNoFilterByKey(oSmartFilterBar, "Flagperdidarem", "Flagperdidarem", aFilters);
 
 			return aFilters;
+		},
+
+		_buildAutomatismoKey: function (oData, oKeyCache, sSetName) {
+			if (!oData && !oKeyCache) { return null; }
+
+			const keyCache = oKeyCache || this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
+			const preferVal = (...vals) => {
+				for (const v of vals) {
+					const val = (typeof v === "function") ? v() : v;
+					if (val !== undefined && val !== null && val !== "") {
+						return val;
+					}
+				}
+				return null;
+			};
+			const sEntitySet = this._normalizeAutomSetName(sSetName || keyCache._setName || this._sEditingEntitySet || "/AutomatismosSet");
+
+			const sEmpresa = preferVal(oData?.Empresa, oData?.EMPRESA, keyCache.Empresa, keyCache.EMPRESA, () => this.getModel("viewModel")?.getProperty("/sociedad"));
+			const sIdauto = preferVal(oData?.Idauto, oData?.IdAuto, oData?.IDAUTO, keyCache.Idauto, keyCache.IdAuto, keyCache.IDAUTO);
+			const esc = (v) => String(v).replace(/'/g, "''");
+
+			if (sEmpresa && sIdauto) {
+				return {
+					path: `${sEntitySet}(Empresa='${esc(sEmpresa)}',Idauto='${esc(sIdauto)}')`,
+					Empresa: sEmpresa,
+					Idauto: sIdauto,
+					_setName: sEntitySet
+				};
+			}
+
+			const sElemento = preferVal(oData?.Elemento, oData?.ELEMENTO, keyCache.Elemento);
+			const sIdBde = preferVal(oData?.IdBde, oData?.ID_BDE, keyCache.IdBde);
+			const sIdPagotran = preferVal(oData?.IdPagotran, oData?.ID_PAGOTRAN, oData?.IdPagoTran, keyCache.IdPagotran, keyCache.IdPagoTran);
+			const oFechaDesde =
+				this._parseDateValue(oData?.FechaDesde) ||
+				this._parseDateValue(oData?.Fechainicioactividad) ||
+				keyCache.FechaDesdeDate ||
+				this._parseDateValue(keyCache.FechaDesdeRaw);
+
+			if (!sElemento || !sIdBde || !sIdPagotran || !oFechaDesde) {
+				return null;
+			}
+
+			return {
+				path: `${sEntitySet}(Elemento='${esc(sElemento)}',IdBde='${esc(sIdBde)}',IdPagotran='${esc(sIdPagotran)}')`,
+				Elemento: sElemento,
+				IdBde: sIdBde,
+				IdPagotran: sIdPagotran,
+				FechaDesde: oFechaDesde,
+				_setName: sEntitySet
+			};
+		},
+
+		_buildAutomatismoPayload: function (oData, oKeyInfo) {
+			if (!oData) { return null; }
+			const keyInfo = oKeyInfo || {};
+			const firstNotEmpty = (...vals) => {
+				for (const v of vals) {
+					const val = (typeof v === "function") ? v() : v;
+					if (val !== undefined && val !== null && val !== "") {
+						return val;
+					}
+				}
+				return null;
+			};
+			const getDate = (val) => this._parseDateValue(val) || null;
+
+			const sEmpresa = firstNotEmpty(
+				oData.Empresa,
+				oData.EMPRESA,
+				keyInfo.Empresa,
+				keyInfo.EMPRESA,
+				() => this.getModel("viewModel")?.getProperty("/sociedad")
+			);
+			const sIdauto = firstNotEmpty(oData.Idauto, oData.IdAuto, oData.IDAUTO, keyInfo.Idauto, keyInfo.IdAuto, keyInfo.IDAUTO);
+			const sElemento = firstNotEmpty(oData.Elemento, oData.ELEMENTO, keyInfo.Elemento);
+			const sMandt = firstNotEmpty(oData.Mandt, oData.MANDT, keyInfo.Mandt);
+			const sIdBde = firstNotEmpty(oData.IdBde, oData.ID_BDE, keyInfo.IdBde);
+			const sIdPagotran = firstNotEmpty(oData.IdPagotran, oData.ID_PAGOTRAN, oData.IdPagoTran, keyInfo.IdPagotran, keyInfo.IdPagoTran);
+
+			const hasIdauto = !!sIdauto;
+
+			if (hasIdauto && !sEmpresa) {
+				return null;
+			}
+			if (!hasIdauto && (!sElemento || !sMandt || !sIdBde || !sIdPagotran)) {
+				return null;
+			}
+
+			const oFechaDesde = getDate(oData.FechaDesde) || getDate(oData.Fechainicioactividad) || keyInfo.FechaDesdeDate || getDate(keyInfo.FechaDesdeRaw);
+			const oFechaHasta = getDate(oData.FechaHasta) || getDate(oData.Fechafinactividad) || keyInfo.FechaHastaDate || getDate(keyInfo.FechaHastaRaw);
+			const oFechaEntrada = getDate(oData.FechaEntrada) || getDate(oData.Fechainicioactividad);
+
+			const ensureFlag = (val) => (val === "X" || val === true) ? "X" : "";
+
+			const oPayload = {};
+
+			const addIfValue = (key, value, transform) => {
+				const finalValue = transform ? transform(value) : value;
+				if (finalValue !== null && finalValue !== undefined && finalValue !== "") {
+					oPayload[key] = finalValue;
+				}
+			};
+
+			addIfValue("Empresa", sEmpresa);
+			addIfValue("Idauto", sIdauto);
+			addIfValue("Elemento", sElemento);
+			addIfValue("Mandt", sMandt);
+			addIfValue("IdBde", sIdBde);
+			addIfValue("IdPagotran", sIdPagotran);
+			addIfValue("Remuneracion", oData.Remuneracion, ensureFlag);
+			addIfValue("Penaliza", oData.Penaliza, ensureFlag);
+			addIfValue("Flagperdidarem", oData.Flagperdidarem, ensureFlag);
+			addIfValue("Descripcion", firstNotEmpty(oData.Descripcion));
+			addIfValue("Nemo", firstNotEmpty(oData.Nemo));
+			addIfValue("Resolucion", firstNotEmpty(oData.Resolucion));
+			addIfValue("Cebe", firstNotEmpty(oData.Cebe));
+			addIfValue("Ceco", firstNotEmpty(oData.Ceco));
+
+			if (oFechaDesde) { addIfValue("FechaDesde", oFechaDesde); }
+			if (oFechaHasta) { addIfValue("FechaHasta", oFechaHasta); }
+			if (oFechaEntrada) { addIfValue("FechaEntrada", oFechaEntrada); }
+
+			return oPayload;
+		},
+
+		_parseAutomKeyFromPath: function (sPath) {
+			if (typeof sPath !== "string") {
+				return null;
+			}
+			const innerStart = sPath.indexOf("(");
+			const innerEnd = sPath.lastIndexOf(")");
+			if (innerStart < 0 || innerEnd <= innerStart) {
+				return null;
+			}
+			const setName = this._normalizeAutomSetName(sPath.substring(0, innerStart));
+			if (!/Automatismos/i.test(setName)) {
+				return null;
+			}
+
+			const inner = sPath.substring(innerStart + 1, innerEnd);
+			const parts = inner.split(",");
+			const result = { _setName: setName };
+
+			parts.forEach(part => {
+				const idx = part.indexOf("=");
+				if (idx < 0) { return; }
+				const key = part.substring(0, idx).trim();
+				let value = part.substring(idx + 1).trim();
+				if (!key || !value) { return; }
+
+				if (value.startsWith("datetime")) {
+					const match = value.match(/datetime'(.*)'/);
+					if (match) {
+						const oDate = this._parseDateValue(match[1]);
+						if (oDate) {
+							result[`${key}Date`] = oDate;
+						}
+						result[key] = value;
+					}
+				} else if (value.startsWith("'") && value.endsWith("'")) {
+					const unescaped = value.slice(1, -1).replace(/''/g, "'");
+					result[key] = unescaped;
+				} else {
+					result[key] = value;
+				}
+			});
+
+			return result;
+		},
+
+		_parseDateValue: function (v) {
+			if (!v) { return null; }
+			if (v instanceof Date) { return isNaN(v.getTime()) ? null : v; }
+			if (typeof v === "number") {
+				const nDate = new Date(v);
+				return isNaN(nDate.getTime()) ? null : nDate;
+			}
+
+			if (typeof v === "string") {
+				const trimmed = v.trim();
+				if (!trimmed) { return null; }
+				const datetimeMatch = trimmed.match(/^datetime'(.*)'$/);
+				if (datetimeMatch) {
+					const isoDate = datetimeMatch[1];
+					const d = new Date(isoDate);
+					return isNaN(d.getTime()) ? null : d;
+				}
+				const match = trimmed.match(/\/Date\((\d+)\)\//);
+				if (match) {
+					const oDate = new Date(parseInt(match[1], 10));
+					return isNaN(oDate.getTime()) ? null : oDate;
+				}
+				if (/^\d{8}$/.test(trimmed)) {
+					const year = parseInt(trimmed.slice(0, 4), 10);
+					const month = parseInt(trimmed.slice(4, 6), 10) - 1;
+					const day = parseInt(trimmed.slice(6, 8), 10);
+					const d = new Date(year, month, day);
+					return isNaN(d.getTime()) ? null : d;
+				}
+				const dIso = new Date(trimmed);
+				if (!isNaN(dIso.getTime())) {
+					return dIso;
+				}
+			}
+
+			return null;
 		},
 
 		addYesNoFilterByKey: function (oSFB, sFieldKey, sProperty, aFilters) {
@@ -1035,6 +1427,12 @@ sap.ui.define([
 			vm.setProperty("/showCoefVencidosOnly", false);
 			["LineasTable", "TransformadoresTable", "ReactoresTable", "AutomatismosTable", "ConexionesTable"]
 				.forEach(id => this.byId(id)?.rebindTable());
+		},
+
+		_refreshTablesAfterUpdate: function (sEntitySet) {
+			if ((sEntitySet || "").toLowerCase().indexOf("/automatismos") === 0) {
+				this.byId("AutomatismosTable")?.rebindTable();
+			}
 		},
 	});
 });

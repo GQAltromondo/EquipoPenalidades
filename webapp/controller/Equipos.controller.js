@@ -300,8 +300,15 @@ sap.ui.define([
 
 
 		onEditarEquipo: async function (oEvent) {
-			var oData = oEvent.getSource().getBindingContext().getObject(),
+			var oContext = oEvent.getSource().getBindingContext(),
+				oData = oContext.getObject(),
 				oView = this.getView();
+
+			this._sEditingEntityPath = oContext ? oContext.getPath() : null;
+			this._sEditingEntitySet = this._sEditingEntityPath ? this._sEditingEntityPath.split("(")[0] : null;
+			this._oAutomatismoKeyCache = this._sEditingEntitySet === "/AutomatismosSet"
+				? this._parseAutomKeyFromPath(this._sEditingEntityPath)
+				: null;
 
 			try {
 				const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
@@ -341,8 +348,11 @@ sap.ui.define([
 				this.getView().addDependent(oPopup);
 
 				this._oDialogEdit.attachAfterClose(function (oEvent) {
+					this._sEditingEntityPath = null;
+					this._sEditingEntitySet = null;
+					this._oAutomatismoKeyCache = null;
 					oEvent.getSource().destroy();
-				});
+				}.bind(this));
 
 				this._oDialogEdit.attachAfterOpen(function () {
 					this._oDialogEdit.setModel(new JSONModel(oData), "editModel");
@@ -372,11 +382,48 @@ sap.ui.define([
 			const oData = oDialogEdit.getModel("editModel").getData();
 
 
-			const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+			// const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+			// 	Empresa: oData.Empresa,
+			// 	Codigoequipo: oData.Codigoequipo,
+			// 	Desde: oData.Desde
+			// });
+			const oKeyParams = {
 				Empresa: oData.Empresa,
 				Codigoequipo: oData.Codigoequipo,
 				Desde: oData.Desde
-			});
+			};
+			const sDefaultPath = this.getModel().createKey("/EquiposPenalidadesSet", oKeyParams);
+			const sEntitySet = this._sEditingEntitySet || "";
+			let sPath = this._sEditingEntityPath || sDefaultPath;
+
+			let oPayloadForUpdate = oData;
+
+			if (sEntitySet === "/AutomatismosSet") {
+				const oParsedPathKey = this._parseAutomKeyFromPath(this._sEditingEntityPath);
+				if (oParsedPathKey && this._sEditingEntityPath) {
+					sPath = this._sEditingEntityPath;
+					const oAutomPayload = this._buildAutomatismoPayload(oData, oParsedPathKey);
+					if (!oAutomPayload) {
+						MessageBox.error("Faltan datos clave para actualizar el automatismo (Elemento, Mandt, IdBDE o IdPagotran).");
+						return;
+					}
+					oPayloadForUpdate = oAutomPayload;
+				} else {
+					const oAutomKey = this._buildAutomatismoKey(oData);
+					if (!oAutomKey) {
+						MessageBox.error("Faltan datos clave para actualizar el automatismo (Elemento, Mandt, IdBDE o IdPagotran).");
+						return;
+					}
+					sPath = oAutomKey.path;
+					const oAutomPayload = this._buildAutomatismoPayload(oData, oAutomKey);
+					if (!oAutomPayload) {
+						MessageBox.error("Faltan datos clave para actualizar el automatismo (Elemento, Mandt, IdBDE o IdPagotran).");
+						return;
+					}
+					oPayloadForUpdate = oAutomPayload;
+				}
+			}
+
 			let oHastaCoefPicker = oView.byId("Hastacoeficiente");
 
 			if (!oData.Hastacoeficiente) {
@@ -428,7 +475,7 @@ sap.ui.define([
 						oData.FechaMod = dSel;
 
 						oDialogEdit.setBusy(true);
-						this.getModel().update(sPath, oData, {
+						this.getModel().update(sPath, oPayloadForUpdate, {
 							success: function () {
 								sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
 								oDialogEdit.setBusy(false);
@@ -563,6 +610,186 @@ sap.ui.define([
 			this.addYesNoFilterByKey(oSmartFilterBar, "Flagperdidarem", "Flagperdidarem", aFilters);
 
 			return aFilters;
+		},
+
+		_buildAutomatismoKey: function (oData) {
+			if (!oData) { return null; }
+			const oKeyCache = this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
+			const sElemento = oData.Elemento || oData.ELEMENTO || oKeyCache.Elemento;
+			const sIdBde = oData.IdBde || oData.ID_BDE || oKeyCache.IdBde;
+			const sIdPagotran = oData.IdPagotran || oData.ID_PAGOTRAN || oData.IdPagoTran || oKeyCache.IdPagotran || oKeyCache.IdPagoTran;
+			const oFechaDesde =
+				this._parseDateValue(oData.FechaDesde) ||
+				this._parseDateValue(oData.Fechainicioactividad) ||
+				oKeyCache.FechaDesdeDate ||
+				this._parseDateValue(oKeyCache.FechaDesdeRaw);
+
+			if (!sElemento || !sIdBde || !sIdPagotran || !oFechaDesde) {
+				return null;
+			}
+
+			const esc = (v) => String(v).replace(/'/g, "''");
+
+			return {
+				path: `/AutomatismosSet(Elemento='${esc(sElemento)}',IdBde='${esc(sIdBde)}',IdPagotran='${esc(sIdPagotran)}')`,
+				FechaDesde: oFechaDesde
+			};
+		},
+
+		_buildAutomatismoPayload: function (oData, oKeyInfo) {
+			if (!oData) { return null; }
+			const pick = (...paths) => {
+				for (const p of paths) {
+					let val;
+					if (typeof p === "function") {
+						val = p();
+					} else if (p && typeof p === "object") {
+						continue;
+					} else if (typeof p === "string") {
+						val = oData[p];
+					}
+					if (val != null && val !== "") {
+						return val;
+					}
+				}
+				return null;
+			};
+
+			const fromVariants = (variants, fallback) => {
+				for (const variant of variants) {
+					if (typeof variant === "function") {
+						const val = variant();
+						if (val != null && val !== "") { return val; }
+					} else {
+						const val = oData[variant];
+						if (val != null && val !== "") { return val; }
+					}
+				}
+				return fallback || null;
+			};
+
+			const getDate = (val) => this._parseDateValue(val) || null;
+			const keyInfo = oKeyInfo || {};
+
+			const sElemento = fromVariants(["Elemento", "ELEMENTO"], keyInfo.Elemento);
+			const sMandt = fromVariants(["Mandt", "MANDT"], keyInfo.Mandt);
+			const sIdBde = fromVariants(["IdBde", "ID_BDE"], keyInfo.IdBde);
+			const sIdPagotran = fromVariants(["IdPagotran", "ID_PAGOTRAN", "IdPagoTran"], keyInfo.IdPagotran || keyInfo.IdPagoTran);
+
+			if (!sElemento || !sMandt || !sIdBde || !sIdPagotran) {
+				return null;
+			}
+
+			const oFechaDesde = getDate(oData.FechaDesde) || getDate(oData.Fechainicioactividad) || keyInfo.FechaDesdeDate || getDate(keyInfo.FechaDesdeRaw);
+			const oFechaHasta = getDate(oData.FechaHasta) || getDate(oData.Fechafinactividad) || keyInfo.FechaHastaDate || getDate(keyInfo.FechaHastaRaw);
+			const oFechaEntrada = getDate(oData.FechaEntrada) || getDate(oData.Fechainicioactividad);
+
+			const ensureFlag = (val) => (val === "X" || val === true) ? "X" : "";
+
+			const oPayload = {
+				Elemento: sElemento,
+				Mandt: sMandt,
+				IdBde: sIdBde,
+				IdPagotran: sIdPagotran
+			};
+
+			const addIfValue = (key, value, transform) => {
+				const finalValue = transform ? transform(value) : value;
+				if (finalValue !== null && finalValue !== undefined && finalValue !== "") {
+					oPayload[key] = finalValue;
+				}
+			};
+
+			addIfValue("Remuneracion", oData.Remuneracion, ensureFlag);
+			addIfValue("Penaliza", oData.Penaliza, ensureFlag);
+			addIfValue("Flagperdidarem", oData.Flagperdidarem, ensureFlag);
+			addIfValue("Descripcion", pick("Descripcion"));
+			addIfValue("Nemo", pick("Nemo"));
+			addIfValue("Resolucion", pick("Resolucion"));
+			addIfValue("Cebe", pick("Cebe"));
+			addIfValue("Ceco", pick("Ceco"));
+
+			if (oFechaDesde) { addIfValue("FechaDesde", oFechaDesde); }
+			if (oFechaHasta) { addIfValue("FechaHasta", oFechaHasta); }
+			if (oFechaEntrada) { addIfValue("FechaEntrada", oFechaEntrada); }
+
+			return oPayload;
+		},
+
+		_parseAutomKeyFromPath: function (sPath) {
+			if (typeof sPath !== "string" || !sPath.startsWith("/AutomatismosSet(")) {
+				return null;
+			}
+			const innerStart = sPath.indexOf("(");
+			const innerEnd = sPath.lastIndexOf(")");
+			if (innerStart < 0 || innerEnd <= innerStart) {
+				return null;
+			}
+			const inner = sPath.substring(innerStart + 1, innerEnd);
+			const parts = inner.split(",");
+			const result = {};
+
+			parts.forEach(part => {
+				const idx = part.indexOf("=");
+				if (idx < 0) { return; }
+				const key = part.substring(0, idx).trim();
+				let value = part.substring(idx + 1).trim();
+				if (!key || !value) { return; }
+
+				if (value.startsWith("datetime")) {
+					const match = value.match(/datetime'(.*)'/);
+					if (match) {
+						const oDate = this._parseDateValue(match[1]);
+						if (oDate) {
+							result[`${key}Date`] = oDate;
+						}
+						result[key] = value;
+					}
+				} else if (value.startsWith("'") && value.endsWith("'")) {
+					const unescaped = value.slice(1, -1).replace(/''/g, "'");
+					result[key] = unescaped;
+				}
+			});
+
+			return result;
+		},
+
+		_parseDateValue: function (v) {
+			if (!v) { return null; }
+			if (v instanceof Date) { return isNaN(v.getTime()) ? null : v; }
+			if (typeof v === "number") {
+				const nDate = new Date(v);
+				return isNaN(nDate.getTime()) ? null : nDate;
+			}
+
+			if (typeof v === "string") {
+				const trimmed = v.trim();
+				if (!trimmed) { return null; }
+				const datetimeMatch = trimmed.match(/^datetime'(.*)'$/);
+				if (datetimeMatch) {
+					const isoDate = datetimeMatch[1];
+					const d = new Date(isoDate);
+					return isNaN(d.getTime()) ? null : d;
+				}
+				const match = trimmed.match(/\/Date\((\d+)\)\//);
+				if (match) {
+					const oDate = new Date(parseInt(match[1], 10));
+					return isNaN(oDate.getTime()) ? null : oDate;
+				}
+				if (/^\d{8}$/.test(trimmed)) {
+					const year = parseInt(trimmed.slice(0, 4), 10);
+					const month = parseInt(trimmed.slice(4, 6), 10) - 1;
+					const day = parseInt(trimmed.slice(6, 8), 10);
+					const d = new Date(year, month, day);
+					return isNaN(d.getTime()) ? null : d;
+				}
+				const dIso = new Date(trimmed);
+				if (!isNaN(dIso.getTime())) {
+					return dIso;
+				}
+			}
+
+			return null;
 		},
 
 		addYesNoFilterByKey: function (oSFB, sFieldKey, sProperty, aFilters) {

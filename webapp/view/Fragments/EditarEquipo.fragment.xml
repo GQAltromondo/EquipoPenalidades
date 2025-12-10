@@ -65,7 +65,7 @@
 
 														<form:FormElement >
 															<form:fields>
-																<DatePicker value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker id="dpInicioActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_inicioAct}"/>
@@ -74,7 +74,7 @@
 
 														<form:FormElement >
 															<form:fields>
-																<DatePicker value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker id="dpFinActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_finAct}"/>
@@ -106,7 +106,7 @@
 																<Label text="{i18n>ed_pot}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement >
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
 															<form:fields>
 																<!--<Input maxLength="20" value="{editModel>/Tension}"/>-->
 																<Select id="selectTension" forceSelection="false" selectedKey="{editModel>/Tension}" items="{Desplegables>/Tensiones}">
@@ -204,7 +204,7 @@
 																<Label text="{i18n>ed_elemento}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement>
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
 															<form:fields>
 																<Input maxLength="250" value="{editModel>/Observaciones}"/>
 															</form:fields>
@@ -228,7 +228,7 @@
 																<Label text="{i18n>ed_ceco}"/>
 															</form:label>
 														</form:FormElement> -->
-														<form:FormElement >
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
 															<form:fields>
 																<Input type="Number" value="{editModel>/Coefreduc}"/>
 															</form:fields>
@@ -236,7 +236,7 @@
 																<Label text="{i18n>ed_CoefSup}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement >
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
 															<form:fields>
 																<DatePicker value="{path:'editModel>/Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 																<!-- <DatePicker value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/> -->
@@ -245,7 +245,7 @@
 																<Label text="{i18n>ed_HastaCoefSup}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement >
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
 															<form:fields>
 																<Input type="Number" value="{editModel>/Coeficiente}"/>
 															</form:fields>
@@ -253,7 +253,7 @@
 																<Label text="{i18n>ed_CoefRem}"/>
 															</form:label>
 														</form:FormElement>
-														<form:FormElement>
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
 															<form:fields>
 																<!--<Input maxLength="40" value="{editModel>/Regionpenalidades}"/>-->
 																<MultiComboBox id="selectPenalidades" selectedKeys="{editModel>/RegionpenalidadesKeys}" items="{Desplegables>/RegionPenalidades}">

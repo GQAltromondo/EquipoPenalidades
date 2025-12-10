@@ -13,6 +13,16 @@ sap.ui.define([
 
 	return BaseController.extend("Transener.Operaciones.EquiposPenalidades.controller.Equipos", {
 		formatter: formatter,
+		_isAutomSetName: function (sName) {
+			return ((sName || "").toLowerCase().indexOf("/automatismos") === 0);
+		},
+		_normalizeAutomSetName: function (sName) {
+			const base = (sName || "/AutomatismosSet").split("(")[0] || "/AutomatismosSet";
+			const withSlash = base.startsWith("/") ? base : `/${base}`;
+			if (/automatismosset$/i.test(withSlash)) { return withSlash; }
+			if (/automatismos$/i.test(withSlash)) { return `${withSlash}Set`; }
+			return withSlash;
+		},
 
 		//------------------------------ Metodos Ciclo de vida -------------------------------------
 		onInit: function () {
@@ -76,6 +86,11 @@ sap.ui.define([
 			// Asegurar que no quede nada en la URL
 			delete m.parameters.$filter; // OData V2
 			delete m.parameters.$apply;  // por si hubiera agregaciones
+
+			const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
+			if (sEmpresa) {
+				m.filters.push(new Filter("Empresa", FilterOperator.EQ, sEmpresa));
+			}
 
 			// (Opcional) forzar sólo ciertos campos o expansiones
 			// m.parameters.$select = "Empresa,Codigoequipo,Descripcion,Desde,Hasta,Nemo,IdBde,IdPagoTran";
@@ -301,6 +316,7 @@ sap.ui.define([
 
 		onEditarEquipo: async function (oEvent) {
 			var oContext = oEvent.getSource().getBindingContext(),
+			var oContext = oEvent.getSource().getBindingContext(),
 				oData = oContext.getObject(),
 				oView = this.getView();
 
@@ -351,7 +367,11 @@ sap.ui.define([
 					this._sEditingEntityPath = null;
 					this._sEditingEntitySet = null;
 					this._oAutomatismoKeyCache = null;
+					this._sEditingEntityPath = null;
+					this._sEditingEntitySet = null;
+					this._oAutomatismoKeyCache = null;
 					oEvent.getSource().destroy();
+				}.bind(this));
 				}.bind(this));
 
 				this._oDialogEdit.attachAfterOpen(function () {
@@ -369,6 +389,68 @@ sap.ui.define([
 				this._oDialogEdit.open();
 			}.bind(this));
 		},
+		_fetchEntityByPath: function (sPath, vModel) {
+			return new Promise((resolve, reject) => {
+				const oModel = typeof vModel === "string"
+					? this.getOwnerComponent().getModel(vModel)
+					: (vModel || this.getModel());
+				oModel.read(sPath, {
+					success: function (oData) {
+						resolve(oData);
+					},
+					error: function (oError) {
+						reject(oError);
+					}
+				});
+			});
+		},
+		_mapAutomatismoDataForEdit: function (oData) {
+			if (!oData) { return oData; }
+			const keyCache = this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
+			const preferVal = (...vals) => {
+				for (const v of vals) {
+					const val = (typeof v === "function") ? v() : v;
+					if (val !== undefined && val !== null && val !== "") {
+						return val;
+					}
+				}
+				return null;
+			};
+			const toDate = (val) => this._parseDateValue(val) || val;
+
+			const fechaEntrada = toDate(oData.FechaEntrada);
+			const fechaDesde = toDate(oData.FechaDesde);
+			const fechaHasta = toDate(oData.FechaHasta);
+
+			if (!oData.Fechainicioactividad) {
+				oData.Fechainicioactividad = fechaEntrada || fechaDesde || oData.Fechainicioactividad;
+			} else {
+				oData.Fechainicioactividad = toDate(oData.Fechainicioactividad);
+			}
+
+			if (!oData.Fechafinactividad) {
+				oData.Fechafinactividad = fechaHasta || oData.Fechafinactividad;
+			} else {
+				oData.Fechafinactividad = toDate(oData.Fechafinactividad);
+			}
+
+			oData.FechaDesde = fechaDesde || oData.FechaDesde;
+			oData.FechaHasta = fechaHasta || oData.FechaHasta;
+			oData.FechaEntrada = fechaEntrada || oData.FechaEntrada;
+
+			if (!oData.IdPagoTran && oData.IdPagotran) {
+				oData.IdPagoTran = oData.IdPagotran;
+			}
+			oData.IdPagotran = preferVal(oData.IdPagotran, oData.IdPagoTran, oData.ID_PAGOTRAN, keyCache.IdPagotran, keyCache.IdPagoTran);
+			oData.IdPagoTran = preferVal(oData.IdPagoTran, oData.IdPagotran, oData.ID_PAGOTRAN, keyCache.IdPagotran, keyCache.IdPagoTran);
+			oData.IdBde = preferVal(oData.IdBde, oData.ID_BDE, keyCache.IdBde);
+			oData.Empresa = preferVal(oData.Empresa, oData.EMPRESA, keyCache.Empresa, keyCache.EMPRESA, () => this.getModel("viewModel")?.getProperty("/sociedad"));
+			oData.Idauto = preferVal(oData.Idauto, oData.IdAuto, oData.IDAUTO, keyCache.Idauto, keyCache.IdAuto, keyCache.IDAUTO);
+			oData.Descripcion = oData.Descripcion || "";
+			oData.Nemo = oData.Nemo || "";
+
+			return oData;
+		},
 
 
 		onCancelarEditar: function () {
@@ -381,7 +463,17 @@ sap.ui.define([
 			const oDialogEdit = this._oDialogEdit;
 			const oData = oDialogEdit.getModel("editModel").getData();
 
+			if (!this._validateAutomatismoActivityDates(oData)) {
+				return;
+			}
 
+
+			// const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
+			// 	Empresa: oData.Empresa,
+			// 	Codigoequipo: oData.Codigoequipo,
+			// 	Desde: oData.Desde
+			// });
+			const oKeyParams = {
 			// const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
 			// 	Empresa: oData.Empresa,
 			// 	Codigoequipo: oData.Codigoequipo,
@@ -474,10 +566,18 @@ sap.ui.define([
 						oDatePicker.setValueState(sap.ui.core.ValueState.None);
 						oData.FechaMod = dSel;
 
+						const oPayloadForBackend = { ...oPayloadForUpdate };
+						delete oPayloadForBackend._isAutomatismo;
+
+						if (bIsAutomatismo) {
+							console.debug("[Automatismo] update path/payload", sPath, oPayloadForBackend);
+						}
+
 						oDialogEdit.setBusy(true);
 						this.getModel().update(sPath, oPayloadForUpdate, {
 							success: function () {
 								sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+								this._refreshTablesAfterUpdate(sEntitySetToRefresh);
 								oDialogEdit.setBusy(false);
 								oDialogEdit.close();
 								oDialog.close();
@@ -499,6 +599,38 @@ sap.ui.define([
 			});
 
 			oDialog.open();
+		},
+
+		_validateAutomatismoActivityDates: function (oData) {
+			if (!this._isAutomSetName(this._sEditingEntitySet)) {
+				return true;
+			}
+
+			const oView = this.getView();
+			const oInicioPicker = oView.byId("dpInicioActividad");
+			const oFinPicker = oView.byId("dpFinActividad");
+			const toDate = (v) => this._parseDateValue(v);
+			const oInicio = toDate(oData?.Fechainicioactividad);
+			const oFin = toDate(oData?.Fechafinactividad);
+
+			const setState = (oPicker, bHasValue, sText) => {
+				if (!oPicker) { return; }
+				const state = bHasValue ? sap.ui.core.ValueState.None : sap.ui.core.ValueState.Error;
+				oPicker.setValueState(state);
+				oPicker.setValueStateText(bHasValue ? "" : sText);
+			};
+
+			setState(oInicioPicker, !!oInicio, "Ingresá la fecha de inicio de actividad.");
+			setState(oFinPicker, !!oFin, "Ingresá la fecha de fin de actividad.");
+
+			if (!oInicio || !oFin) {
+				MessageBox.warning("Debés completar Fecha inicio de actividad y Fecha fin de actividad para guardar los cambios.");
+				return false;
+			}
+
+			oData.Fechainicioactividad = oInicio;
+			oData.Fechafinactividad = oFin;
+			return true;
 		},
 
 		onVerDetalle: function (oEvent) {
@@ -1263,5 +1395,12 @@ sap.ui.define([
 			["LineasTable", "TransformadoresTable", "ReactoresTable", "AutomatismosTable", "ConexionesTable"]
 				.forEach(id => this.byId(id)?.rebindTable());
 		},
+
+		_refreshTablesAfterUpdate: function (sEntitySet) {
+			if ((sEntitySet || "").toLowerCase().indexOf("/automatismos") === 0) {
+				this.byId("AutomatismosTable")?.rebindTable();
+			}
+		},
 	});
 });
+

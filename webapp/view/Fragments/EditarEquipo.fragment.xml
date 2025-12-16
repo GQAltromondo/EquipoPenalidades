@@ -65,7 +65,7 @@
 
 														<form:FormElement >
 															<form:fields>
-																<DatePicker id="dpInicioActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker id="dpInicioActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/FechaInicio', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_inicioAct}"/>
@@ -74,7 +74,7 @@
 
 														<form:FormElement >
 															<form:fields>
-																<DatePicker id="dpFinActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker id="dpFinActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/FechaFin', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_finAct}"/>

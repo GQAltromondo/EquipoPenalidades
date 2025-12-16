@@ -91,9 +91,11 @@
       "": {
         "type": "sap.ui.model.odata.v2.ODataModel",
         "settings": {
+           "useBatch": false,
           "defaultOperationMode": "Server",
           "defaultBindingMode": "OneWay",
-          "defaultCountMode": "Request"
+          "defaultCountMode": "Request",
+          "defaultUpdateMethod": "MERGE"
         },
         "dataSource": "Z_SCP_PENALIDADES_SRV",
         "preload": true
@@ -101,6 +103,7 @@
       "Operaciones": {
         "type": "sap.ui.model.odata.v2.ODataModel",
         "settings": {
+           "useBatch": false,
           "defaultOperationMode": "Server",
           "defaultBindingMode": "OneWay",
           "defaultCountMode": "Request"

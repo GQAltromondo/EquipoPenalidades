@@ -13,16 +13,14 @@ sap.ui.define([
 
 	return BaseController.extend("Transener.Operaciones.EquiposPenalidades.controller.Equipos", {
 		formatter: formatter,
-		_isAutomSetName: function (sName) {
-			return ((sName || "").toLowerCase().indexOf("/automatismos") === 0);
+		_isAutomSetName: function (v) {
+			// acepta "/AutomatismosSet" o "/AutomatismosSet(...)" o "AutomatismosSet"
+			var s = (v || "");
+			s = s.split("(")[0];
+			if (!s.startsWith("/")) s = "/" + s;
+			return /^\/AutomatismosSet$/i.test(s);
 		},
-		_normalizeAutomSetName: function (sName) {
-			const base = (sName || "/AutomatismosSet").split("(")[0] || "/AutomatismosSet";
-			const withSlash = base.startsWith("/") ? base : `/${base}`;
-			if (/automatismosset$/i.test(withSlash)) { return withSlash; }
-			if (/automatismos$/i.test(withSlash)) { return `${withSlash}Set`; }
-			return withSlash;
-		},
+
 
 		//------------------------------ Metodos Ciclo de vida -------------------------------------
 		onInit: function () {
@@ -36,7 +34,17 @@ sap.ui.define([
 			["LineasTable", "TransformadoresTable", "ReactoresTable", "ConexionesTable"]
 				.forEach(id => this._wireHasVencidosMonitor(id));
 			this.getVersion()
+			var oModel = this.getView().getModel();
 
+			oModel.attachRequestFailed(function (e) {
+				console.error("❌ requestFailed URL:", e.getParameter("url"));
+				console.error("❌ status:", e.getParameter("statusCode"));
+				console.error("❌ responseText:", e.getParameter("responseText"));
+			});
+
+			oModel.attachBatchRequestFailed(function (e) {
+				console.error("❌ batchRequestFailed:", e.getParameters());
+			});
 
 		}, getVersion: function () {
 			const oComponent = this.getOwnerComponent();
@@ -80,23 +88,65 @@ sap.ui.define([
 			const m = oEvent.getParameter("bindingParams");
 			m.parameters = m.parameters || {};
 
-			// Quitar cualquier filtro que venga del SmartFilterBar o p13n
-			m.filters = [];
+			delete m.parameters.$filter;
+			delete m.parameters.$apply;
 
-			// Asegurar que no quede nada en la URL
-			delete m.parameters.$filter; // OData V2
-			delete m.parameters.$apply;  // por si hubiera agregaciones
+			// Reuso de tu lógica
+			this._applyCustomFilters(oEvent, []);
 
-			const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
-			if (sEmpresa) {
-				m.filters.push(new Filter("Empresa", FilterOperator.EQ, sEmpresa));
+			// Mapear paths que difieren en Automatismos
+			const map = {
+				"IdPagoTran": "IdPagotran" // en Automatismos
+			};
+			m.filters = this._remapFilterPaths(m.filters || [], map);
+
+			// (Opcional) log para ver si realmente se están armando filtros
+			// console.log("Automatismos filters:", m.filters);
+		},
+
+		_remapFilterPaths: function (aFilters, mMap) {
+			const Filter = sap.ui.model.Filter;
+
+			function cloneWithPath(f, newPath) {
+				return new Filter(newPath, f.sOperator, f.oValue1, f.oValue2);
 			}
 
-			// (Opcional) forzar sólo ciertos campos o expansiones
-			// m.parameters.$select = "Empresa,Codigoequipo,Descripcion,Desde,Hasta,Nemo,IdBde,IdPagoTran";
-			// m.parameters.$expand = "";
-		}
-		,
+			function walk(f) {
+				if (f.aFilters && f.aFilters.length) {
+					const kids = f.aFilters.map(walk).filter(Boolean);
+					if (!kids.length) return null;
+					if (kids.length === 1) return kids[0];
+					return new Filter({ filters: kids, and: !!f.bAnd });
+				}
+
+				const p = f.sPath;
+				if (p && mMap[p]) return cloneWithPath(f, mMap[p]);
+				return f;
+			}
+
+			return aFilters.map(walk).filter(Boolean);
+		},
+
+
+		_stripFiltersByPath: function (aFilters, banSet) {
+			const Filter = sap.ui.model.Filter;
+
+			function clean(f) {
+				// grupo (AND/OR)
+				if (f.aFilters && f.aFilters.length) {
+					const kids = f.aFilters.map(clean).filter(Boolean);
+					if (!kids.length) return null;
+					if (kids.length === 1) return kids[0];
+					return new Filter({ filters: kids, and: !!f.bAnd });
+				}
+				// simple
+				const sPath = f.sPath;
+				return banSet.has(sPath) ? null : f;
+			}
+
+			return aFilters.map(clean).filter(Boolean);
+		},
+
 
 		onBeforeRebindConexiones: function (oEvent) {
 			this._applyCustomFilters(oEvent, ["P5", "P4", "P3", "P2", "P1"]);
@@ -214,7 +264,7 @@ sap.ui.define([
 					aCustomFilters.push(new Filter("IdBde", FilterOperator.EQ, idBDEVal));
 				}
 
-					const IdPagoTran = oSFB.getControlByKey?.("IdPagoTran");
+				const IdPagoTran = oSFB.getControlByKey?.("IdPagoTran");
 				const IdPagoTranVal = IdPagoTran?.getValue?.().trim();
 				if (IdPagoTranVal) {
 					aCustomFilters.push(new Filter("IdPagoTran", FilterOperator.EQ, IdPagoTranVal));
@@ -313,26 +363,71 @@ sap.ui.define([
 
 
 
-
 		onEditarEquipo: async function (oEvent) {
 			var oContext = oEvent.getSource().getBindingContext(),
-			var oContext = oEvent.getSource().getBindingContext(),
-				oData = oContext.getObject(),
 				oView = this.getView();
 
-			this._sEditingEntityPath = oContext ? oContext.getPath() : null;
-			this._sEditingEntitySet = this._sEditingEntityPath ? this._sEditingEntityPath.split("(")[0] : null;
-			this._oAutomatismoKeyCache = this._sEditingEntitySet === "/AutomatismosSet"
+			if (!oContext) {
+				sap.m.MessageToast.show("No se pudo obtener el contexto del registro.");
+				return;
+			}
+
+			// 👉 guardar contexto REAL para el update
+			this._oEditingContext = oContext;
+			this._sEditingEntityPath = oContext.getPath();
+
+			const rawSetName = this._sEditingEntityPath
+				? this._sEditingEntityPath.split("(")[0]
+				: null;
+
+			this._sEditingEntitySet = rawSetName || null;
+
+			const bIsAutomSet = this._isAutomSetName(this._sEditingEntitySet);
+			this._oAutomatismoKeyCache = bIsAutomSet
 				? this._parseAutomKeyFromPath(this._sEditingEntityPath)
 				: null;
 
-			try {
-				const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
-				ModelHelper.getModel(this.getView(), "evoModel")
-					.setProperty("/enabled", !!(Historico && Historico.length));
-			} catch (error) {
-				console.error("Error al obtener el histórico:", error);
-				ModelHelper.getModel(this.getView(), "evoModel").setProperty("/enabled", false);
+			let oData = oContext.getObject();
+
+			if (bIsAutomSet && this._sEditingEntityPath) {
+				try {
+					const oAutomKey = this._buildAutomatismoKey(
+						oContext.getObject(),
+						this._oAutomatismoKeyCache,
+						this._sEditingEntitySet
+					);
+					const sFetchPath = oAutomKey?.path || this._sEditingEntityPath;
+					oData = await this._fetchEntityByPath(sFetchPath);
+					oData = this._mapAutomatismoDataForEdit(oData);
+				} catch (e) {
+					console.error("No se pudo obtener datos actualizados del automatismo:", e);
+					oData = this._mapAutomatismoDataForEdit(oData);
+				}
+			} else if (bIsAutomSet) {
+				oData = this._mapAutomatismoDataForEdit(oData);
+			}
+
+			oData._isAutomatismo = bIsAutomSet;
+
+			// === Histórico ===
+			if (!bIsAutomSet) {
+				try {
+					const Historico = await this.onEvolucionEquipo(oData.Codigoequipo);
+					ModelHelper.getModel(oView, "evoModel")
+						.setProperty("/enabled", !!(Historico && Historico.length));
+				} catch (e) {
+					console.error("Error al obtener el histórico:", e);
+					ModelHelper.getModel(oView, "evoModel").setProperty("/enabled", false);
+				}
+			} else {
+				try {
+					const Historico = await this.onEvolucionAutomatismo(oData);
+					ModelHelper.getModel(oView, "evoModel")
+						.setProperty("/enabled", !!(Historico && Historico.length));
+				} catch (e) {
+					console.error("Error al obtener el histórico de automatismo:", e);
+					ModelHelper.getModel(oView, "evoModel").setProperty("/enabled", false);
+				}
 			}
 
 			// Flags a boolean
@@ -340,11 +435,10 @@ sap.ui.define([
 			oData.Penaliza = oData.Penaliza === "X";
 			oData.Flagperdidarem = oData.Flagperdidarem === "X";
 
-			// ---- NUEVO: normalizar Regionpenalidades a selectedKeys ----
+			// ---- Regionpenalidades a selectedKeys ----
 			const toSelectedKeys = (v) => {
 				if (Array.isArray(v)) return v.map(String).map(s => s.toUpperCase().trim()).filter(Boolean);
 				if (v == null) return [];
-				// Reemplaza separadores comunes por espacios y corta por espacios
 				return String(v)
 					.toUpperCase()
 					.replace(/[;,|]/g, " ")
@@ -352,7 +446,6 @@ sap.ui.define([
 					.map(s => s.trim())
 					.filter(Boolean);
 			};
-			// Ej: "M S" -> ["M","S"]
 			oData.RegionpenalidadesKeys = toSelectedKeys(oData.Regionpenalidades);
 
 			Fragment.load({
@@ -361,42 +454,64 @@ sap.ui.define([
 				controller: this
 			}).then(function (oPopup) {
 				this._oDialogEdit = oPopup;
-				this.getView().addDependent(oPopup);
+				oView.addDependent(oPopup);
 
-				this._oDialogEdit.attachAfterClose(function (oEvent) {
+				oPopup.attachAfterClose(function (oEv) {
+					this._oEditingContext = null;
 					this._sEditingEntityPath = null;
 					this._sEditingEntitySet = null;
 					this._oAutomatismoKeyCache = null;
-					this._sEditingEntityPath = null;
-					this._sEditingEntitySet = null;
-					this._oAutomatismoKeyCache = null;
-					oEvent.getSource().destroy();
-				}.bind(this));
+					oEv.getSource().destroy();
 				}.bind(this));
 
-				this._oDialogEdit.attachAfterOpen(function () {
-					this._oDialogEdit.setModel(new JSONModel(oData), "editModel");
+				oPopup.attachAfterOpen(function () {
+					oPopup.setModel(new sap.ui.model.json.JSONModel(oData), "editModel");
 
 					// Filtros por empresa
 					var sEmpresa = this.getModel("viewModel").getProperty("/sociedad");
-					let aFilters = [new Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa)];
-					this.getView().byId("selectPenalidades").getBinding("items").filter(aFilters);
-					this.getView().byId("selectTension").getBinding("items").filter(aFilters);
-					this.getView().byId("selectNemo").getBinding("items").filter(aFilters);
+					var aFilters = [new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa)];
 
+					this.byId("selectPenalidades").getBinding("items").filter(aFilters);
+					this.byId("selectTension").getBinding("items").filter(aFilters);
+					this.byId("selectNemo").getBinding("items").filter(aFilters);
 				}.bind(this));
 
-				this._oDialogEdit.open();
+				oPopup.open();
 			}.bind(this));
 		},
+
+
 		_fetchEntityByPath: function (sPath, vModel) {
 			return new Promise((resolve, reject) => {
 				const oModel = typeof vModel === "string"
 					? this.getOwnerComponent().getModel(vModel)
 					: (vModel || this.getModel());
+
 				oModel.read(sPath, {
-					success: function (oData) {
-						resolve(oData);
+					success: resolve,
+					error: reject
+				});
+			});
+		},
+
+		onEvolucionAutomatismo: function (oData) {
+			const oModel = this.getModel(); // ODataModel v2
+			const sPath = "/AutomatismosHistSet";
+
+			return new Promise((resolve, reject) => {
+				// 🔧 Ajustá estos filtros a las keys reales de AutomatismosHistSet
+				const aFilters = [
+					new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, oData.Empresa),
+					new sap.ui.model.Filter("Idauto", sap.ui.model.FilterOperator.EQ, oData.Idauto)
+					// Si necesitás más (p.ej. Automatismoid, Desde, etc.), agrégalos acá:
+					// new sap.ui.model.Filter("Automatismoid", sap.ui.model.FilterOperator.EQ, oData.Automatismoid)
+				];
+
+				oModel.read(sPath, {
+					filters: aFilters,
+					success: function (oResponse) {
+						const aResults = Array.isArray(oResponse.results) ? oResponse.results : [];
+						resolve(aResults);
 					},
 					error: function (oError) {
 						reject(oError);
@@ -404,6 +519,7 @@ sap.ui.define([
 				});
 			});
 		},
+
 		_mapAutomatismoDataForEdit: function (oData) {
 			if (!oData) { return oData; }
 			const keyCache = this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
@@ -416,32 +532,7 @@ sap.ui.define([
 				}
 				return null;
 			};
-			const toDate = (val) => this._parseDateValue(val) || val;
 
-			const fechaEntrada = toDate(oData.FechaEntrada);
-			const fechaDesde = toDate(oData.FechaDesde);
-			const fechaHasta = toDate(oData.FechaHasta);
-
-			if (!oData.Fechainicioactividad) {
-				oData.Fechainicioactividad = fechaEntrada || fechaDesde || oData.Fechainicioactividad;
-			} else {
-				oData.Fechainicioactividad = toDate(oData.Fechainicioactividad);
-			}
-
-			if (!oData.Fechafinactividad) {
-				oData.Fechafinactividad = fechaHasta || oData.Fechafinactividad;
-			} else {
-				oData.Fechafinactividad = toDate(oData.Fechafinactividad);
-			}
-
-			oData.FechaDesde = fechaDesde || oData.FechaDesde;
-			oData.FechaHasta = fechaHasta || oData.FechaHasta;
-			oData.FechaEntrada = fechaEntrada || oData.FechaEntrada;
-
-			if (!oData.IdPagoTran && oData.IdPagotran) {
-				oData.IdPagoTran = oData.IdPagotran;
-			}
-			oData.IdPagotran = preferVal(oData.IdPagotran, oData.IdPagoTran, oData.ID_PAGOTRAN, keyCache.IdPagotran, keyCache.IdPagoTran);
 			oData.IdPagoTran = preferVal(oData.IdPagoTran, oData.IdPagotran, oData.ID_PAGOTRAN, keyCache.IdPagotran, keyCache.IdPagoTran);
 			oData.IdBde = preferVal(oData.IdBde, oData.ID_BDE, keyCache.IdBde);
 			oData.Empresa = preferVal(oData.Empresa, oData.EMPRESA, keyCache.Empresa, keyCache.EMPRESA, () => this.getModel("viewModel")?.getProperty("/sociedad"));
@@ -456,90 +547,64 @@ sap.ui.define([
 		onCancelarEditar: function () {
 			this._oDialogEdit.close();
 		},
+		// onGuardarEquipo: function () {
+		// 	const oModel = this.getModel();
+		// 	const data = { "__metadata": { "id": "https://s4test.sap.transener.com.ar:44300/sap/opu/odata/sap/Z_SCP_PENALIDADES_SRV/AutomatismosSet(Idauto='04',Empresa='100')", "uri": "https://s4test.sap.transener.com.ar:44300/sap/opu/odata/sap/Z_SCP_PENALIDADES_SRV/AutomatismosSet(Idauto='04',Empresa='100')", "type": "Z_SCP_PENALIDADES_SRV.Automatismos" }, "Elemento": "AUT", "FechaInicio": "\/Date(1765411200000)\/", "FechaFin": "\/Date(1765497600000)\/", "IdBde": "28", "IdPagotran": "5321", "Descripcion": "DAG NOA", "Nemo": "TRANSENE", "Empresa": "100", "Idauto": "04", "Remuneracion": "", "Penaliza": "", "Flagperdidarem": "" }
+		// 	oModel.update("/AutomatismosSet(Idauto='04',Empresa='100')", data, {
 
+		// 		success: function () {
+		// 			sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
+		// 			oDialogEdit.setBusy(false);
+		// 			oDialogEdit.close();
+		// 			oDialog.close();
+		// 		}.bind(this),
+		// 		error: function () {
+		// 			sap.m.MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
+		// 			oDialogEdit.setBusy(false);
+		// 		}.bind(this)
+		// 	});
+
+
+
+
+
+		// },
 
 		onGuardarEquipo: function () {
 			const oView = this.getView();
 			const oDialogEdit = this._oDialogEdit;
 			const oData = oDialogEdit.getModel("editModel").getData();
+			const oModel = this.getModel();
 
-			if (!this._validateAutomatismoActivityDates(oData)) {
+			if (!this._validateAutomatismoActivityDates(oData)) return;
+
+			// 👉 PATH REAL, sin inventar nada
+			const sPath = this._oEditingContext && this._oEditingContext.getPath();
+			if (!sPath) {
+				sap.m.MessageBox.error("No se pudo determinar la entidad a actualizar.");
 				return;
 			}
 
+			const bIsAutomatismo = !!oData._isAutomatismo;
 
-			// const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
-			// 	Empresa: oData.Empresa,
-			// 	Codigoequipo: oData.Codigoequipo,
-			// 	Desde: oData.Desde
-			// });
-			const oKeyParams = {
-			// const sPath = this.getModel().createKey("/EquiposPenalidadesSet", {
-			// 	Empresa: oData.Empresa,
-			// 	Codigoequipo: oData.Codigoequipo,
-			// 	Desde: oData.Desde
-			// });
-			const oKeyParams = {
-				Empresa: oData.Empresa,
-				Codigoequipo: oData.Codigoequipo,
-				Desde: oData.Desde
-			};
-			const sDefaultPath = this.getModel().createKey("/EquiposPenalidadesSet", oKeyParams);
-			const sEntitySet = this._sEditingEntitySet || "";
-			let sPath = this._sEditingEntityPath || sDefaultPath;
-
-			let oPayloadForUpdate = oData;
-
-			if (sEntitySet === "/AutomatismosSet") {
-				const oParsedPathKey = this._parseAutomKeyFromPath(this._sEditingEntityPath);
-				if (oParsedPathKey && this._sEditingEntityPath) {
-					sPath = this._sEditingEntityPath;
-					const oAutomPayload = this._buildAutomatismoPayload(oData, oParsedPathKey);
-					if (!oAutomPayload) {
-						MessageBox.error("Faltan datos clave para actualizar el automatismo (Elemento, Mandt, IdBDE o IdPagotran).");
-						return;
-					}
-					oPayloadForUpdate = oAutomPayload;
-				} else {
-					const oAutomKey = this._buildAutomatismoKey(oData);
-					if (!oAutomKey) {
-						MessageBox.error("Faltan datos clave para actualizar el automatismo (Elemento, Mandt, IdBDE o IdPagotran).");
-						return;
-					}
-					sPath = oAutomKey.path;
-					const oAutomPayload = this._buildAutomatismoPayload(oData, oAutomKey);
-					if (!oAutomPayload) {
-						MessageBox.error("Faltan datos clave para actualizar el automatismo (Elemento, Mandt, IdBDE o IdPagotran).");
-						return;
-					}
-					oPayloadForUpdate = oAutomPayload;
-				}
+			// Defaults
+			if (!bIsAutomatismo && !oData.Hastacoeficiente) {
+				const d9999 = new Date(9999, 11, 31);
+				oData.Hastacoeficiente = d9999;
+				const oPicker = oView.byId("Hastacoeficiente");
+				oPicker && oPicker.setDateValue(d9999);
 			}
 
-			let oHastaCoefPicker = oView.byId("Hastacoeficiente");
-
-			if (!oData.Hastacoeficiente) {
-
-				// Fecha por defecto 31/12/9999
-				const fechaDefault = new Date(9999, 11, 31);
-
-
-				oData.Hastacoeficiente = fechaDefault;
-
-
-				if (oHastaCoefPicker) {
-					oHastaCoefPicker.setDateValue(fechaDefault);
-				}
+			if (!bIsAutomatismo) {
+				oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
 			}
 
-			// === Normalizar campos antes del guardado ===
-			oData.Regionpenalidades = (oData.RegionpenalidadesKeys || []).join(" ");
 			oData.Remuneracion = oData.Remuneracion ? "X" : "";
 			oData.Penaliza = oData.Penaliza ? "X" : "";
 			oData.Flagperdidarem = oData.Flagperdidarem ? "X" : "";
+
 			delete oData.RegionpenalidadesKeys;
 
-			// === Diálogo para pedir fecha de modificación ===
 			const oDatePicker = new sap.m.DatePicker({
 				valueFormat: "yyyy-MM-dd",
 				displayFormat: "dd.MM.yyyy",
@@ -556,28 +621,33 @@ sap.ui.define([
 					type: "Emphasized",
 					press: function () {
 						const dSel = oDatePicker.getDateValue();
-
 						if (!dSel) {
-							oDatePicker.setValueState(sap.ui.core.ValueState.Error);
+							oDatePicker.setValueState("Error");
 							oDatePicker.setValueStateText("Seleccioná una fecha.");
 							return;
 						}
 
-						oDatePicker.setValueState(sap.ui.core.ValueState.None);
-						oData.FechaMod = dSel;
-
-						const oPayloadForBackend = { ...oPayloadForUpdate };
-						delete oPayloadForBackend._isAutomatismo;
+						const oPayload = { ...oData };
+						delete oPayload._isAutomatismo;
 
 						if (bIsAutomatismo) {
-							console.debug("[Automatismo] update path/payload", sPath, oPayloadForBackend);
+							delete oPayload.FechaMod;
+							delete oPayload.Regionpenalidades;
+							delete oPayload.Hastacoeficiente;
+						} else {
+							oPayload.FechaMod = dSel;
 						}
 
 						oDialogEdit.setBusy(true);
-						this.getModel().update(sPath, oPayloadForUpdate, {
+
+						oModel.update(sPath, oPayload, {
+							merge: true,
 							success: function () {
 								sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
-								this._refreshTablesAfterUpdate(sEntitySetToRefresh);
+
+								// 👉 refresh SIN setName
+								this.getModel().refresh(true);
+
 								oDialogEdit.setBusy(false);
 								oDialogEdit.close();
 								oDialog.close();
@@ -610,9 +680,11 @@ sap.ui.define([
 			const oInicioPicker = oView.byId("dpInicioActividad");
 			const oFinPicker = oView.byId("dpFinActividad");
 			const toDate = (v) => this._parseDateValue(v);
-			const oInicio = toDate(oData?.Fechainicioactividad);
-			const oFin = toDate(oData?.Fechafinactividad);
-
+			const oInicio = toDate(oData?.FechaInicio);
+			const oFin = toDate(oData?.FechaFin);
+			oData.IdPagotran = oData.IdPagoTran
+			delete oData.IdPagoTran
+			delete oData.Hastacoeficiente
 			const setState = (oPicker, bHasValue, sText) => {
 				if (!oPicker) { return; }
 				const state = bHasValue ? sap.ui.core.ValueState.None : sap.ui.core.ValueState.Error;
@@ -628,8 +700,8 @@ sap.ui.define([
 				return false;
 			}
 
-			oData.Fechainicioactividad = oInicio;
-			oData.Fechafinactividad = oFin;
+			oData.FechaInicio = oInicio;
+			oData.FechaFin = oFin;
 			return true;
 		},
 
@@ -744,71 +816,92 @@ sap.ui.define([
 			return aFilters;
 		},
 
-		_buildAutomatismoKey: function (oData) {
-			if (!oData) { return null; }
-			const oKeyCache = this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
-			const sElemento = oData.Elemento || oData.ELEMENTO || oKeyCache.Elemento;
-			const sIdBde = oData.IdBde || oData.ID_BDE || oKeyCache.IdBde;
-			const sIdPagotran = oData.IdPagotran || oData.ID_PAGOTRAN || oData.IdPagoTran || oKeyCache.IdPagotran || oKeyCache.IdPagoTran;
-			const oFechaDesde =
-				this._parseDateValue(oData.FechaDesde) ||
-				this._parseDateValue(oData.Fechainicioactividad) ||
-				oKeyCache.FechaDesdeDate ||
-				this._parseDateValue(oKeyCache.FechaDesdeRaw);
+		_buildAutomatismoKey: function (oData, oKeyCache, sSetName) {
+			if (!oData && !oKeyCache) { return null; }
 
-			if (!sElemento || !sIdBde || !sIdPagotran || !oFechaDesde) {
-				return null;
-			}
-
-			const esc = (v) => String(v).replace(/'/g, "''");
-
-			return {
-				path: `/AutomatismosSet(Elemento='${esc(sElemento)}',IdBde='${esc(sIdBde)}',IdPagotran='${esc(sIdPagotran)}')`,
-				FechaDesde: oFechaDesde
-			};
-		},
-
-		_buildAutomatismoPayload: function (oData, oKeyInfo) {
-			if (!oData) { return null; }
-			const pick = (...paths) => {
-				for (const p of paths) {
-					let val;
-					if (typeof p === "function") {
-						val = p();
-					} else if (p && typeof p === "object") {
-						continue;
-					} else if (typeof p === "string") {
-						val = oData[p];
-					}
-					if (val != null && val !== "") {
+			const keyCache = oKeyCache || this._oAutomatismoKeyCache || this._parseAutomKeyFromPath(this._sEditingEntityPath) || {};
+			const preferVal = (...vals) => {
+				for (const v of vals) {
+					const val = (typeof v === "function") ? v() : v;
+					if (val !== undefined && val !== null && val !== "") {
 						return val;
 					}
 				}
 				return null;
 			};
+const sEntitySet = (sSetName || keyCache._setName || this._sEditingEntitySet || "/AutomatismosSet")
+  .split("(")[0];
 
-			const fromVariants = (variants, fallback) => {
-				for (const variant of variants) {
-					if (typeof variant === "function") {
-						const val = variant();
-						if (val != null && val !== "") { return val; }
-					} else {
-						const val = oData[variant];
-						if (val != null && val !== "") { return val; }
+			const sEmpresa = preferVal(oData?.Empresa, oData?.EMPRESA, keyCache.Empresa, keyCache.EMPRESA, () => this.getModel("viewModel")?.getProperty("/sociedad"));
+			const sIdauto = preferVal(oData?.Idauto, oData?.IdAuto, oData?.IDAUTO, keyCache.Idauto, keyCache.IdAuto, keyCache.IDAUTO);
+			const esc = (v) => String(v).replace(/'/g, "''");
+
+			if (sEmpresa && sIdauto) {
+				return {
+					path: `${sEntitySet}(Empresa='${esc(sEmpresa)}',Idauto='${esc(sIdauto)}')`,
+					Empresa: sEmpresa,
+					Idauto: sIdauto,
+
+
+					_setName: sEntitySet
+				};
+			}
+
+			const sElemento = preferVal(oData?.Elemento, oData?.ELEMENTO, keyCache.Elemento);
+			const sIdBde = preferVal(oData?.IdBde, oData?.ID_BDE, keyCache.IdBde);
+			const sIdPagotran = preferVal(oData?.IdPagotran, oData?.ID_PAGOTRAN, oData?.IdPagoTran, keyCache.IdPagotran, keyCache.IdPagoTran);
+			const oFechaDesde =
+				this._parseDateValue(oData?.FechaDesde) ||
+				this._parseDateValue(oData?.Fechainicioactividad) ||
+				keyCache.FechaDesdeDate ||
+				this._parseDateValue(keyCache.FechaDesdeRaw);
+
+			if (!sElemento || !sIdBde || !sIdPagotran || !oFechaDesde) {
+				return null;
+			}
+
+			return {
+				path: `${sEntitySet}(Elemento='${esc(sElemento)}',IdBde='${esc(sIdBde)}',IdPagotran='${esc(sIdPagotran)}')`,
+				Elemento: sElemento,
+				IdBde: sIdBde,
+				IdPagotran: sIdPagotran,
+				FechaDesde: oFechaDesde,
+				_setName: sEntitySet
+			};
+		},
+
+		_buildAutomatismoPayload: function (oData, oKeyInfo) {
+			if (!oData) { return null; }
+			const keyInfo = oKeyInfo || {};
+			const firstNotEmpty = (...vals) => {
+				for (const v of vals) {
+					const val = (typeof v === "function") ? v() : v;
+					if (val !== undefined && val !== null && val !== "") {
+						return val;
 					}
 				}
-				return fallback || null;
+				return null;
 			};
-
 			const getDate = (val) => this._parseDateValue(val) || null;
-			const keyInfo = oKeyInfo || {};
 
-			const sElemento = fromVariants(["Elemento", "ELEMENTO"], keyInfo.Elemento);
-			const sMandt = fromVariants(["Mandt", "MANDT"], keyInfo.Mandt);
-			const sIdBde = fromVariants(["IdBde", "ID_BDE"], keyInfo.IdBde);
-			const sIdPagotran = fromVariants(["IdPagotran", "ID_PAGOTRAN", "IdPagoTran"], keyInfo.IdPagotran || keyInfo.IdPagoTran);
+			const sEmpresa = firstNotEmpty(
+				oData.Empresa,
+				oData.EMPRESA,
+				keyInfo.Empresa,
+				keyInfo.EMPRESA,
+				() => this.getModel("viewModel")?.getProperty("/sociedad")
+			);
+			const sIdauto = firstNotEmpty(oData.Idauto, oData.IdAuto, oData.IDAUTO, keyInfo.Idauto, keyInfo.IdAuto, keyInfo.IDAUTO);
+			const sElemento = firstNotEmpty(oData.Elemento, oData.ELEMENTO, keyInfo.Elemento);
+			const sIdBde = firstNotEmpty(oData.IdBde, oData.ID_BDE, keyInfo.IdBde);
+			const sIdPagotran = firstNotEmpty(oData.IdPagotran, oData.ID_PAGOTRAN, oData.IdPagoTran, keyInfo.IdPagotran, keyInfo.IdPagoTran);
 
-			if (!sElemento || !sMandt || !sIdBde || !sIdPagotran) {
+			const hasIdauto = !!sIdauto;
+
+			if (hasIdauto && !sEmpresa) {
+				return null;
+			}
+			if (!hasIdauto && (!sElemento || !sIdBde || !sIdPagotran)) {
 				return null;
 			}
 
@@ -818,12 +911,7 @@ sap.ui.define([
 
 			const ensureFlag = (val) => (val === "X" || val === true) ? "X" : "";
 
-			const oPayload = {
-				Elemento: sElemento,
-				Mandt: sMandt,
-				IdBde: sIdBde,
-				IdPagotran: sIdPagotran
-			};
+			const oPayload = {};
 
 			const addIfValue = (key, value, transform) => {
 				const finalValue = transform ? transform(value) : value;
@@ -832,14 +920,19 @@ sap.ui.define([
 				}
 			};
 
+			addIfValue("Empresa", sEmpresa);
+			addIfValue("Idauto", sIdauto);
+			addIfValue("Elemento", sElemento);
+			addIfValue("IdBde", sIdBde);
+			addIfValue("IdPagotran", sIdPagotran);
 			addIfValue("Remuneracion", oData.Remuneracion, ensureFlag);
 			addIfValue("Penaliza", oData.Penaliza, ensureFlag);
 			addIfValue("Flagperdidarem", oData.Flagperdidarem, ensureFlag);
-			addIfValue("Descripcion", pick("Descripcion"));
-			addIfValue("Nemo", pick("Nemo"));
-			addIfValue("Resolucion", pick("Resolucion"));
-			addIfValue("Cebe", pick("Cebe"));
-			addIfValue("Ceco", pick("Ceco"));
+			addIfValue("Descripcion", firstNotEmpty(oData.Descripcion));
+			addIfValue("Nemo", firstNotEmpty(oData.Nemo));
+			addIfValue("Resolucion", firstNotEmpty(oData.Resolucion));
+			addIfValue("Cebe", firstNotEmpty(oData.Cebe));
+			addIfValue("Ceco", firstNotEmpty(oData.Ceco));
 
 			if (oFechaDesde) { addIfValue("FechaDesde", oFechaDesde); }
 			if (oFechaHasta) { addIfValue("FechaHasta", oFechaHasta); }
@@ -849,7 +942,7 @@ sap.ui.define([
 		},
 
 		_parseAutomKeyFromPath: function (sPath) {
-			if (typeof sPath !== "string" || !sPath.startsWith("/AutomatismosSet(")) {
+			if (typeof sPath !== "string") {
 				return null;
 			}
 			const innerStart = sPath.indexOf("(");
@@ -857,9 +950,15 @@ sap.ui.define([
 			if (innerStart < 0 || innerEnd <= innerStart) {
 				return null;
 			}
+			const setName = sPath.substring(0, innerStart);
+if (!/^\/?AutomatismosSet$/i.test(setName)) {
+  return null;
+}
+
+
 			const inner = sPath.substring(innerStart + 1, innerEnd);
 			const parts = inner.split(",");
-			const result = {};
+			const result = { _setName: setName };
 
 			parts.forEach(part => {
 				const idx = part.indexOf("=");
@@ -880,6 +979,8 @@ sap.ui.define([
 				} else if (value.startsWith("'") && value.endsWith("'")) {
 					const unescaped = value.slice(1, -1).replace(/''/g, "'");
 					result[key] = unescaped;
+				} else {
+					result[key] = value;
 				}
 			});
 
@@ -1396,11 +1497,7 @@ sap.ui.define([
 				.forEach(id => this.byId(id)?.rebindTable());
 		},
 
-		_refreshTablesAfterUpdate: function (sEntitySet) {
-			if ((sEntitySet || "").toLowerCase().indexOf("/automatismos") === 0) {
-				this.byId("AutomatismosTable")?.rebindTable();
-			}
-		},
+	
+
 	});
 });
-

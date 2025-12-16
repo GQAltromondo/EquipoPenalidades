@@ -84,22 +84,22 @@
                     </table:template>
                 </table:Column> -->
               
-                <table:Column width="8rem" filterProperty="FechaDesde" sortProperty="FechaDesde">
+                <table:Column width="8rem" filterProperty="FechaInicio" sortProperty="FechaInicio">
                     <Label text="{i18n>tb_desde}" wrapping="true" design="Bold"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "FechaDesde","columnIndex":"11", "isCurrency": false, "leadingProperty": "FechaDesde", "sortProperty": "FechaDesde", "filterProperty": "FechaDesde", "type": "date" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "FechaInicio","columnIndex":"11", "isCurrency": false, "leadingProperty": "FechaInicio", "sortProperty": "FechaInicio", "filterProperty": "FechaInicio", "type": "date" }'/>
                     </table:customData>
                     <table:template>
-                        <ObjectAttribute text="{path:'FechaDesde', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+                        <ObjectAttribute text="{path:'FechaInicio', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
-                <table:Column width="8rem" filterProperty="FechaHasta" sortProperty="FechaHasta">
+                <table:Column width="8rem" filterProperty="FechaFin" sortProperty="FechaFin">
                     <Label text="{i18n>tb_hasta}" wrapping="true" design="Bold"/>
                     <table:customData>
-                        <core:CustomData key="p13nData" value='\{"columnKey": "FechaHasta","columnIndex":"12", "isCurrency": false, "leadingProperty": "FechaHasta", "sortProperty": "FechaHasta", "filterProperty": "FechaHasta", "type": "date" }'/>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "FechaFin","columnIndex":"12", "isCurrency": false, "leadingProperty": "FechaFin", "sortProperty": "FechaFin", "filterProperty": "FechaFin", "type": "date" }'/>
                     </table:customData>
                     <table:template>
-                        <ObjectAttribute text="{path:'FechaHasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+                        <ObjectAttribute text="{path:'FechaFin', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
          

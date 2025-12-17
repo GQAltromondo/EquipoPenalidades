@@ -56,6 +56,38 @@ sap.ui.define([], function () {
 
             return `${day}.${month}.${year}`;
         },
+        formatDateFromYYYYMMDD2: function (value) {
+    if (!value) return value;
+
+    let d;
+
+    // Caso Date
+    if (value instanceof Date) {
+        d = value;
+    }
+    // Caso "YYYYMMDD"
+    else if (typeof value === "string" && /^\d{8}$/.test(value)) {
+        const y = value.substring(0, 4);
+        const m = value.substring(4, 6);
+        const day = value.substring(6, 8);
+        d = new Date(+y, +m - 1, +day);
+    }
+    // Caso OData "/Date(...)\/"
+    else if (typeof value === "string") {
+        const m = value.match(/\/Date\((\d+)\)\//);
+        if (m) d = new Date(+m[1]);
+        else return value;
+    } else {
+        return value;
+    }
+
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+
+    return `${dd}.${mm}.${yyyy}`;
+},
+
     formatDateDDMMYYYY: function (date) {
     if (!date) return "";
 

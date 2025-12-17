@@ -1,0 +1,82 @@
+<Dialog id="historicoAutoDialog" title="Histórico del Equipo {editModel>/Idauto} - {editModel>/Descripcion}"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <VBox>
+        <Table items="{historicoAutoModel>/}">
+            <columns>
+                <Column><Text text="Idauto"/></Column>
+                <Column><Text text="Bde"/></Column>
+                <Column><Text text="Pagotran"/></Column>
+                <Column><Text text="Descripción"/></Column>
+                <Column><Text text="Fecha Inicio"/></Column>
+                <Column><Text text="Fecha Fin"/></Column>
+                <Column><Text text="Elemento"/></Column>
+                <Column><Text text="Premia"/></Column>
+                    <Column><Text text="Penaliza"/></Column>
+                <Column><Text text=""/></Column>
+            </columns>
+
+            <items>
+                <ColumnListItem
+                    highlight="{= ${historicoAutoModel>_changed} ? 'Warning' : 'None' }">
+                    <cells>
+
+                        <ObjectStatus
+                            text="{historicoAutoModel>Idauto}"
+                            state="{path:'historicoAutoModel>_changedFields/Idauto', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/Idauto} }"/>
+
+                        <ObjectStatus
+                            text="{historicoAutoModel>IdBde}"
+                            state="{path:'historicoAutoModel>_changedFields/IdBde', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/IdBde} }"/>
+
+                        <ObjectStatus
+                            text="{historicoAutoModel>IdPagotran}"
+                            state="{path:'historicoAutoModel>_changedFields/IdPagotran', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/IdPagotran} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoAutoModel>Descripcion', formatter: '.formatter.formatDateFromYYYYMMDD2' }"
+                            state="{path:'historicoAutoModel>_changedFields/Descripcion', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/Descripcion} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoAutoModel>FechaInicio', formatter: '.formatter.formatDateFromYYYYMMDD2' }"
+                            state="{path:'historicoAutoModel>_changedFields/FechaInicio', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/FechaInicio} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoAutoModel>FechaFin', formatter: '.formatter.formatDateFromYYYYMMDD2' }"
+                            state="{path:'historicoAutoModel>_changedFields/FechaFin', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/FechaFin} }"/>
+
+                        <ObjectStatus
+                            text="{ path:'historicoAutoModel>Elemento', formatter: '.formatter.formatDateFromYYYYMMDD2' }"
+                            state="{path:'historicoAutoModel>_changedFields/Elemento', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/Elemento} }"/>
+
+                        <ObjectStatus
+                            text="{historicoAutoModel>Flagperdidarem}"
+                            state="{path:'historicoAutoModel>_changedFields/Flagperdidarem', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/Flagperdidarem} }"/>
+
+                        <ObjectStatus
+                            text="{historicoAutoModel>Penaliza}"
+                            state="{path:'historicoAutoModel>_changedFields/Penaliza', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/Penaliza} }"/>
+
+                     
+
+                        <Button icon="sap-icon://search" tooltip="Ver detalles"
+                                press=".onVerDetalleHistorico" type="Emphasized"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </VBox>
+
+    <beginButton>
+        <Button text="Cerrar" press="onCloseHistoricoDialog"/>
+    </beginButton>
+</Dialog>

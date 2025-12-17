@@ -1,6 +1,6 @@
 sap.ui.define([
 	"./BaseController",
-	"../model/formatter",
+	"Transener/Operaciones/EquiposPenalidades/model/formatter",
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/ui/model/json/JSONModel",
@@ -45,6 +45,8 @@ sap.ui.define([
 			oModel.attachBatchRequestFailed(function (e) {
 				console.error("❌ batchRequestFailed:", e.getParameters());
 			});
+
+			console.log("serviceUrl:", this.getModel().sServiceUrl);
 
 		}, getVersion: function () {
 			const oComponent = this.getOwnerComponent();
@@ -639,7 +641,7 @@ sap.ui.define([
 						}
 
 						oDialogEdit.setBusy(true);
-
+						delete oPayload.__metadata;
 						oModel.update(sPath, oPayload, {
 							merge: true,
 							success: function () {
@@ -829,8 +831,8 @@ sap.ui.define([
 				}
 				return null;
 			};
-const sEntitySet = (sSetName || keyCache._setName || this._sEditingEntitySet || "/AutomatismosSet")
-  .split("(")[0];
+			const sEntitySet = (sSetName || keyCache._setName || this._sEditingEntitySet || "/AutomatismosSet")
+				.split("(")[0];
 
 			const sEmpresa = preferVal(oData?.Empresa, oData?.EMPRESA, keyCache.Empresa, keyCache.EMPRESA, () => this.getModel("viewModel")?.getProperty("/sociedad"));
 			const sIdauto = preferVal(oData?.Idauto, oData?.IdAuto, oData?.IDAUTO, keyCache.Idauto, keyCache.IdAuto, keyCache.IDAUTO);
@@ -951,9 +953,9 @@ const sEntitySet = (sSetName || keyCache._setName || this._sEditingEntitySet || 
 				return null;
 			}
 			const setName = sPath.substring(0, innerStart);
-if (!/^\/?AutomatismosSet$/i.test(setName)) {
-  return null;
-}
+			if (!/^\/?AutomatismosSet$/i.test(setName)) {
+				return null;
+			}
 
 
 			const inner = sPath.substring(innerStart + 1, innerEnd);
@@ -1311,15 +1313,192 @@ if (!/^\/?AutomatismosSet$/i.test(setName)) {
 							if (bFromParam) {
 								resolve(arr);
 							} else {
-								if (!this._oHistoricoDialog) {
-									this._oHistoricoDialog = sap.ui.xmlfragment(
+								if (!this._oHistoricoEquipoDialog) {
+									this._oHistoricoEquipoDialog = sap.ui.xmlfragment(
+										this.getView().getId(),
 										"Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionEquipo",
 										this
 									);
-									this.getView().addDependent(this._oHistoricoDialog);
+									this.getView().addDependent(this._oHistoricoEquipoDialog);
 								}
-								this._oHistoricoDialog.open();
+
+								// asegurar modelos (por si editModel está en _oDialogEdit)
+								this._oHistoricoEquipoDialog.setModel(this._oDialogEdit.getModel("editModel"), "editModel");
+								this._oHistoricoEquipoDialog.setModel(ModelHelper.getModel(this.getView(), "historicoEquipoModel"), "historicoEquipoModel");
+
+								this._oHistoricoEquipoDialog.open();
+							}
+						} else {
+							if (bFromParam) {
+								resolve([]);
+							} else {
+								sap.m.MessageToast.show("No se encontraron datos históricos.");
 								resolve();
+							}
+						}
+					},
+					error: (oError) => {
+						console.error("Error al leer HistoricoEquipo", oError);
+						sap.m.MessageToast.show("Error al cargar histórico");
+						reject(oError);
+					}
+				});
+			});
+		},
+		onEvolucionPress: function (oEvent) {
+			const oEditModel = oEvent.getSource().getModel("editModel");
+			const bIsAutomatismo = !!(oEditModel && oEditModel.getProperty("/_isAutomatismo"));
+
+			if (bIsAutomatismo) {
+				this.onEvolucionAuto(oEvent);
+			} else {
+				this.onEvolucionEquipo(oEvent);
+			}
+		},
+
+		onEvolucionAuto: async function () {
+
+			// === Helpers locales ===
+			const parseYYYYMMDD = (s) => {
+				if (!s) return null;
+				if (s instanceof Date) return s;
+				const t = String(s).trim();
+				if (/^\d{8}$/.test(t)) { // yyyymmdd
+					const y = +t.slice(0, 4), m = +t.slice(4, 6) - 1, d = +t.slice(6, 8);
+					return new Date(y, m, d);
+				}
+				// /Date(…)/ de OData
+				const m = t.match(/\/Date\((\d+)\)\//);
+				if (m) return new Date(+m[1]);
+				const d = new Date(t);
+				return isNaN(d) ? null : d;
+			};
+
+			const toNumber = (v) => {
+				if (v == null) return 0;
+				if (typeof v === "number") return isNaN(v) ? 0 : v;
+				const s = String(v).trim();
+				if (!s) return 0;
+				// europeo "1.234,56"
+				if (s.includes(",")) {
+					const clean = s.replace(/\./g, "").replace(",", ".");
+					const n = Number(clean);
+					return isNaN(n) ? 0 : n;
+				}
+				const n = Number(s);
+				return isNaN(n) ? 0 : n;
+			};
+
+			// Normaliza por tipo de dato según campo (fecha / número / string)
+			const normByField = (field, val) => {
+				const dateFields = new Set(["FechaInicio", "FechaFin"]);
+				const numFields = new Set([]);
+				if (dateFields.has(field)) {
+					const d = parseYYYYMMDD(val);
+					return d ? d.getTime() : null;
+				}
+				if (numFields.has(field)) return toNumber(val);
+				return (val ?? "").toString().trim();
+			};
+
+			// Campos a comparar (uno por columna que quieras pintar)
+			const compareFields = [
+				"Empresa",
+				"Idauto",
+				"FechaInicio",
+				"FechaFin",
+				"Elemento",
+				"IdBde",
+				"IdPagotran",
+				"Descripcion",
+				"FechaEntrada",
+				"Nemo",
+				"Resolucion",
+				"Cebe",
+				"Ceco",
+				"Remuneracion",
+				"Penaliza",
+				"Flagperdidarem"
+			];
+
+			// === Lógica original con mejoras ===
+			let sCodigoEquipo = "";
+			const sEmpresa = this.getModel("viewModel").getProperty("/sociedad");
+			const bFromParam = typeof Codigoequipo === "string" && Codigoequipo.trim() !== "";
+
+			if (bFromParam) {
+				sCodigoEquipo = Codigoequipo;
+			} else {
+				const oEditModelData = this._oDialogEdit.getModel("editModel").getData();
+				sCodigoEquipo = oEditModelData.Idauto;
+			}
+
+			const oModel = this.getView().getModel();
+			oModel.setUseBatch(false);
+
+			const oFilter = new sap.ui.model.Filter({
+				filters: [
+					new sap.ui.model.Filter("Idauto", sap.ui.model.FilterOperator.EQ, sCodigoEquipo),
+					new sap.ui.model.Filter("Empresa", sap.ui.model.FilterOperator.EQ, sEmpresa)
+				],
+				and: true
+			});
+
+			return new Promise((resolve, reject) => {
+				oModel.read("/AutomatismosHistSet", {
+					filters: [oFilter],
+					success: (oData) => {
+						const arr = (oData.results || []).slice();
+
+						if (arr.length > 0) {
+							// 1) Ordenar DESC por DESDE (ajustá si querés otro campo)
+							arr.sort((a, b) => {
+								const da = normByField("DESDE", a.DESDE);
+								const db = normByField("DESDE", b.DESDE);
+								return (db ?? 0) - (da ?? 0);
+							});
+
+							// 2) Marcar cambios por-campo vs. el registro anterior
+							let prev = null;
+							for (const rec of arr) {
+								rec._changed = false;
+								rec._changedFields = {}; // ej: { DESDE: true, PREMIO: true }
+
+								if (prev) {
+									compareFields.forEach(f => {
+										const pv = normByField(f, prev[f]);
+										const cv = normByField(f, rec[f]);
+										if (pv !== cv) {
+											rec._changed = true;
+											rec._changedFields[f] = true;
+										}
+									});
+								}
+								prev = rec;
+							}
+
+							// 3) Setear modelo
+							ModelHelper.getModel(this.getView(), "historicoAutoModel").setData(arr);
+
+							// 4) Abrir diálogo si corresponde
+							if (bFromParam) {
+								resolve(arr);
+							} else {
+								if (!this._oHistoricoAutoDialog) {
+									this._oHistoricoAutoDialog = sap.ui.xmlfragment(
+										this.getView().getId(),
+										"Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionAuto",
+										this
+									);
+									this.getView().addDependent(this._oHistoricoAutoDialog);
+								}
+
+								// asegurar modelos
+								this._oHistoricoAutoDialog.setModel(this._oDialogEdit.getModel("editModel"), "editModel");
+								this._oHistoricoAutoDialog.setModel(ModelHelper.getModel(this.getView(), "historicoAutoModel"), "historicoAutoModel");
+
+								this._oHistoricoAutoDialog.open();
+
 							}
 						} else {
 							if (bFromParam) {
@@ -1383,11 +1562,9 @@ if (!/^\/?AutomatismosSet$/i.test(setName)) {
 		onCloseDetalleHistoricoDialog: function () {
 			this._oDetalleHistoricoDialog.close();
 		},
-		onCloseHistoricoDialog: function () {
-			this._oHistoricoDialog.close();
-
-		}
-		,
+		onCloseHistoricoDialog: function (oEvent) {
+			oEvent.getSource().getParent().close(); 
+		},
 		_wireHasVencidosMonitor: function (smartTableId) {
 			const st = this.byId(smartTableId);
 			if (!st || st._wireVencidos) return;
@@ -1496,8 +1673,43 @@ if (!/^\/?AutomatismosSet$/i.test(setName)) {
 			["LineasTable", "TransformadoresTable", "ReactoresTable", "AutomatismosTable", "ConexionesTable"]
 				.forEach(id => this.byId(id)?.rebindTable());
 		},
+		testUpdateAutomatismo: function () {
+			const oModel = this.getModel();
 
-	
+			// 🔑 Path HARD-CODED (ajustá los valores si hace falta)
+			const sPath = "/AutomatismosSet(Idauto='02',Empresa='100')";
+
+			// 📦 Payload mínimo de prueba
+			const oPayload = {
+				Empresa: "100",
+				Idauto: "02",
+				Descripcion: "TEST UPDATE UI5",
+				Nemo: "TEST",
+				Elemento: "AUT"
+				// ⚠️ no mandamos fechas, flags ni __metadata
+			};
+
+			// 🔴 IMPORTANTÍSIMO
+			delete oPayload.__metadata;
+
+			console.log("🧪 TEST UPDATE Automatismos");
+			console.log("sPath:", sPath);
+			console.log("payload:", oPayload);
+
+			oModel.update(sPath, oPayload, {
+				merge: true, // fuerza MERGE
+				success: function (oData) {
+					console.log("✅ UPDATE OK", oData);
+					sap.m.MessageBox.success("UPDATE Automatismos OK");
+				},
+				error: function (oErr) {
+					console.error("❌ UPDATE ERROR", oErr);
+					sap.m.MessageBox.error("ERROR en UPDATE Automatismos");
+				}
+			});
+		},
+
+
 
 	});
 });

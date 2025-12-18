@@ -13,7 +13,7 @@
     xmlns:semantic="sap.f.semantic">
 
 
-    <smartTable:SmartTable id="AutomatismosTable" beforeRebindTable="onBeforeRebindAutomatismos" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" useTablePersonalisation="true" entitySet="AutomatismosSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_automatismos}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Flagperdidarem" ignoreFromPersonalisation="">
+    <smartTable:SmartTable id="AutomatismosTable" beforeRebindTable="onBeforeRebindAutomatismos" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" useTablePersonalisation="true" entitySet="AutomatismosSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_automatismos}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Flagperdidarem" ignoreFromPersonalisation=""  smartFilterId="SmartFilterBar" >
        
         <table:Table class="customGridTable" rowActionCount="1" selectionMode="None" selectionBehavior="RowOnly" visibleRowCount="8" ariaLabelledBy="title" alternateRowColors="true" visibleRowCountMode="Interactive">
 

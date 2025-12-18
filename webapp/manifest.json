@@ -91,7 +91,7 @@
       "": {
         "type": "sap.ui.model.odata.v2.ODataModel",
         "settings": {
-           "useBatch": true,
+           "useBatch": false,
           "defaultOperationMode": "Server",
           "defaultBindingMode": "OneWay",
           "defaultCountMode": "Request"

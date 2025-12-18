@@ -24,7 +24,7 @@
 									</OverflowToolbar>
 								</headerToolbar>
 								<content>
-									<smartFilterBar:SmartFilterBar id="idSmartFilterBar" entitySet="EquiposPenalidadesSet" considerSelectionVariants="true" useToolbar="false" useDateRangeType="false" showClearOnFB="true" showClearButton="true" clear="onLimpiarFiltros">
+									<smartFilterBar:SmartFilterBar id="idSmartFilterBar"  search="onFilterSearch" entitySet="EquiposPenalidadesSet" considerSelectionVariants="true" useToolbar="false" useDateRangeType="false" showClearOnFB="true" showClearButton="true" clear="onLimpiarFiltros">
 
 										<smartFilterBar:controlConfiguration>
 
@@ -43,10 +43,10 @@
 												</smartFilterBar:customControl>
 											</smartFilterBar:ControlConfiguration>
 
-											<!-- 3) IdBDE (custom, lo mapearás a contains sobre IdPagoTran) -->
+											
 											<smartFilterBar:ControlConfiguration key="IdBde" index="30" label="Id BDE" groupId="_BASIC"/>
 											
-																<!-- 4) IdPagoTran (estándar) -->
+															
 											<smartFilterBar:ControlConfiguration key="IdPagoTran" index="40" label="Id Pago Tran" groupId="_BASIC"/>
 
 											<!-- 5) Tipoequipo (MultiComboBox) -->

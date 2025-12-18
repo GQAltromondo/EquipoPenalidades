@@ -76,11 +76,11 @@ sap.ui.define([
 		},
 
 		onBeforeRebindLineas: function (oEvent) {
-			this._applySharedFilters(oEvent, { tipoDefault: ["L2", "L1"] });
+			this._applySharedFilters(oEvent, { tipoDefault: ["L6", "L5", "L4", "L3", "L2", "L1"] });
 		},
 
-		onBeforeRebindReactancias: function (oEvent) {
-			this._applySharedFilters(oEvent, { tipoDefault: ["R"] });
+		onBeforeRebindReactores: function (oEvent) {
+			this._applySharedFilters(oEvent, { tipoDefault: ["RB", "KS", "KP", "RT", "RL", "CS", "RG"] });
 		},
 
 		onBeforeRebindTransformadores: function (oEvent) {
@@ -90,15 +90,14 @@ sap.ui.define([
 		onBeforeRebindConexiones: function (oEvent) {
 			this._applySharedFilters(oEvent, { tipoDefault: ["P5", "P4", "P3", "P2", "P1"] });
 		},
-		onFilterSearch: function () {
+		onFilterSearch: function () { // evento "search" del SmartFilterBar (botón Ir)
 			const oST = this.byId("AutomatismosTable");
 			if (oST) oST.rebindTable(true);
 		},
 
 		onBeforeRebindAutomatismos: function (oEvent) {
-			const oSFB = this.byId("idSmartFilterBar");
-			const aKeys = oSFB.getAllFilterItems().map(i => i.getName());
-			console.log("SFB keys:", aKeys);
+			const m = oEvent.getParameter("bindingParams");
+			console.log("Filtros que llegan del SmartFilterBar:", m.filters);
 
 			console.log("🔥 beforeRebind Automatismos", oEvent.getSource().getId());
 			this._applySharedFilters(oEvent, {
@@ -168,227 +167,7 @@ sap.ui.define([
 			return `${y}${m}${day}`; // ajustá formato si tu backend espera otro
 		},
 
-		// _applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
-		// 	const oBindingParams = oEvent.getParameter("bindingParams");
-		// 	const aSmartFilters = oBindingParams.filters || [];
-		// 	const Filter = sap.ui.model.Filter;
-		// 	const FilterOperator = sap.ui.model.FilterOperator;
-
-		// 	const allowedTipoEq = Array.isArray(aDefaultTipoEquipo) ? new Set(aDefaultTipoEquipo) : new Set();
-		// 	const NO_MATCH_VALUE = "XX"; // cambiá a "" si preferís
-
-		// 	// ===== helpers =====
-		// 	function fixFilterFecha(oFilter) {
-		// 		try {
-		// 			const p = oFilter.sPath || "";
-		// 			if (p.includes("Desde") || p.includes("Hasta")) {
-		// 				if (oFilter.sOperator === "LE") {
-		// 					oFilter.oValue1.setMinutes(oFilter.oValue1.getMinutes() - oFilter.oValue1.getTimezoneOffset());
-		// 				} else {
-		// 					oFilter.oValue1?.setMinutes(oFilter.oValue1.getMinutes() + oFilter.oValue1.getTimezoneOffset());
-		// 					oFilter.oValue2?.setMinutes(oFilter.oValue2.getMinutes() - oFilter.oValue2.getTimezoneOffset());
-		// 				}
-		// 			}
-		// 		} catch (e) { }
-		// 	}
-
-		// 	function walkFixDates(aFilters) {
-		// 		for (const f of aFilters) {
-		// 			if (f.aFilters && f.aFilters.length) walkFixDates(f.aFilters);
-		// 			else fixFilterFecha(f);
-		// 		}
-		// 	}
-
-		// 	function serializeFilter(f) {
-		// 		if (f.aFilters && f.aFilters.length) {
-		// 			const children = f.aFilters.map(serializeFilter).sort();
-		// 			return JSON.stringify({ group: true, and: !!f.bAnd, children });
-		// 		}
-		// 		return JSON.stringify({
-		// 			path: f.sPath || null,
-		// 			op: f.sOperator || null,
-		// 			v1: f.oValue1 instanceof Date ? f.oValue1.toISOString() : f.oValue1,
-		// 			v2: f.oValue2 instanceof Date ? f.oValue2.toISOString() : f.oValue2
-		// 		});
-		// 	}
-
-		// 	function pushIfNotDuplicate(arr, f) {
-		// 		const sig = serializeFilter(f);
-		// 		if (!arr._sigs) arr._sigs = new Set(arr.map(serializeFilter));
-		// 		if (!arr._sigs.has(sig)) { arr.push(f); arr._sigs.add(sig); }
-		// 	}
-
-		// 	// Quitar SIEMPRE cualquier filtro de Tipoequipo; luego lo REEMPLAZAMOS por uno solo
-		// 	function stripTipoEq(f) {
-		// 		if (f.aFilters && f.aFilters.length) {
-		// 			const kids = f.aFilters.map(stripTipoEq).filter(Boolean);
-		// 			if (!kids.length) return null;
-		// 			if (kids.length === 1) return kids[0];
-		// 			return new Filter({ filters: kids, and: !!f.bAnd });
-		// 		} else {
-		// 			return (f.sPath === "Tipoequipo") ? null : f;
-		// 		}
-		// 	}
-
-		// 	// Recolectar Tipoequipo desde la lista de filtros (SFB ya procesada)
-		// 	function collectRequestedTipoEqFromFilters(f, bucket) {
-		// 		if (f.aFilters && f.aFilters.length) {
-		// 			f.aFilters.forEach(c => collectRequestedTipoEqFromFilters(c, bucket));
-		// 		} else if (f.sPath === "Tipoequipo" && f.oValue1 != null) {
-		// 			bucket.push(f.oValue1);
-		// 		}
-		// 	}
-
-
-		// 	function collectRequestedTipoEqFromSFBControl(oSFB, bucket) {
-		// 		if (!oSFB) return;
-		// 		const ctl = oSFB.getControlByKey?.("Tipoequipo");
-		// 		if (!ctl) return;
-
-		// 		if (typeof ctl.getSelectedKeys === "function") {
-		// 			const keys = ctl.getSelectedKeys() || [];
-		// 			keys.forEach(k => { if (k) bucket.push(k); });
-		// 		}
-		// 	}
-
-		// 	function buildTipoEqOr(values) {
-		// 		return new Filter({
-		// 			filters: values.map(v => new Filter("Tipoequipo", FilterOperator.EQ, v)),
-		// 			and: false
-		// 		});
-		// 	}
-
-		// 	// ===== 1) Fix fechas SFB =====
-		// 	walkFixDates(aSmartFilters);
-
-		// 	// ===== 2) Custom filters existentes =====
-		// 	const aCustomFilters = this._getFilters?.() || [];
-
-		// 	// ===== 3) Filtros desde SFB (IdBDE, Elemento) =====
-		// 	const oSFB = this.byId("idSmartFilterBar");
-		// 	if (oSFB) {
-		// 		const oIdBDE = oSFB.getControlByKey?.("IdBde");
-		// 		const idBDEVal = oIdBDE?.getValue?.().trim();
-		// 		if (idBDEVal) {
-		// 			aCustomFilters.push(new Filter("IdBde", FilterOperator.EQ, idBDEVal));
-		// 		}
-
-		// 		const IdPagoTran = oSFB.getControlByKey?.("IdPagoTran");
-		// 		const IdPagoTranVal = IdPagoTran?.getValue?.().trim();
-		// 		if (IdPagoTranVal) {
-		// 			aCustomFilters.push(new Filter("IdPagoTran", FilterOperator.EQ, IdPagoTranVal));
-		// 		}
-
-		// 		const oUbicacion = oSFB.getControlByKey?.("Estacion");
-		// 		const ubicacionEVal = oUbicacion?.getValue?.().trim();
-		// 		if (ubicacionEVal) {
-		// 			aCustomFilters.push(new Filter("Ubicacion", FilterOperator.EQ, ubicacionEVal));
-		// 		}
-
-		// 		const oElem = oSFB.getControlByKey?.("Elemento");
-		// 		const selectedKeys = oElem?.getSelectedKeys?.() || [];
-		// 		if (selectedKeys.length) {
-		// 			aCustomFilters.push(new Filter(
-		// 				selectedKeys.map(k => new Filter("Elemento", FilterOperator.EQ, k)),
-		// 				false
-		// 			));
-		// 		}
-		// 		const oNemo = oSFB.getControlByKey?.("Nemo");
-		// 		const aNemoKeys = oNemo?.getSelectedKeys?.() || [];
-		// 		if (aNemoKeys.length) {
-		// 			aCustomFilters.push(new Filter(
-		// 				aNemoKeys.map(k => new Filter("Nemo", FilterOperator.EQ, k)),
-		// 				false
-		// 			));
-		// 		}
-		// 	}
-
-		// 	// ===== 4) Detectar intento de Tipoequipo robusto (filtros + control SFB) =====
-		// 	const requestedTipoEq = [];
-		// 	aSmartFilters.forEach(f => collectRequestedTipoEqFromFilters(f, requestedTipoEq));
-		// 	collectRequestedTipoEqFromSFBControl(oSFB, requestedTipoEq);
-
-		// 	// normalizar (quitar duplicados)
-		// 	const requestedSet = new Set(requestedTipoEq.filter(Boolean));
-		// 	const attemptedByUser = requestedSet.size > 0;
-
-		// 	// Intersección con el grupo de ESTA tabla
-		// 	const allowedIntersection = [...requestedSet].filter(v => allowedTipoEq.has(v));
-
-		// 	// ===== 5) Ensamblar final SIN Tipoequipo (luego lo reemplazamos) =====
-		// 	const aFinalFilters = [];
-		// 	for (const f of aSmartFilters) {
-		// 		const s = stripTipoEq(f);
-		// 		if (s) pushIfNotDuplicate(aFinalFilters, s);
-		// 	}
-		// 	for (const f of aCustomFilters) {
-		// 		const s = stripTipoEq(f);
-		// 		if (s) pushIfNotDuplicate(aFinalFilters, s);
-		// 	}
-
-		// 	// ===== 6) Reemplazo de Tipoequipo por tabla =====
-		// 	if (attemptedByUser) {
-		// 		if (allowedIntersection.length > 0) {
-		// 			// Esta tabla reconoce el/los valores pedidos
-		// 			pushIfNotDuplicate(aFinalFilters, buildTipoEqOr(allowedIntersection));
-		// 		} else {
-		// 			// Esta tabla NO los reconoce → forzar 0 resultados con "XX"
-		// 			pushIfNotDuplicate(aFinalFilters, new Filter("Tipoequipo", FilterOperator.EQ, NO_MATCH_VALUE));
-		// 		}
-		// 	} else {
-		// 		// Usuario NO filtró → aplicar default del grupo de la tabla
-		// 		if (allowedTipoEq.size) {
-		// 			pushIfNotDuplicate(aFinalFilters, buildTipoEqOr([...allowedTipoEq]));
-		// 		}
-		// 	}
-
-		// 	// ===== 7) Filtro Empresa =====
-		// 	const sEmpresa = this.getView().getModel("viewModel")?.getProperty("/sociedad");
-		// 	const alreadyHasEmpresa = aFinalFilters.some(f =>
-		// 		(f.sPath === "Empresa") || (f.aFilters && f.aFilters.some(sub => sub.sPath === "Empresa"))
-		// 	);
-		// 	if (sEmpresa && !alreadyHasEmpresa) {
-		// 		pushIfNotDuplicate(aFinalFilters, new Filter("Empresa", FilterOperator.EQ, sEmpresa));
-		// 	}
-
-		// 	// ===== 8) Vencidos =====
-		// 	const vm = this.getModel("viewModel");
-		// 	if (vm?.getProperty("/showCoefVencidosOnly")) {
-		// 		const vencidosFilter = new Filter({
-		// 			filters: [
-		// 				new Filter("Hastacoeficiente", FilterOperator.LT, new Date()), // menor a hoy
-		// 				new Filter("Coefreduc", FilterOperator.GT, "0.0000")           // mayor a 0.0000
-		// 			],
-		// 			and: true // usa AND para que cumpla ambas condiciones
-		// 		});
-		// 		pushIfNotDuplicate(aFinalFilters, vencidosFilter);
-		// 	}
-
-
-
-		// 	oBindingParams.filters = aFinalFilters;
-		// },
-		_applySharedFilters: function (oEvent, opts) {
-			const m = oEvent.getParameter("bindingParams");
-			m.parameters = m.parameters || {};
-
-			delete m.parameters.$filter;
-			delete m.parameters.$apply;
-
-			// 👉 TU lógica actual (NO se toca)
-			this._applyCustomFilters(oEvent, opts?.tipoDefault || []);
-
-			// 👉 eliminar filtros que no aplican a la entidad
-			if (opts?.banPaths && opts.banPaths.size) {
-				m.filters = this._stripFiltersByPath(m.filters || [], opts.banPaths);
-			}
-
-			// 👉 remapeos por entidad
-			if (opts?.mapPaths) {
-				m.filters = this._remapFilterPaths(m.filters || [], opts.mapPaths);
-			}
-		},
-_applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
+		_applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
 			const oBindingParams = oEvent.getParameter("bindingParams") || {};
 			let aSmartFilters = oBindingParams.filters || [];
 
@@ -427,6 +206,7 @@ _applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
 				addEQorOR("IdPagotran", readValues(byKey("IdPagoTran")));
 				addEQorOR("Nemo", readValues(byKey("Nemo")));
 			}
+
 
 			const allowedTipoEq = Array.isArray(aDefaultTipoEquipo) ? new Set(aDefaultTipoEquipo) : new Set();
 			const NO_MATCH_VALUE = "XX"; // cambiá a "" si preferís
@@ -622,6 +402,27 @@ _applyCustomFilters: function (oEvent, aDefaultTipoEquipo) {
 
 			oBindingParams.filters = aFinalFilters;
 		},
+		_applySharedFilters: function (oEvent, opts) {
+			const m = oEvent.getParameter("bindingParams");
+			m.parameters = m.parameters || {};
+
+			delete m.parameters.$filter;
+			delete m.parameters.$apply;
+
+			// 👉 TU lógica actual (NO se toca)
+			this._applyCustomFilters(oEvent, opts?.tipoDefault || []);
+
+			// 👉 eliminar filtros que no aplican a la entidad
+			if (opts?.banPaths && opts.banPaths.size) {
+				m.filters = this._stripFiltersByPath(m.filters || [], opts.banPaths);
+			}
+
+			// 👉 remapeos por entidad
+			if (opts?.mapPaths) {
+				m.filters = this._remapFilterPaths(m.filters || [], opts.mapPaths);
+			}
+		},
+
 
 
 		onEditarEquipo: async function (oEvent) {

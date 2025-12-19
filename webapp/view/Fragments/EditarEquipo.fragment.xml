@@ -197,9 +197,10 @@
 														</form:FormElement>
 														<form:FormElement>
 															<form:fields>
-																<ComboBox items="{Desplegables>/Elementos}" selectedKey="{editModel>/Elemento}">
+																<Select items="{Desplegables>/Elementos}" selectedKey="{editModel>/Elemento}">
 																	<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
-																</ComboBox>
+																</Select>
+																
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_elemento}"/>

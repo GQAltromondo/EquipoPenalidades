@@ -13,7 +13,7 @@
     xmlns:semantic="sap.f.semantic">
 
 
-    <smartTable:SmartTable id="AutomatismosTable" beforeRebindTable="onBeforeRebindAutomatismos" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" useTablePersonalisation="true" entitySet="AutomatismosSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_automatismos}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Flagperdidarem" ignoreFromPersonalisation=""  smartFilterId="SmartFilterBar" >
+    <smartTable:SmartTable id="AutomatismosTable" beforeRebindTable="onBeforeRebindAutomatismos" busyIndicatorDelay="0" persistencyKey="SmartTableAnalytical_Explored" useTablePersonalisation="true" entitySet="AutomatismosSet" direction="Column" showRowCount="true" tableType="ResponsiveTable" header="{i18n>tb_automatismos}" enableAutoBinding="true" showFullScreenButton="false" useVariantManagement="true" showVariantManagement="true" beforeExport="onBeforeExport" requestAtLeastFields="Flagperdidarem,FechaMod" ignoreFromPersonalisation=""  smartFilterId="SmartFilterBar" >
        
         <table:Table class="customGridTable" rowActionCount="1" selectionMode="None" selectionBehavior="RowOnly" visibleRowCount="8" ariaLabelledBy="title" alternateRowColors="true" visibleRowCountMode="Interactive">
 
@@ -46,7 +46,7 @@
                     </table:template>
                 </table:Column>
                 <table:Column width="7rem" filterProperty="Elemento" sortProperty="Elemento">
-                    <Label text="{i18n>tb_equipo}" wrapping="true" design="Bold"/>
+                    <Label text="{i18n>tb_elemento}" wrapping="true" design="Bold"/>
                     <table:customData>
                         <core:CustomData key="p13nData" value='\{"columnKey": "Elemento","columnIndex":"4", "isCurrency": false, "leadingProperty": "Elemento", "sortProperty": "Elemento", "filterProperty": "Elemento", "type": "string" }'/>
                     </table:customData>

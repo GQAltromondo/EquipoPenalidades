@@ -13,6 +13,7 @@
                 <Column><Text text="Elemento"/></Column>
                 <Column><Text text="Premia"/></Column>
                     <Column><Text text="Penaliza"/></Column>
+                    <Column><Text text="Remunera"/></Column>
                 <Column><Text text=""/></Column>
             </columns>
 
@@ -65,11 +66,16 @@
                             text="{historicoAutoModel>Penaliza}"
                             state="{path:'historicoAutoModel>_changedFields/Penaliza', formatter: '.formatter.stateForChanged'}"
                             inverted="{= ${historicoAutoModel>_changedFields/Penaliza} }"/>
+                         
+                             <ObjectStatus
+                            text="{historicoAutoModel>Remuneracion}"
+                            state="{path:'historicoAutoModel>_changedFields/Remuneracion', formatter: '.formatter.stateForChanged'}"
+                            inverted="{= ${historicoAutoModel>_changedFields/Remuneracion} }"/>
 
                      
 
                         <Button icon="sap-icon://search" tooltip="Ver detalles"
-                                press=".onVerDetalleHistorico" type="Emphasized"/>
+                                press=".onVerDetalleHistoricoAuto" type="Emphasized"/>
                     </cells>
                 </ColumnListItem>
             </items>

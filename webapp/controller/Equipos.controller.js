@@ -205,6 +205,8 @@ sap.ui.define([
 				addEQorOR("IdBde", readValues(byKey("IdBde")));
 				addEQorOR("IdPagotran", readValues(byKey("IdPagoTran")));
 				addEQorOR("Nemo", readValues(byKey("Nemo")));
+				addEQorOR("FechaInicio", readValues(byKey("FechaDesde")));
+				addEQorOR("FechaFin", readValues(byKey("FechaHasta")));
 			}
 
 
@@ -693,7 +695,7 @@ sap.ui.define([
 						delete oPayload._isAutomatismo;
 
 						if (bIsAutomatismo) {
-							delete oPayload.FechaMod;
+						oPayload.FechaMod = dSel;
 							delete oPayload.Regionpenalidades;
 							delete oPayload.Hastacoeficiente;
 						} else {
@@ -1614,13 +1616,49 @@ sap.ui.define([
 			}
 		},
 
+		onVerDetalleHistoricoAuto: function (oEvent) {
 
+			const oItem = oEvent.getSource().getParent();
+			const oContext = oItem.getBindingContext("historicoAutoModel");
+
+			const oData = oContext.getObject();
+			oData.Remuneracion = oData.Remuneracion === "X";
+			oData.Penaliza = oData.Penaliza === "X";
+			oData.Flagperdidarem = oData.Flagperdidarem === "X";
+
+			const oDetailModel = ModelHelper.getModel(this.getView(), "detalleHistoricoAutoModel")
+			oDetailModel.setData(oData)
+
+
+			if (!this._oDetalleHistoricoAutoDialog) {
+				sap.ui.core.Fragment.load({
+					name: "Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionDetalleAuto",
+					id: this.getView().getId(),
+					controller: this
+				}).then((oDialog) => {
+					this._oDetalleHistoricoAutoDialog = oDialog;
+					this.getView().addDependent(oDialog);
+
+
+					oDialog.setModel(oDetailModel, "detalleHistoricoAutoModel");
+
+					oDialog.open();
+				});
+			} else {
+
+				this._oDetalleHistoricoAutoDialog.setModel(oDetailModel, "detalleHistoricoAutoModel");
+				this._oDetalleHistoricoAutoDialog.open();
+			}
+		},
 
 		onOcultarDetalle: function () {
 			this.getView().getModel("viewModel").setProperty("/sizeDetail", "0%");
 		},
 		onCloseDetalleHistoricoDialog: function () {
 			this._oDetalleHistoricoDialog.close();
+		},
+		onCloseDetalleHistoricoAutoDialog: function () {
+			this._oDetalleHistoricoAutoDialog.close();
 		},
 		onCloseHistoricoDialog: function (oEvent) {
 			oEvent.getSource().getParent().close();

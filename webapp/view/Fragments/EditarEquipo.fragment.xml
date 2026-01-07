@@ -38,7 +38,7 @@
 							<VBox class="sapUiMediumMarginEnd" justifyContent="End">
 
 								<Button visible="{evoModel>/enabled}" text="{= ${evoModel>/enabled} ? 'Evolución del Equipo' : 'No posee historial' }" type="Emphasized" press="onEvolucionPress" />
-								
+
 								<ObjectAttribute visible="{evoModel>/enabled}" class="sapUiTinyMarginBottom" title="{i18n>ed_ult_modif}" text="{path: 'editModel>/FechaMod', formatter: '.formatter.formatDateDDMMYYYY'}" />
 							</VBox>
 						</HBox>
@@ -64,18 +64,36 @@
 															</form:label>
 														</form:FormElement>
 
-														<form:FormElement >
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
+
 															<form:fields>
-																<DatePicker id="dpInicioActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/FechaInicio', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker id="dpInicioActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/Fechainicioactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_inicioAct}"/>
 															</form:label>
 														</form:FormElement>
-
-														<form:FormElement >
+														<form:FormElement visible="{= !!${editModel>/_isAutomatismo} }">
 															<form:fields>
-																<DatePicker id="dpFinActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/FechaFin', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+																<DatePicker id="dpInicio" value="{path:'editModel>/FechaInicio', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_inicioAct}"/>
+															</form:label>
+														</form:FormElement>
+														<form:FormElement visible="{= !${editModel>/_isAutomatismo} }">
+
+															<form:fields>
+																<DatePicker id="dpFinActividad" required="{= !!${editModel>/_isAutomatismo} }" value="{path:'editModel>/Fechafinactividad', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+															</form:fields>
+															<form:label>
+																<Label text="{i18n>ed_finAct}"/>
+															</form:label>
+														</form:FormElement>
+														<form:FormElement visible="{= !!${editModel>/_isAutomatismo} }">
+
+															<form:fields>
+																<DatePicker id="dpFin" value="{path:'editModel>/FechaFin', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_finAct}"/>
@@ -89,7 +107,7 @@
 																<Label text="{i18n>ed_idBde}"/>
 															</form:label>
 														</form:FormElement>
-															<form:FormElement >
+														<form:FormElement >
 															<form:fields>
 																<Input type="Number" value="{editModel>/IdPagoTran}"/>
 															</form:fields>
@@ -97,7 +115,7 @@
 																<Label text="{i18n>ed_idPagotran}"/>
 															</form:label>
 														</form:FormElement>
-														
+
 
 														<form:FormElement visible="{path: 'editModel>/PtoCon', formatter: '.formatter.isTransformador'}">
 															<form:fields>
@@ -200,7 +218,7 @@
 																<Select items="{Desplegables>/Elementos}" selectedKey="{editModel>/Elemento}">
 																	<core:Item key="{Desplegables>Clave}" text="{Desplegables>Descripcion}" />
 																</Select>
-																
+
 															</form:fields>
 															<form:label>
 																<Label text="{i18n>ed_elemento}"/>

@@ -133,6 +133,15 @@
                         <ObjectAttribute text="{path:'Hasta', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
                     </table:template>
                 </table:Column>
+                     <table:Column width="8rem" filterProperty="Fechafinactividad2" sortProperty="Fechafinactividad">
+                    <Label text="{i18n>tb_finAct}" wrapping="true" design="Bold"/>
+                    <table:customData>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Fechafinactividad","columnIndex":"15", "isCurrency": false, "leadingProperty": "Fechafinactividad", "sortProperty": "Fechafinactividad", "filterProperty": "Fechafinactividad", "type": "date" }'/>
+                    </table:customData>
+                    <table:template>
+                        <ObjectAttribute text="{Fechafinactividad}"/>
+                    </table:template>
+                </table:Column>
               <table:Column width="8rem" filterProperty="Fechafinactividad" sortProperty="Fechafinactividad">
                     <Label text="{i18n>tb_finAct}" wrapping="true" design="Bold"/>
                     <table:customData>
@@ -241,6 +250,16 @@
                     </table:customData>
                     <table:template>
                            <ObjectAttribute text="{path:'Hastacoeficiente', type: 'sap.ui.model.type.Date', formatOptions: {pattern: 'dd.MM.yyyy', UTC: true}}"/>
+                    </table:template>
+                </table:Column>
+              
+                      <table:Column width="8.5rem" filterProperty="Hastacoeficiente2" sortProperty="Hastacoeficiente2" hAlign="Center">
+                    <Label text="{i18n>tb_SupHasta}" wrapping="true" design="Bold" textAlign="Center"/>
+                    <table:customData>
+                        <core:CustomData key="p13nData" value='\{"columnKey": "Hastacoeficiente","columnIndex":"23", "isCurrency": false, "leadingProperty": "Hastacoeficiente", "sortProperty": "Hastacoeficiente", "filterProperty": "Hastacoeficiente", "type": "date" }'/>
+                    </table:customData>
+                    <table:template>
+                           <ObjectAttribute text="{Hastacoeficiente}"/>
                     </table:template>
                 </table:Column>
             </table:columns>

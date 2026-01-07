@@ -387,12 +387,19 @@ sap.ui.define([
 				pushIfNotDuplicate(aFinalFilters, new Filter("Empresa", FilterOperator.EQ, sEmpresa));
 			}
 
+			const now = new Date();
+			const todayUtc0 = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+			new Filter("Hastacoeficiente", FilterOperator.LT, todayUtc0)
+
+
+
+
 			// ===== 8) Vencidos =====
 			const vm = this.getModel("viewModel");
 			if (vm?.getProperty("/showCoefVencidosOnly")) {
 				const vencidosFilter = new Filter({
 					filters: [
-						new Filter("Hastacoeficiente", FilterOperator.LT, new Date()), // menor a hoy
+						new Filter("Hastacoeficiente", FilterOperator.LT, todayUtc0),
 						new Filter("Coefreduc", FilterOperator.GT, "0.0000")           // mayor a 0.0000
 					],
 					and: true // usa AND para que cumpla ambas condiciones
@@ -611,28 +618,7 @@ sap.ui.define([
 		onCancelarEditar: function () {
 			this._oDialogEdit.close();
 		},
-		// onGuardarEquipo: function () {
-		// 	const oModel = this.getModel();
-		// 	const data = { "__metadata": { "id": "https://s4test.sap.transener.com.ar:44300/sap/opu/odata/sap/Z_SCP_PENALIDADES_SRV/AutomatismosSet(Idauto='04',Empresa='100')", "uri": "https://s4test.sap.transener.com.ar:44300/sap/opu/odata/sap/Z_SCP_PENALIDADES_SRV/AutomatismosSet(Idauto='04',Empresa='100')", "type": "Z_SCP_PENALIDADES_SRV.Automatismos" }, "Elemento": "AUT", "FechaInicio": "\/Date(1765411200000)\/", "FechaFin": "\/Date(1765497600000)\/", "IdBde": "28", "IdPagotran": "5321", "Descripcion": "DAG NOA", "Nemo": "TRANSENE", "Empresa": "100", "Idauto": "04", "Remuneracion": "", "Penaliza": "", "Flagperdidarem": "" }
-		// 	oModel.update("/AutomatismosSet(Idauto='04',Empresa='100')", data, {
 
-		// 		success: function () {
-		// 			sap.m.MessageBox.success(this.getResourceBundle().getText("ed_msg_exito"));
-		// 			oDialogEdit.setBusy(false);
-		// 			oDialogEdit.close();
-		// 			oDialog.close();
-		// 		}.bind(this),
-		// 		error: function () {
-		// 			sap.m.MessageBox.error(this.getResourceBundle().getText("ed_msg_error"));
-		// 			oDialogEdit.setBusy(false);
-		// 		}.bind(this)
-		// 	});
-
-
-
-
-
-		// },
 
 		onGuardarEquipo: function () {
 			const oView = this.getView();
@@ -642,7 +628,7 @@ sap.ui.define([
 
 			if (!this._validateAutomatismoActivityDates(oData)) return;
 
-			// 👉 PATH REAL, sin inventar nada
+
 			const sPath = this._oEditingContext && this._oEditingContext.getPath();
 			if (!sPath) {
 				sap.m.MessageBox.error("No se pudo determinar la entidad a actualizar.");
@@ -651,12 +637,13 @@ sap.ui.define([
 
 			const bIsAutomatismo = !!oData._isAutomatismo;
 
-			// Defaults
+
 			if (!bIsAutomatismo && !oData.Hastacoeficiente) {
-				const d9999 = new Date(9999, 11, 31);
+				const d9999 = new Date(Date.UTC(9999, 11, 31));
 				oData.Hastacoeficiente = d9999;
 				const oPicker = oView.byId("Hastacoeficiente");
 				oPicker && oPicker.setDateValue(d9999);
+
 			}
 
 			if (!bIsAutomatismo) {
@@ -675,6 +662,11 @@ sap.ui.define([
 				placeholder: "dd.mm.aaaa"
 			});
 			oDatePicker.setDateValue(new Date());
+
+
+			if (!bIsAutomatismo && oData.Hastacoeficiente instanceof Date) {
+				oData.Hastacoeficiente = this._toUtcDateOnly(oData.Hastacoeficiente);
+			}
 
 			const oDialog = new sap.m.Dialog({
 				title: "Ingrese fecha de modificación",
@@ -695,7 +687,7 @@ sap.ui.define([
 						delete oPayload._isAutomatismo;
 
 						if (bIsAutomatismo) {
-						oPayload.FechaMod = dSel;
+							oPayload.FechaMod = dSel;
 							delete oPayload.Regionpenalidades;
 							delete oPayload.Hastacoeficiente;
 						} else {
@@ -1694,25 +1686,29 @@ sap.ui.define([
 
 		_updateHasVencidosFromBinding: function (oBinding, tableId) {
 			const vm = this.getModel("viewModel");
-			// const ctxs = oBinding.getAllCurrentContexts()
-			//const ctxs = oBinding.getContexts(0) || [];
-
-			// o si querés asegurarte con length:
 			const iLength = oBinding.getLength();
 			const ctxs = oBinding.getContexts(0, iLength) || [];
+
+			// ✅ normalizar Hastacoeficiente a UTC date-only para que la tabla muestre bien
+			for (let i = 0; i < ctxs.length; i++) {
+				const ctx = ctxs[i];
+				const obj = ctx.getObject();
+				if (obj && obj.Hastacoeficiente instanceof Date) {
+					ctx.getModel().setProperty(ctx.getPath() + "/Hastacoeficiente", this._toUtcDateOnly(obj.Hastacoeficiente));
+				}
+			}
+
 			let has = false;
 			for (let i = 0; i < ctxs.length; i++) {
 				const row = ctxs[i].getObject() || {};
 				if (this._isExpired(row.Hastacoeficiente, row.Coefreduc)) { has = true; break; }
 			}
 
-			// guardo por tabla y recalculo el global
 			vm.setProperty("/_hasVencidosMap/" + tableId, has);
-
 			const ids = ["LineasTable", "TransformadoresTable", "ReactoresTable", "AutomatismosTable", "ConexionesTable"];
-			const any = ids.some(id => vm.getProperty("/_hasVencidosMap/" + id) === true);
-			vm.setProperty("/hasVencidos", any);
+			vm.setProperty("/hasVencidos", ids.some(id => vm.getProperty("/_hasVencidosMap/" + id) === true));
 		},
+
 
 		_isExpired: function (v, coef) {
 			const coefNum = Number(coef);
@@ -1741,8 +1737,14 @@ sap.ui.define([
 			d.setHours(0, 0, 0, 0);
 			today.setHours(0, 0, 0, 0);
 
-			const isExpired = d.getTime() <= today.getTime();
-			return isExpired && (coefNum > 0); // ambas condiciones
+			const dateOnlyUtcMs = (dt) => Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+
+			const dUtc = dateOnlyUtcMs(d);
+			const tUtc = dateOnlyUtcMs(new Date());
+
+			const isExpired = dUtc <= tUtc;
+			return isExpired && (coefNum > 0);
+
 		},
 
 		onToggleCoefVencidos: function () {
@@ -1806,7 +1808,10 @@ sap.ui.define([
 				}
 			});
 		},
-
+		_toUtcDateOnly: function (d) {
+			if (!(d instanceof Date) || isNaN(d.getTime())) return d;
+			return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+		},
 
 
 	});

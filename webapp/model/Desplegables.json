@@ -105,6 +105,11 @@
 		},
 		{
 			"Empresa": "100",
+			"Clave": "SSA",
+			"Descripcion": "SSA"
+		},
+		{
+			"Empresa": "100",
 			"Clave": "LIN",
 			"Descripcion": "LIN"
 		},

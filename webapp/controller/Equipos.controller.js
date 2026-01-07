@@ -665,7 +665,7 @@ sap.ui.define([
 
 
 			if (!bIsAutomatismo && oData.Hastacoeficiente instanceof Date) {
-				oData.Hastacoeficiente = this._toUtcDateOnly(oData.Hastacoeficiente);
+				oData.Hastacoeficiente = oData.Hastacoeficiente;
 			}
 
 			const oDialog = new sap.m.Dialog({
@@ -1689,15 +1689,6 @@ sap.ui.define([
 			const iLength = oBinding.getLength();
 			const ctxs = oBinding.getContexts(0, iLength) || [];
 
-			// ✅ normalizar Hastacoeficiente a UTC date-only para que la tabla muestre bien
-			for (let i = 0; i < ctxs.length; i++) {
-				const ctx = ctxs[i];
-				const obj = ctx.getObject();
-				if (obj && obj.Hastacoeficiente instanceof Date) {
-					ctx.getModel().setProperty(ctx.getPath() + "/Hastacoeficiente", this._toUtcDateOnly(obj.Hastacoeficiente));
-				}
-			}
-
 			let has = false;
 			for (let i = 0; i < ctxs.length; i++) {
 				const row = ctxs[i].getObject() || {};
@@ -1712,12 +1703,11 @@ sap.ui.define([
 
 		_isExpired: function (v, coef) {
 			const coefNum = Number(coef);
-			if (!Number.isFinite(coefNum)) return false; // coef inválido => no vencido
+			if (!Number.isFinite(coefNum)) return false;
 
 			const toDate = (val) => {
 				if (val == null) return null;
-				if (val instanceof Date) return val;
-
+				if (val instanceof Date) return new Date(val.getTime()); // 👈 CLONE
 				if (typeof val === "string") {
 					const s = val.trim();
 					const mOData = s.match(/\/Date\((\d+)\)\//);
@@ -1731,22 +1721,15 @@ sap.ui.define([
 			};
 
 			const d = toDate(v);
-			if (!d || isNaN(d.getTime())) return false; // sin fecha válida => no vencido
+			if (!d || isNaN(d.getTime())) return false;
 
-			const today = new Date();
-			d.setHours(0, 0, 0, 0);
-			today.setHours(0, 0, 0, 0);
+			// compará “date-only” en UTC sin tocar horas del objeto original
+			const dUtc = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+			const now = new Date();
+			const tUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
 
-			const dateOnlyUtcMs = (dt) => Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
-
-			const dUtc = dateOnlyUtcMs(d);
-			const tUtc = dateOnlyUtcMs(new Date());
-
-			const isExpired = dUtc <= tUtc;
-			return isExpired && (coefNum > 0);
-
+			return (dUtc <= tUtc) && (coefNum > 0);
 		},
-
 		onToggleCoefVencidos: function () {
 			const vm = this.getModel("viewModel");
 			const cur = !!vm.getProperty("/showCoefVencidosOnly");
@@ -1808,10 +1791,7 @@ sap.ui.define([
 				}
 			});
 		},
-		_toUtcDateOnly: function (d) {
-			if (!(d instanceof Date) || isNaN(d.getTime())) return d;
-			return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-		},
+
 
 
 	});

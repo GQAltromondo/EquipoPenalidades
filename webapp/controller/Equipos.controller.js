@@ -74,35 +74,46 @@ sap.ui.define([
 		onAfterRendering: function () {
 			this._loadSociety();
 		},
-
 		onBeforeRebindLineas: function (oEvent) {
-			this._applySharedFilters(oEvent, { tipoDefault: ["L6", "L5", "L4", "L3", "L2", "L1"] });
+			this._applySharedFilters(oEvent, {
+				tipoDefault: ["L6", "L5", "L4", "L3", "L2", "L1"],
+				banPaths: new Set(["FechaInicio", "FechaFin"]),
+				mapPaths: { "FechaInicio": "Desde", "FechaFin": "Hasta" }
+			});
 		},
 
 		onBeforeRebindReactores: function (oEvent) {
-			this._applySharedFilters(oEvent, { tipoDefault: ["RB", "KS", "KP", "RT", "RL", "CS", "RG"] });
+			this._applySharedFilters(oEvent, {
+				tipoDefault: ["RB", "KS", "KP", "RT", "RL", "CS", "RG"],
+				banPaths: new Set(["FechaInicio", "FechaFin"]),
+				mapPaths: { "FechaInicio": "Desde", "FechaFin": "Hasta" }
+			});
 		},
 
 		onBeforeRebindTransformadores: function (oEvent) {
-			this._applySharedFilters(oEvent, { tipoDefault: ["TR", "AU"] });
+			this._applySharedFilters(oEvent, {
+				tipoDefault: ["TR", "AU"],
+				banPaths: new Set(["FechaInicio", "FechaFin"]),
+				mapPaths: { "FechaInicio": "Desde", "FechaFin": "Hasta" }
+			});
 		},
 
 		onBeforeRebindConexiones: function (oEvent) {
-			this._applySharedFilters(oEvent, { tipoDefault: ["P5", "P4", "P3", "P2", "P1"] });
+			this._applySharedFilters(oEvent, {
+				tipoDefault: ["P5", "P4", "P3", "P2", "P1"],
+				banPaths: new Set(["FechaInicio", "FechaFin"]),
+				mapPaths: { "FechaInicio": "Desde", "FechaFin": "Hasta" }
+			});
 		},
+
 		onFilterSearch: function () { // evento "search" del SmartFilterBar (botón Ir)
 			const oST = this.byId("AutomatismosTable");
 			if (oST) oST.rebindTable(true);
 		},
 
 		onBeforeRebindAutomatismos: function (oEvent) {
-			const m = oEvent.getParameter("bindingParams");
-			console.log("Filtros que llegan del SmartFilterBar:", m.filters);
-
-			console.log("🔥 beforeRebind Automatismos", oEvent.getSource().getId());
 			this._applySharedFilters(oEvent, {
 				tipoDefault: [],
-				// si Automatismos no tiene algunos campos, evitás dumps por "invalid property"
 				banPaths: new Set([
 					"Tipoequipo",
 					"Regionpenalidades",
@@ -111,9 +122,16 @@ sap.ui.define([
 					"Desde",
 					"Hasta"
 				]),
-				mapPaths: { "IdPagoTran": "IdPagotran" }
+				mapPaths: {
+					"IdPagoTran": "IdPagotran",
+					"Desde": "FechaInicio",
+					"Hasta": "FechaFin"
+				},
+				normalizeEqPaths: new Set(["IdPagotran", "IdPagoTran", "IdBde", "IdBDE"])
 			});
 		},
+
+
 
 		_remapFilterPaths: function (aFilters, mMap) {
 			const Filter = sap.ui.model.Filter;
@@ -418,19 +436,88 @@ sap.ui.define([
 			delete m.parameters.$filter;
 			delete m.parameters.$apply;
 
-			// 👉 TU lógica actual (NO se toca)
 			this._applyCustomFilters(oEvent, opts?.tipoDefault || []);
 
-			// 👉 eliminar filtros que no aplican a la entidad
 			if (opts?.banPaths && opts.banPaths.size) {
 				m.filters = this._stripFiltersByPath(m.filters || [], opts.banPaths);
 			}
 
-			// 👉 remapeos por entidad
 			if (opts?.mapPaths) {
 				m.filters = this._remapFilterPaths(m.filters || [], opts.mapPaths);
 			}
+
+			if (opts?.stripLeadingEqPaths && opts.stripLeadingEqPaths.size) {
+				m.filters = this._stripLeadingEqInFilters(m.filters || [], opts.stripLeadingEqPaths);
+			}
 		},
+
+		_stripFiltersByPath: function (aFilters, banPaths) {
+			const out = [];
+
+			(aFilters || []).forEach(f => {
+				if (!f) return;
+
+				if (f.aFilters && Array.isArray(f.aFilters)) {
+					const inner = this._stripFiltersByPath(f.aFilters, banPaths);
+					if (inner.length) {
+						f.aFilters = inner;
+						out.push(f);
+					}
+					return;
+				}
+
+				const p = f.sPath;
+				if (p && banPaths.has(p)) return;
+
+				out.push(f);
+			});
+
+			return out;
+		},
+
+		_remapFilterPaths: function (aFilters, mapPaths) {
+			(aFilters || []).forEach(f => {
+				if (!f) return;
+
+				if (f.aFilters && Array.isArray(f.aFilters)) {
+					this._remapFilterPaths(f.aFilters, mapPaths);
+					return;
+				}
+
+				const p = f.sPath;
+				if (p && mapPaths[p]) {
+					f.sPath = mapPaths[p];
+				}
+			});
+
+			return aFilters || [];
+		},
+
+		_stripLeadingEqInFilters: function (aFilters, pathsSet) {
+			(aFilters || []).forEach(f => {
+				if (!f) return;
+
+				if (f.aFilters && Array.isArray(f.aFilters)) {
+					this._stripLeadingEqInFilters(f.aFilters, pathsSet);
+					return;
+				}
+
+				const p = f.sPath;
+				if (!p || !pathsSet.has(p)) return;
+
+				if (typeof f.oValue1 === "string") {
+					const v = f.oValue1.trim();
+					if (v.startsWith("=")) f.oValue1 = v.slice(1).trim();
+				}
+				if (typeof f.oValue2 === "string") {
+					const v2 = f.oValue2.trim();
+					if (v2.startsWith("=")) f.oValue2 = v2.slice(1).trim();
+				}
+			});
+
+			return aFilters || [];
+		},
+
 
 
 
@@ -1792,6 +1879,31 @@ sap.ui.define([
 			});
 		},
 
+		_normalizeEqPrefixFilters: function (aFilters, setPaths) {
+			const isLeaf = (f) => f && typeof f === "object" && f.sPath && f.sOperator;
+
+			const norm = (v) => {
+				if (v == null) return v;
+				if (v instanceof Date) return v;
+				return String(v).trim().replace(/^=\s*/, "");
+			};
+
+			const walk = (arr) => (arr || []).map(f => {
+				if (!f) return f;
+
+				if (Array.isArray(f.aFilters) && f.aFilters.length) {
+					const inner = walk(f.aFilters);
+					return new sap.ui.model.Filter({ filters: inner, and: f.bAnd });
+				}
+
+				if (!isLeaf(f)) return f;
+				if (!setPaths.has(f.sPath)) return f;
+
+				return new sap.ui.model.Filter(f.sPath, f.sOperator, norm(f.oValue1), norm(f.oValue2));
+			}).filter(Boolean);
+
+			return walk(aFilters);
+		},
 
 
 	});

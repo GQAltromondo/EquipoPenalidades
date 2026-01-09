@@ -127,7 +127,8 @@ sap.ui.define([
 					"Desde": "FechaInicio",
 					"Hasta": "FechaFin"
 				},
-				normalizeEqPaths: new Set(["IdPagotran", "IdPagoTran", "IdBde", "IdBDE"])
+				normalizeEqPaths: new Set(["IdPagotran", "IdPagoTran", "IdBde", "IdBDE"]),
+
 			});
 		},
 
@@ -315,6 +316,26 @@ sap.ui.define([
 			// ===== 1) Fix fechas SFB =====
 			walkFixDates(aSmartFilters);
 
+			aSmartFilters.forEach(f => {
+				if (f.aFilters && f.aFilters.length) {
+					f.aFilters.forEach(sf => {
+						if (sf.sPath === "FechaInicio") {
+							sf.sOperator = sap.ui.model.FilterOperator.GE;
+						}
+						if (sf.sPath === "FechaFin") {
+							sf.sOperator = sap.ui.model.FilterOperator.LE; // dejá LE para Hasta
+						}
+					});
+				} else {
+					if (f.sPath === "FechaInicio") {
+						f.sOperator = sap.ui.model.FilterOperator.GE;
+					}
+					if (f.sPath === "FechaFin") {
+						f.sOperator = sap.ui.model.FilterOperator.LE;
+					}
+				}
+			});
+
 			// ===== 2) Custom filters existentes =====
 			const aCustomFilters = this._getFilters?.() || [];
 
@@ -446,8 +467,8 @@ sap.ui.define([
 				m.filters = this._remapFilterPaths(m.filters || [], opts.mapPaths);
 			}
 
-			if (opts?.stripLeadingEqPaths && opts.stripLeadingEqPaths.size) {
-				m.filters = this._stripLeadingEqInFilters(m.filters || [], opts.stripLeadingEqPaths);
+			if (opts?.normalizeEqPaths && opts.normalizeEqPaths.size) {
+				m.filters = this.normalizeEqPaths(m.filters || [], opts.normalizeEqPaths);
 			}
 		},
 
@@ -493,12 +514,12 @@ sap.ui.define([
 			return aFilters || [];
 		},
 
-		_stripLeadingEqInFilters: function (aFilters, pathsSet) {
+		normalizeEqPaths: function (aFilters, pathsSet) {
 			(aFilters || []).forEach(f => {
 				if (!f) return;
 
 				if (f.aFilters && Array.isArray(f.aFilters)) {
-					this._stripLeadingEqInFilters(f.aFilters, pathsSet);
+					this.normalizeEqPaths(f.aFilters, pathsSet);
 					return;
 				}
 
@@ -1271,65 +1292,7 @@ sap.ui.define([
 			this._loadNemos()
 
 		},
-		// onEvolucionEquipo: async function (Codigoequipo) {
-		// 	let sCodigoEquipo = "";
-		// 	var sEmpresa = this.getModel("viewModel").getProperty("/sociedad")
-		// 	const bFromParam = typeof Codigoequipo === "string" && Codigoequipo.trim() !== "";
 
-		// 	if (bFromParam) {
-		// 		sCodigoEquipo = Codigoequipo;
-		// 	} else {
-		// 		const oEditModelData = this._oDialogEdit.getModel("editModel").getData();
-		// 		sCodigoEquipo = oEditModelData.Codigoequipo;
-		// 	}
-
-
-		// 	const oModel = this.getView().getModel();
-		// 	oModel.setUseBatch(false);
-
-		// 	const oFilter = new sap.ui.model.Filter({
-		// 		filters: [
-		// 			new sap.ui.model.Filter("CODIGOEQUIPO", sap.ui.model.FilterOperator.EQ, sCodigoEquipo),
-		// 			new sap.ui.model.Filter("EMPRESA", sap.ui.model.FilterOperator.EQ, sEmpresa)
-		// 		],
-		// 		and: true
-		// 	});
-
-
-		// 	return new Promise((resolve, reject) => {
-		// 		oModel.read("/HistoricoEquipoSet", {
-		// 			filters: [oFilter],
-		// 			success: (oData) => {
-		// 				if (oData.results && oData.results.length > 0) {
-		// 					ModelHelper.getModel(this.getView(), "historicoEquipoModel").setData(oData.results);
-
-		// 					if (bFromParam) {
-		// 						resolve(oData.results);
-		// 					} else {
-		// 						if (!this._oHistoricoDialog) {
-		// 							this._oHistoricoDialog = sap.ui.xmlfragment("Transener.Operaciones.EquiposPenalidades.view.Fragments.EvolucionEquipo", this);
-		// 							this.getView().addDependent(this._oHistoricoDialog);
-		// 						}
-		// 						this._oHistoricoDialog.open();
-		// 						resolve();
-		// 					}
-		// 				} else {
-		// 					if (bFromParam) {
-		// 						resolve([]);
-		// 					} else {
-		// 						sap.m.MessageToast.show("No se encontraron datos históricos.");
-		// 						resolve();
-		// 					}
-		// 				}
-		// 			},
-		// 			error: (oError) => {
-		// 				console.error("Error al leer HistoricoEquipo", oError);
-		// 				sap.m.MessageToast.show("Error al cargar histórico");
-		// 				reject(oError);
-		// 			}
-		// 		});
-		// 	});
-		// }
 		onEvolucionEquipo: async function (Codigoequipo) {
 			// === Helpers locales ===
 			const parseYYYYMMDD = (s) => {
@@ -1842,41 +1805,6 @@ sap.ui.define([
 			vm.setProperty("/showCoefVencidosOnly", false);
 			["LineasTable", "TransformadoresTable", "ReactoresTable", "AutomatismosTable", "ConexionesTable"]
 				.forEach(id => this.byId(id)?.rebindTable());
-		},
-		testUpdateAutomatismo: function () {
-			const oModel = this.getModel();
-
-			// 🔑 Path HARD-CODED (ajustá los valores si hace falta)
-			const sPath = "/AutomatismosSet(Idauto='02',Empresa='100')";
-
-			// 📦 Payload mínimo de prueba
-			const oPayload = {
-				Empresa: "100",
-				Idauto: "02",
-				Descripcion: "TEST UPDATE UI5",
-				Nemo: "TEST",
-				Elemento: "AUT"
-				// ⚠️ no mandamos fechas, flags ni __metadata
-			};
-
-			// 🔴 IMPORTANTÍSIMO
-			delete oPayload.__metadata;
-
-			console.log("🧪 TEST UPDATE Automatismos");
-			console.log("sPath:", sPath);
-			console.log("payload:", oPayload);
-
-			oModel.update(sPath, oPayload, {
-				merge: true, // fuerza MERGE
-				success: function (oData) {
-					console.log("✅ UPDATE OK", oData);
-					sap.m.MessageBox.success("UPDATE Automatismos OK");
-				},
-				error: function (oErr) {
-					console.error("❌ UPDATE ERROR", oErr);
-					sap.m.MessageBox.error("ERROR en UPDATE Automatismos");
-				}
-			});
 		},
 
 		_normalizeEqPrefixFilters: function (aFilters, setPaths) {

@@ -381,7 +381,7 @@ sap.ui.define([
 				const oCodigoEquipo = oSFB.getControlByKey?.("Codigoequipo");
 				const codigoEquipoVal = oCodigoEquipo?.getValue?.().trim();
 				if (codigoEquipoVal) {
-					aCustomFilters.push(new Filter("Codigoequipo", FilterOperator.Contains, codigoEquipoVal));
+					aCustomFilters.push(new Filter("Codigoequipo", FilterOperator.EQ, "*" + codigoEquipoVal + "*"));
 				}
 			}
 

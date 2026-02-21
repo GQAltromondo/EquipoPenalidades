@@ -120,7 +120,8 @@ sap.ui.define([
 					"Hastacoeficiente",
 					"Coefreduc",
 					"Desde",
-					"Hasta"
+					"Hasta",
+					"Codigoequipo"
 				]),
 				mapPaths: {
 					"IdPagoTran": "IdPagotran",
@@ -375,6 +376,12 @@ sap.ui.define([
 						aNemoKeys.map(k => new Filter("Nemo", FilterOperator.EQ, k)),
 						false
 					));
+				}
+
+				const oCodigoEquipo = oSFB.getControlByKey?.("Codigoequipo");
+				const codigoEquipoVal = oCodigoEquipo?.getValue?.().trim();
+				if (codigoEquipoVal) {
+					aCustomFilters.push(new Filter("Codigoequipo", FilterOperator.Contains, codigoEquipoVal));
 				}
 			}
 
@@ -903,7 +910,7 @@ sap.ui.define([
 			const oView = this.getView()
 
 
-			oSFB.getControlByKey("CodigoEquipo")?.setSelectedKeys([]);
+			oSFB.getControlByKey("Codigoequipo")?.setValue("");
 			oSFB.getControlByKey("Tipoequipo")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Regionpenalidades")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Elemento")?.setSelectedKeys([]);

@@ -108,7 +108,11 @@
 											</smartFilterBar:ControlConfiguration>
 
 											<!-- 11) Equipo (Codigoequipo) -->
-											<smartFilterBar:ControlConfiguration key="Codigoequipo" index="110" label="{i18n>fb_cod_eq}" groupId="_BASIC"/>
+											<smartFilterBar:ControlConfiguration key="Codigoequipo" index="110" label="{i18n>fb_cod_eq}" groupId="_BASIC">
+												<smartFilterBar:customControl>
+													<Input placeholder="Buscar Equipo..."/>
+												</smartFilterBar:customControl>
+											</smartFilterBar:ControlConfiguration>
 
 											<!-- 12) Elemento (MultiComboBox: CON, LIN, TRA, REAC) -->
 											<smartFilterBar:ControlConfiguration key="Elemento" index="120" label="Elemento" groupId="_BASIC" filterType="multiple" hasTypeAhead="false" controlType="dropDownList" visible="true">

@@ -383,6 +383,12 @@ sap.ui.define([
 				if (codigoEquipoVal) {
 					aCustomFilters.push(new Filter("Codigoequipo", FilterOperator.Contains, codigoEquipoVal));
 				}
+
+				const oDescripcion = oSFB.getControlByKey?.("Descripcion");
+				const descripcionVal = oDescripcion?.getValue?.().trim();
+				if (descripcionVal) {
+					aCustomFilters.push(new Filter("Descripcion", FilterOperator.Contains, descripcionVal));
+				}
 			}
 
 			// ===== 4) Detectar intento de Tipoequipo robusto (filtros + control SFB) =====
@@ -911,6 +917,7 @@ sap.ui.define([
 
 
 			oSFB.getControlByKey("Codigoequipo")?.setValue("");
+			oSFB.getControlByKey("Descripcion")?.setValue("");
 			oSFB.getControlByKey("Tipoequipo")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Regionpenalidades")?.setSelectedKeys([]);
 			oSFB.getControlByKey("Elemento")?.setSelectedKeys([]);

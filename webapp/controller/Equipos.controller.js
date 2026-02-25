@@ -379,13 +379,13 @@ sap.ui.define([
 				}
 
 				const oCodigoEquipo = oSFB.getControlByKey?.("Codigoequipo");
-				const codigoEquipoVal = oCodigoEquipo?.getValue?.().trim();
+				const codigoEquipoVal = (oCodigoEquipo?.getValue?.().trim() || "").toUpperCase();
 				if (codigoEquipoVal) {
 					aCustomFilters.push(new Filter("Codigoequipo", FilterOperator.Contains, codigoEquipoVal));
 				}
 
 				const oDescripcion = oSFB.getControlByKey?.("Descripcion");
-				const descripcionVal = oDescripcion?.getValue?.().trim();
+				const descripcionVal = (oDescripcion?.getValue?.().trim() || "").toUpperCase();
 				if (descripcionVal) {
 					aCustomFilters.push(new Filter("Descripcion", FilterOperator.Contains, descripcionVal));
 				}
